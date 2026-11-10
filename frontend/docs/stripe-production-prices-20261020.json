@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "recordedDate": "2026-10-20",
+  "environment": "production",
+  "source": "Identifiants transmis par Guy et captures du tableau de bord Stripe de production",
+  "verification": "Vérification API réussie le 20 octobre 2026 dans un build Vercel isolé : compte attendu actif, quatre prix et produits live conformes, requêtes GET uniquement.",
+  "paymentsEnabledByThisFile": false,
+  "prices": {
+    "pro": {
+      "id": "price_1USeYn6m8GCMolJNXnxiymPF",
+      "currency": "eur",
+      "amountCents": 2800,
+      "interval": "month",
+      "defaultPriceObserved": true
+    },
+    "additionalAccount": {
+      "id": "price_1USeYn6m8GCMolJNMJZbvs0I",
+      "currency": "eur",
+      "amountCents": 2000,
+      "interval": "month",
+      "metadataObserved": {
+        "carnetpass_additional_accounts": "v1"
+      },
+      "shibaQuestionsPerMonth": 150,
+      "documentConsultationsPerDay": 15
+    },
+    "recharge100": {
+      "id": "price_1USetc6m8GCMolJNEhGUWZSY",
+      "currency": "eur",
+      "amountCents": 1000,
+      "interval": null,
+      "credits": 100
+    },
+    "recharge200": {
+      "id": "price_1USetp6m8GCMolJNywgq8Mdf",
+      "currency": "eur",
+      "amountCents": 2000,
+      "interval": null,
+      "credits": 200
+    }
+  },
+  "remaining": [
+    "Vérifier le doublon du tarif à 28 euros avant éventuel archivage",
+    "Préparer le parcours de paiement réel derrière une activation explicite, distincte du test",
+    "Configurer le webhook live signé, la synchronisation durable des paiements et des droits, et le portail client",
+    "Vérifier fiscalité, factures, quotas, impayés, résiliation et reprise des événements",
+    "Ne pas ouvrir les ventes ni désactiver la maintenance sur la seule base de ces identifiants"
+  ],
+  "apiAudit": {
+    "date": "2026-10-20",
+    "ok": true,
+    "deployment": "https://carnetpass-mf29thesl-chaudiere-web3.vercel.app",
+    "paymentsEnabled": false,
+    "writePermissionsVerified": false
+  }
+}
