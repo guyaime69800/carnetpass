@@ -24,6 +24,7 @@
         "CARNETPASS_RUNTIME": "cloudflare",
         "CARNETPASS_ENV": "preview",
         "CARNETPASS_RELEASE_BRANCH": "migration/cloudflare-20261115",
+        "CARNETPASS_PUBLIC_ORIGIN": "https://carnetpass-migration-test.carnetpass.workers.dev",
         "CARNETPASS_SCHEDULED_ENABLED": "false",
         "CARNETPASS_SCHEDULER_OWNER": "none"
       },
