@@ -1,3 +1,4 @@
+import { deploymentEnvironment } from '../../shared/runtime-environment.js';
 import { createHash } from "node:crypto";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { r2Configuration, r2Client, r2DocumentKey } from "./r2-document-storage.js";
@@ -33,7 +34,7 @@ export async function readVerifiedR2Pdf(client, bucket, key, entry) {
 
 // Uses a mapping produced only after verification; native records never fall back to Blob.
 export async function loadR2Pdf(db, entry, env = process.env, deps = {}) {
-  if (env.VERCEL_ENV !== "production") return { ok: false, reason: "storage" };
+  if (deploymentEnvironment(env) !== "production") return { ok: false, reason: "storage" };
   const native = isR2NativeDocument(entry);
   if (native && (!nativePattern.test(entry.blob_pathname)
     || entry.blob_pathname.match(nativePattern)[1] !== entry.sha256)) return { ok: false, reason: "mismatch" };

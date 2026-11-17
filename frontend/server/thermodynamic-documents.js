@@ -1,3 +1,4 @@
+import { deploymentEnvironment, deploymentBranch } from '../shared/runtime-environment.js';
 import { createClient } from "@supabase/supabase-js";
 import { del, get, put } from "@vercel/blob";
 import { createHash, randomUUID } from "node:crypto";
@@ -7,8 +8,8 @@ import { buildThermodynamicPdf } from "./lib/thermodynamic-document-pdf.js";
 import { THERMODYNAMIC_KINDS, normalizeThermodynamicData, normalizeDrawnSignature, validateIssue } from "./lib/thermodynamic-document-schema.js";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const enabled = () => process.env.VERCEL_ENV === "preview"
-  && process.env.VERCEL_GIT_COMMIT_REF === "feature/documentation-multi-docs"
+const enabled = () => deploymentEnvironment(process.env) === "preview"
+  && deploymentBranch(process.env) === "feature/documentation-multi-docs"
   && process.env.VITE_SUPABASE_URL === "https://bqqzzbwqmiyxcotvqtoc.supabase.co";
 const fail = (res, status, error) => res.status(status).json({ ok: false, error });
 const validId = (value) => typeof value === "string" && UUID.test(value);

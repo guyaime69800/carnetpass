@@ -1,7 +1,8 @@
+import { deploymentEnvironment } from '../../shared/runtime-environment.js';
 import { Redis } from '@upstash/redis';
 import { checkEquipmentRegistryV2 } from './equipment-registry-v2.js';
 
-const key = () => `carnetpass:openai-health:${process.env.VERCEL_ENV || 'local'}`;
+const key = () => `carnetpass:openai-health:${deploymentEnvironment(process.env) || 'local'}`;
 function store() {
   return new Redis({ url: process.env.UPSTASH_REDIS_REST_KV_REST_API_URL,
     token: process.env.UPSTASH_REDIS_REST_KV_REST_API_TOKEN });

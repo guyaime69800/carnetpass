@@ -1,10 +1,11 @@
-export const r2ReadEnabled = (env = process.env) => env.VERCEL_ENV === "production"
+import { deploymentEnvironment } from '../../shared/runtime-environment.js';
+export const r2ReadEnabled = (env = process.env) => deploymentEnvironment(env) === "production"
   && env.CARNETPASS_R2_READ_ENABLED === "true";
 
 // Use only after the route has authorised the account and exact document.
 // A missing mapping/configuration or unavailable R2 leaves the existing Blob path in use.
 export async function tryR2Delivery(db, entry, env = process.env, dependencies = {}) {
-  if (!r2ReadEnabled(env) && !(env.VERCEL_ENV === "production" && entry.blob_pathname?.startsWith("r2://"))) return null;
+  if (!r2ReadEnabled(env) && !(deploymentEnvironment(env) === "production" && entry.blob_pathname?.startsWith("r2://"))) return null;
   let client;
   try {
     const { data, error } = await db.from("platform_document_r2_copies")

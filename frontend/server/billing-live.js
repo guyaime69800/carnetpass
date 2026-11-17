@@ -1,3 +1,4 @@
+import { deploymentEnvironment, deploymentBranch } from '../shared/runtime-environment.js';
 import { createClient } from '@supabase/supabase-js';
 import { accountMfaAccessError } from './lib/mfa-access.js';
 import { readDevisBody, rateRequest } from './lib/devis-security.js';
@@ -15,7 +16,7 @@ function checkoutUrl(session, customer) {
   return url.href;
 }
 export function liveCheckoutEnabled(env = process.env) {
-  return env.VERCEL_ENV === 'production' && env.VERCEL_GIT_COMMIT_REF === 'main'
+  return deploymentEnvironment(env) === 'production' && deploymentBranch(env) === 'main'
     && env.VITE_SUPABASE_URL === 'https://tsyukqcyfxcrjrhopvpv.supabase.co'
     && env.CARNETPASS_LIVE_BILLING_ENABLED === 'true'
     && env.CARNETPASS_STRIPE_LIVE_PROCESSING_ENABLED === 'true'

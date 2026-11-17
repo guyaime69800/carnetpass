@@ -1,0 +1,46 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "carnetpass-migration-test",
+  "main": "cloudflare/worker.js",
+  "compatibility_date": "2026-11-15",
+  "compatibility_flags": ["nodejs_compat", "enable_nodejs_http_server_modules"],
+  "workers_dev": true,
+  "preview_urls": false,
+  "assets": { "directory": "dist", "binding": "ASSETS", "run_worker_first": true },
+  "alias": { "#plate-image": "./server/cloudflare/plate-image.js", "#equipment-registry": "./server/cloudflare/equipment-registry.js" },
+  "vars": {
+    "CARNETPASS_RUNTIME": "cloudflare",
+    "CARNETPASS_ENV": "preview",
+    "CARNETPASS_RELEASE_BRANCH": "migration/cloudflare-20261115",
+    "CARNETPASS_SCHEDULED_ENABLED": "false",
+    "CARNETPASS_SCHEDULER_OWNER": "none"
+  },
+  "triggers": { "crons": [] },
+  "observability": { "enabled": false },
+  "env": {
+    "preview": {
+      "name": "carnetpass-migration-test",
+      "vars": {
+        "CARNETPASS_RUNTIME": "cloudflare",
+        "CARNETPASS_ENV": "preview",
+        "CARNETPASS_RELEASE_BRANCH": "migration/cloudflare-20261115",
+        "CARNETPASS_SCHEDULED_ENABLED": "false",
+        "CARNETPASS_SCHEDULER_OWNER": "none"
+      },
+      "triggers": { "crons": [] }
+    },
+    "production": {
+      "name": "carnetpass-production",
+      "workers_dev": false,
+      "preview_urls": false,
+      "vars": {
+        "CARNETPASS_RUNTIME": "cloudflare",
+        "CARNETPASS_ENV": "production",
+        "CARNETPASS_RELEASE_BRANCH": "main",
+        "CARNETPASS_SCHEDULED_ENABLED": "false",
+        "CARNETPASS_SCHEDULER_OWNER": "none"
+      },
+      "triggers": { "crons": [] }
+    }
+  }
+}

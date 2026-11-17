@@ -54,7 +54,7 @@ test("maintenance leaves only exact public pages open, preserves API/space restr
       assert.equal(response.headers.get("X-Robots-Tag"), "noindex, nofollow");
     }
     const admin = await middleware(new Request("https://www.carnetpass.fr/administration-interne"));
-    assert.equal(admin.status, 401);
+    assert.equal(admin.status, 303); assert.equal(admin.headers.get('location'), '/connexion-interne');
     assert.doesNotMatch(await admin.text(), /Entreprises|Importer|maintenance-control/);
     const login = await middleware(new Request("https://www.carnetpass.fr/connexion-interne"));
     assert.equal(login.headers.get("x-middleware-next"), "1");

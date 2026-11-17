@@ -1,3 +1,4 @@
+import { deploymentEnvironment, previewOrigin } from '../shared/runtime-environment.js';
 import { Redis } from "@upstash/redis";
 import { randomUUID } from "node:crypto";
 import { additionalAccountItem, additionalAccountUpdate } from "./lib/additional-account-billing.js";
@@ -25,7 +26,8 @@ const priceToPlan = Object.fromEntries([LEGACY_PRICES, PRICES]
   .flatMap((prices) => Object.entries(prices).map(([plan, price]) => [price, plan])));
 const options = { auth: { persistSession: false, autoRefreshToken: false } };
 const stripeTestKey = () => process.env.STRIPE_TEST_SECRET_KEY || process.env.STRIPE_SECRET_KEY;
-const portalReturnUrl = "https://test.carnetpass.fr/parametres-compte#formule";
+const testOrigin = () => process.env.CARNETPASS_RUNTIME === 'cloudflare' ? previewOrigin() : 'https://test.carnetpass.fr';
+const portalReturnUrl = () => `${testOrigin()}/parametres-compte#formule`;
 const portalConfigMarker = "carnetpass_preview_single_plan_v3";
 
 export function hasBillingSiret(siret) {
@@ -104,7 +106,7 @@ export function planChangeParams(customerId, subscription, itemId, plan, configu
   return {
     customer: customerId,
     configuration,
-    return_url: portalReturnUrl,
+    return_url: portalReturnUrl(),
     "flow_data[type]": "subscription_update_confirm",
     "flow_data[subscription_update_confirm][subscription]": subscription,
     "flow_data[subscription_update_confirm][items][0][id]": itemId,
@@ -215,15 +217,15 @@ async function sendTestInvoiceEmail(admin, invoice) {
 
 export default async function billingHandler(req, res) {
   if (['additional-status', 'additional-quote', 'additional-update', 'additional-cancel'].includes(req.query?.action)
-    && process.env.VERCEL_ENV === 'production') return liveSeatsHandler(req, res);
-  if (req.query?.action === 'purchase-status' && process.env.VERCEL_ENV === 'production') return liveBillingHandler(req, res);
+    && deploymentEnvironment(process.env) === 'production') return liveSeatsHandler(req, res);
+  if (req.query?.action === 'purchase-status' && deploymentEnvironment(process.env) === 'production') return liveBillingHandler(req, res);
   if (['portal', 'portal-status'].includes(req.query?.action) && req.query?.webhook !== '1') return livePortalHandler(req, res);
-  if (process.env.VERCEL_ENV === 'production' && req.query?.webhook === '1') return liveWebhookHandler(req, res);
+  if (deploymentEnvironment(process.env) === 'production' && req.query?.webhook === '1') return liveWebhookHandler(req, res);
   if (req.query?.action === "invoices" && req.query?.webhook !== "1") return invoicesHandler(req, res);
-  if (process.env.VERCEL_ENV === 'production') return liveBillingHandler(req, res);
+  if (deploymentEnvironment(process.env) === 'production') return liveBillingHandler(req, res);
   res.setHeader("Cache-Control", "no-store");
   if (req.method !== "POST") return send(res, 405, "Méthode non autorisée.");
-  if (process.env.VERCEL_ENV !== "preview" || !stripeTestKey()?.startsWith("sk_test_")) {
+  if (deploymentEnvironment(process.env) !== "preview" || !stripeTestKey()?.startsWith("sk_test_")) {
     return send(res, 503, "Paiement test indisponible.");
   }
   const supabaseUrl = process.env.VITE_SUPABASE_URL;
@@ -412,7 +414,7 @@ export default async function billingHandler(req, res) {
       if(managedSubscription.customer!==customerId)return send(res,409,"Abonnement indisponible.");
       const hasAdditionalAccounts=Boolean(additionalAccountItem(managedSubscription));
       const portal = await stripe("billing_portal/sessions", {
-        customer: customerId, return_url: portalReturnUrl,
+        customer: customerId, return_url: portalReturnUrl(),
         configuration: hasAdditionalAccounts ? await additionalAccountsPortalConfiguration() : await testPortalConfiguration(),
       });
       return send(res, 200, "Portail prêt.", { url: portal.url });
@@ -431,8 +433,8 @@ export default async function billingHandler(req, res) {
         "line_items[0][price]": PRICES[body.plan], "line_items[0][quantity]": "1",
         "automatic_tax[enabled]": "false",
         client_reference_id: companyId,
-        success_url: "https://test.carnetpass.fr/parametres-compte?paiement=retour#formule",
-        cancel_url: "https://test.carnetpass.fr/tarifs?paiement=annule",
+        success_url: `${testOrigin()}/parametres-compte?paiement=retour#formule`,
+        cancel_url: `${testOrigin()}/tarifs?paiement=annule`,
       });
       return send(res, 200, "Paiement test prêt.", { url: checkout.url });
     }

@@ -1,3 +1,4 @@
+import { deploymentEnvironment, deploymentBranch, previewOrigin } from '../shared/runtime-environment.js';
 import { cleanupCompanyData } from "./lib/company-data-cleanup.js";
 import { createClient } from "@supabase/supabase-js";
 import { Redis } from "@upstash/redis";
@@ -14,13 +15,13 @@ export function previewTestIdempotencyKey(reminderId) {
 }
 
 export function previewReminderTestAllowed(environment) {
-  return environment.VERCEL_ENV === "preview"
-    && environment.VERCEL_GIT_COMMIT_REF === "feature/documentation-multi-docs"
+  return deploymentEnvironment(environment) === "preview"
+    && deploymentBranch(environment) === "feature/documentation-multi-docs"
     && environment.VITE_SUPABASE_URL === previewProject;
 }
 
 export function productionReminderCronAllowed(environment, authorization) {
-  return environment.VERCEL_ENV === "production"
+  return deploymentEnvironment(environment) === "production"
     && environment.REMINDERS_PRODUCTION_ENABLED === "true"
     && Boolean(environment.CRON_SECRET)
     && authorization === `Bearer ${environment.CRON_SECRET}`;
@@ -104,7 +105,7 @@ async function sendPreviewTest(req, res) {
     const providerId = await sendReminderEmail({
       to: allowedEmail,
       subject: "[TEST Preview] Rappel CarnetPass",
-      text: `Ceci est un test Preview, pas un rappel réel.\n\nObjet : ${reminder.description || "Entretien"}\nAppareil : ${reminder.equipments?.brand || ""} ${reminder.equipments?.model || ""}\nÉchéance enregistrée : ${reminder.due_on}.\n\nGérer ou annuler : https://${process.env.VERCEL_URL}/espace-pro`,
+      text: `Ceci est un test Preview, pas un rappel réel.\n\nObjet : ${reminder.description || "Entretien"}\nAppareil : ${reminder.equipments?.brand || ""} ${reminder.equipments?.model || ""}\nÉchéance enregistrée : ${reminder.due_on}.\n\nGérer ou annuler : ${previewOrigin()}/espace-pro`,
       idempotencyKey: previewTestIdempotencyKey(reminder.id),
     });
     return res.status(200).json({ ok: true, state: "accepted_by_provider", providerMessageId: providerId });
@@ -222,11 +223,11 @@ export default async function maintenanceReminderDispatch(req, res) {
   res.setHeader("Cache-Control", "no-store");
   if (req.method === "POST") return sendPreviewTest(req, res);
   if (req.method === "GET") {
-    if(process.env.VERCEL_ENV === "production" && process.env.CRON_SECRET && req.headers.authorization === `Bearer ${process.env.CRON_SECRET}`) {
+    if(deploymentEnvironment(process.env) === "production" && process.env.CRON_SECRET && req.headers.authorization === `Bearer ${process.env.CRON_SECRET}`) {
       await cleanupCompanyData(service(),{limit:50}).catch(()=>console.error("Company data cleanup deferred"));
     }
     if(req.query?.data_cleanup === "1") {
-      if(process.env.VERCEL_ENV !== "production" || !process.env.CRON_SECRET || req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`)
+      if(deploymentEnvironment(process.env) !== "production" || !process.env.CRON_SECRET || req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`)
         return res.status(401).json({ok:false,error:"Accès non autorisé."});
       return res.status(200).json({ok:true,cleanup:true});
     }

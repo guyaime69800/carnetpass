@@ -1,4 +1,4 @@
-import { generatedEquipmentRegistry } from "./equipment-registry.generated.js";
+import { generatedEquipmentRegistry } from "#equipment-registry";
 
 // Registre central des équipements connus de CarnetPass.
 //

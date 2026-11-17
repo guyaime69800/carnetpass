@@ -46,6 +46,17 @@ function completionModelLabels(item) {
   const brand = normalizeReference(item.brand);
   const label = String(item.modelFamily || item.model || '').trim();
   const ref = String(item.manufacturerReference || '');
+  if (brand === 'airwell') {
+    const match = label.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .match(/^WELLEA\s+M\s+HT\s+(\d+)\s*kW\s+(monophase|triphase)\s*[-–·]\s*(BDHW-(\d{3})R-04(M25|T35))$/i);
+    // Display grouping only. Keep exact references and document lists unchanged.
+    if (match && Number(match[4]) === Number(match[1]) * 10
+      && (match[5].toUpperCase() === 'M25') === (match[2].toLowerCase() === 'monophase')) {
+      const supply = match[2].toLowerCase() === 'monophase' ? 'Monophasé' : 'Triphasé';
+      return { family: 'WELLEA M HT', model: `${match[1]} kW · ${supply} · ${match[3].toUpperCase()}`,
+        reference: ref, power: Number(match[1]) };
+    }
+  }
   if (brand === 'dedietrich') {
     const neovo = [ref, label].map(value => value.match(/^neovo[\s-]+condens[\s-]+efu[\s-]+c[\s-]+(\d+)(?:[\s-]+(plus))?$/i)).find(Boolean);
     if (neovo) return { family: `NeOvo Condens EFU C${neovo[2] ? ' Plus' : ''}`,

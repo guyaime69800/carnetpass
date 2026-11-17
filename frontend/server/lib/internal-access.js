@@ -1,3 +1,4 @@
+import { deploymentEnvironment } from '../../shared/runtime-environment.js';
 import { createHash } from "node:crypto";
 import { mfaAccessError } from "./mfa-access.js";
 import { MAINTENANCE_KEY } from "./maintenance-state.js";
@@ -50,8 +51,8 @@ export async function verifiedIdentity(token, env = process.env) {
 
 export async function readMaintenance(env = process.env) {
   // Isolated preview-only switch used to verify a closed application without touching production Redis.
-  if (env.VERCEL_ENV === "preview" && env.CARNETPASS_PREVIEW_MAINTENANCE === "true") return { enabled: true };
-  if (env.VERCEL_ENV !== "production") return { enabled: false };
+  if (deploymentEnvironment(env) === "preview" && env.CARNETPASS_PREVIEW_MAINTENANCE === "true") return { enabled: true };
+  if (deploymentEnvironment(env) !== "production") return { enabled: false };
   const url = env.UPSTASH_REDIS_REST_KV_REST_API_URL;
   const token = env.UPSTASH_REDIS_REST_KV_REST_API_TOKEN;
   if (!url || !token) throw new Error("Maintenance unavailable");
@@ -81,7 +82,7 @@ export async function verifiedRequestIdentity(headers, env = process.env) {
   const token = accessToken(headers);
   if (token || headers.has("authorization")) return verifiedIdentity(token, env);
   const pass = /(?:^|;\s*)carnetpass_maintenance_access=([a-f0-9]{64})(?:;|$)/.exec(headers.get("cookie") || "")?.[1];
-  if (!pass || env.VERCEL_ENV !== "production") return {user:null,role:null};
+  if (!pass || deploymentEnvironment(env) !== "production") return {user:null,role:null};
   const url = env.UPSTASH_REDIS_REST_KV_REST_API_URL, key = env.UPSTASH_REDIS_REST_KV_REST_API_TOKEN;
   if (!url || !key || !env.VITE_SUPABASE_URL || !env.SUPABASE_SECRET_KEY) throw new Error("Access unavailable");
   const hash = createHash("sha256").update(pass).digest("hex");

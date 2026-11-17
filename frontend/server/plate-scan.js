@@ -1,6 +1,8 @@
+import { deploymentEnvironment } from '../shared/runtime-environment.js';
 import OpenAI from "openai";
 import { createHash, randomUUID } from "node:crypto";
-import { createCanvas, loadImage } from "@napi-rs/canvas";
+import { canonicalPlateImage } from "#plate-image";
+export { canonicalPlateImage };
 import catalog from "../src/data/equipment-index.json" with { type: "json" };
 import {
   sanitizePlateResult,
@@ -37,49 +39,6 @@ export const PLATE_RESPONSE_FORMAT = {
     },
   },
 };
-export async function canonicalPlateImage(dataUrl) {
-  const match =
-    /^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/]+={0,2})$/.exec(
-      dataUrl || "",
-    );
-  if (!match || match[2].length > 2800000)
-    throw fail(
-      413,
-      "Image JPEG, PNG ou WebP de moins de 2 Mo requise après compression.",
-    );
-  const bytes = Buffer.from(match[2], "base64");
-  const png = bytes
-    .subarray(0, 8)
-    .equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
-  const jpeg = bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255;
-  const webp =
-    bytes.subarray(0, 4).toString() === "RIFF" &&
-    bytes.subarray(8, 12).toString() === "WEBP";
-  if (bytes.length > 2097152 || !{ png, jpeg, webp }[match[1]])
-    throw fail(415, "Le contenu réel ne correspond pas au format annoncé.");
-  let image;
-  try {
-    image = await loadImage(bytes);
-  } catch {
-    throw fail(415, "Image endommagée ou illisible.");
-  }
-  if (!image.width || !image.height || image.width * image.height > 20000000)
-    throw fail(413, "Dimensions d’image excessives.");
-  const scale = Math.min(1, 1600 / image.width, 1600 / image.height);
-  const canvas = createCanvas(
-    Math.round(image.width * scale),
-    Math.round(image.height * scale),
-  );
-  const context = canvas.getContext("2d");
-  context.fillStyle = "#fff";
-  context.fillRect(0, 0, canvas.width, canvas.height);
-  context.drawImage(image, 0, 0, canvas.width, canvas.height);
-  const canonical = canvas.toBuffer("image/jpeg", 85);
-  return {
-    dataUrl: `data:image/jpeg;base64,${canonical.toString("base64")}`,
-    hash: createHash("sha256").update(canonical).digest("hex"),
-  };
-}
 export async function reservePlateBudget(redis, userId, env = process.env) {
   const reservation = Math.max(
     10000,
@@ -98,9 +57,10 @@ export async function reservePlateBudget(redis, userId, env = process.env) {
   );
   const day = new Date().toISOString().slice(0, 10),
     hour = new Date().toISOString().slice(0, 13);
+  const budgetScope = env.SHIBA_SCAN_BUDGET_SCOPE === 'admin-test' ? 'admin-test' : deploymentEnvironment(env) || 'local';
   const keys = [
-    `carnetpass:plate:${env.VERCEL_ENV || "local"}:budget:${day}`,
-    `carnetpass:plate:${env.VERCEL_ENV || "local"}:user:${userId}:${hour}`,
+    `carnetpass:plate:${budgetScope}:budget:${day}`,
+    `carnetpass:plate:${budgetScope}:user:${userId}:${hour}`,
   ];
   const script = `local spent=tonumber(redis.call('GET',KEYS[1]) or '0');local calls=tonumber(redis.call('GET',KEYS[2]) or '0');if spent+tonumber(ARGV[1])>tonumber(ARGV[2]) or calls>=tonumber(ARGV[3]) then return 0 end;redis.call('INCRBY',KEYS[1],ARGV[1]);redis.call('EXPIRE',KEYS[1],172800);redis.call('INCR',KEYS[2]);redis.call('EXPIRE',KEYS[2],7200);return 1`;
   if ((await redis.eval(script, keys, [reservation, daily, hourly])) !== 1)

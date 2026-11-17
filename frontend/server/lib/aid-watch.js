@@ -1,3 +1,4 @@
+import { deploymentEnvironment } from '../../shared/runtime-environment.js';
 import { createHash } from "node:crypto";
 import { officialSource } from "../../shared/aid-engine.js";
 import { checked, devisDatabase, devisRedis, fail } from "./devis-security.js";
@@ -75,7 +76,7 @@ export async function watchAidSources({
   db = devisDatabase(),
   redis = devisRedis(),
 } = {}) {
-  const lock = `carnetpass:devis:watch-lock:${process.env.VERCEL_ENV || "local"}`;
+  const lock = `carnetpass:devis:watch-lock:${deploymentEnvironment(process.env) || "local"}`;
   if ((await redis.set(lock, "1", { nx: true, ex: 600 })) !== "OK")
     throw fail(409, "Une vérification est déjà en cours.");
   const outcomes = [];
@@ -144,7 +145,7 @@ export async function watchAidSources({
 }
 export async function scheduledAidWatch(req) {
   if (
-    process.env.VERCEL_ENV !== "production" ||
+    deploymentEnvironment(process.env) !== "production" ||
     process.env.SHIBA_DEVIS_WATCH_ENABLED !== "true" ||
     !process.env.CRON_SECRET ||
     req.method !== "GET" ||

@@ -1,3 +1,4 @@
+import { deploymentEnvironment, previewOrigin } from '../../shared/runtime-environment.js';
 import { commercialTermsMetadata } from "../../shared/commercial-terms.js";
 import { grantShibaRecharge } from "./shiba-quota.js";
 
@@ -12,7 +13,7 @@ export function rechargeReturnOrigin(request) {
   const host = String(request?.headers?.host || "").toLowerCase();
   const origin = request?.headers?.origin;
   const expectedOrigin = `https://${host}`;
-  if ((host !== "test.carnetpass.fr" && !PREVIEW_RETURN_HOST.test(host))
+  if (((process.env.CARNETPASS_RUNTIME === "cloudflare" ? expectedOrigin !== previewOrigin() : host !== "test.carnetpass.fr" && !PREVIEW_RETURN_HOST.test(host)))
     || (origin && origin !== expectedOrigin)) {
     const error = new Error("Invalid Preview return origin");
     error.code = "RETURN_ORIGIN";
@@ -64,7 +65,7 @@ function testKey() {
 }
 
 export function rechargeStripeAvailable() {
-  return process.env.VERCEL_ENV === "preview" && testKey()?.startsWith("sk_test_")
+  return deploymentEnvironment(process.env) === "preview" && testKey()?.startsWith("sk_test_")
     && process.env.STRIPE_TEST_WEBHOOK_SECRET?.startsWith("whsec_")
     && Boolean(process.env.UPSTASH_REDIS_REST_KV_REST_API_URL)
     && Boolean(process.env.UPSTASH_REDIS_REST_KV_REST_API_TOKEN);

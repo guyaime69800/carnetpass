@@ -48,7 +48,7 @@ test("durable maintenance pass checks current founder role and fails closed", as
   try {
     assert.equal((await middleware(req())).headers.get("x-middleware-next"), "1");
     const adminRequest = new Request('https://www.carnetpass.fr/administration-interne', { headers: { cookie: `carnetpass_maintenance_access=${'a'.repeat(64)}` } });
-    assert.equal((await middleware(adminRequest)).status, 401);
+    const adminDenied = await middleware(adminRequest); assert.equal(adminDenied.status, 303); assert.equal(adminDenied.headers.get('location'), '/connexion-interne'); assert.equal(await adminDenied.text(), '');
     role = "admin"; assert.equal((await middleware(req())).status, 503);
     role = "founder"; available = false; assert.equal((await middleware(req())).status, 503);
   } finally { globalThis.fetch = previousFetch; for (const k of Object.keys(process.env)) if (!(k in saved)) delete process.env[k]; Object.assign(process.env, saved); }

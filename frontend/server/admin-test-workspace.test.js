@@ -24,7 +24,7 @@ test('equipment, scan and PDF use only the private workspace RPC and no photo is
     throw Error('Unexpected RPC action');
   } };
   const dependencies = { env, user: { id: actor, email: 'founder@example.invalid', email_confirmed_at: '2026-01-01' }, database,
-    rate: async () => {}, redis: () => ({}), reserve: async (_redis, _user, settings) => assert.equal(settings.VERCEL_ENV, 'admin-test'),
+    rate: async () => {}, redis: () => ({}), reserve: async (_redis, _user, settings) => assert.equal(settings.SHIBA_SCAN_BUDGET_SCOPE, 'admin-test'),
     imageReader: async () => ({ hash: 'a'.repeat(64), dataUrl: 'private-image-not-retained' }),
     analyze: async () => ({ fields: { brand: { value: 'Test', evidence: 'Test' }, model: { value: 'Model', evidence: 'Model' } } }) };
   async function run(body, query = {}) {

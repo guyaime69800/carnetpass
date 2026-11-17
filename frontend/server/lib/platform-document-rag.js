@@ -1,3 +1,4 @@
+import { deploymentEnvironment } from '../../shared/runtime-environment.js';
 import { get } from "@vercel/blob";
 import { loadPlatformPdf } from "./verify-platform-pdf.js";
 import OpenAI from "openai";
@@ -102,7 +103,7 @@ export async function indexPlatformDocument(db, entry, dependencies = {}) {
   if (!claimed) return { status: "indexing" };
 
   try {
-    const stored = await (dependencies.loadPdf || (() => loadPlatformPdf(entry, process.env.VERCEL_ENV,
+    const stored = await (dependencies.loadPdf || (() => loadPlatformPdf(entry, deploymentEnvironment(process.env),
       pathname => get(pathname, { access: "private", useCache: false }), db)))();
     if (!stored.ok) throw new Error("PDF privé indisponible ou modifié.");
     const { items, pageCount, blankPages } = await extractPdfItems(stored.bytes, entry);

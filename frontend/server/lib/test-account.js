@@ -1,7 +1,8 @@
+import { deploymentEnvironment, deploymentBranch } from '../../shared/runtime-environment.js';
 import { PRODUCTION_SUPABASE_URL } from '../../shared/test-environment.js';
 
 export function testAccountConfiguration(env) {
-  return env.VERCEL_ENV === 'production' && env.VERCEL_GIT_COMMIT_REF === 'main'
+  return deploymentEnvironment(env) === 'production' && deploymentBranch(env) === 'main'
     && env.VITE_SUPABASE_URL === PRODUCTION_SUPABASE_URL;
 }
 

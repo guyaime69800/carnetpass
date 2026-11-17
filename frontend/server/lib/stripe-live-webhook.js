@@ -1,3 +1,4 @@
+import { deploymentEnvironment, deploymentBranch } from '../../shared/runtime-environment.js';
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 
 export const liveWebhookTypes = new Set([
@@ -52,7 +53,7 @@ export async function readWebhookBody(request) {
 }
 
 export function liveWebhookConfigured(env) {
-  return env.VERCEL_ENV === 'production' && env.VERCEL_GIT_COMMIT_REF === 'main'
+  return deploymentEnvironment(env) === 'production' && deploymentBranch(env) === 'main'
     && env.VITE_SUPABASE_URL === 'https://tsyukqcyfxcrjrhopvpv.supabase.co'
     && env.CARNETPASS_STRIPE_LIVE_WEBHOOK_ENABLED === 'true'
     && /^whsec_[A-Za-z0-9]+$/.test(env.STRIPE_LIVE_WEBHOOK_SECRET || '')

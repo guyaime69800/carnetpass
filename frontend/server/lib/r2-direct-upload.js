@@ -1,3 +1,4 @@
+import { deploymentEnvironment } from '../../shared/runtime-environment.js';
 import { randomUUID } from "node:crypto";
 import { Redis } from "@upstash/redis";
 import { CopyObjectCommand, DeleteObjectCommand, HeadObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
@@ -37,7 +38,7 @@ export function directUploadMetadata(body, userId) {
 // The route checks an administrative AAL2 session and production before either call.
 export async function beginDirectR2Upload(body, userId, deps = {}) {
   const metadata = directUploadMetadata(body, userId), env = deps.env || process.env;
-  if (env.VERCEL_ENV !== "production") throw failure(403, "Envoi R2 réservé à la production.");
+  if (deploymentEnvironment(env) !== "production") throw failure(403, "Envoi R2 réservé à la production.");
   const store = deps.store || storeFrom(env), config = deps.configuration || r2Configuration(env, "upload");
   const id = randomUUID(), key = `platform-documents/incoming/${id}.pdf`;
   const client = deps.client || r2Client(config);
@@ -52,7 +53,7 @@ export async function beginDirectR2Upload(body, userId, deps = {}) {
 
 export async function completeDirectR2Upload(db, id, userId, deps = {}) {
   const env = deps.env || process.env;
-  if (env.VERCEL_ENV !== "production") throw failure(403, "Envoi R2 réservé à la production.");
+  if (deploymentEnvironment(env) !== "production") throw failure(403, "Envoi R2 réservé à la production.");
   if (typeof id !== "string" || !/^[a-f0-9-]{36}$/.test(id)) throw failure(400, "Envoi invalide.");
   const store = deps.store || storeFrom(env);
   const ticket = await store.get(ticketKey(id));

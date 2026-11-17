@@ -1,15 +1,16 @@
+import { deploymentEnvironment, deploymentBranch } from '../../shared/runtime-environment.js';
 const previewBranches = new Set(["feature/documentation-multi-docs", "release/paris2-admin-documents", "feature/shiba-devis-production"]);
 const previewProject = "bqqzzbwqmiyxcotvqtoc";
 const previewUrl = `https://${previewProject}.supabase.co`;
 const nonProductionProjects = new Set([previewProject, "rpwzzvreuenstsjtbzto"]);
 
 export function platformAdminEnvironment(environment) {
-  if (environment.VERCEL_ENV === "preview" && previewBranches.has(environment.VERCEL_GIT_COMMIT_REF)) {
+  if (deploymentEnvironment(environment) === "preview" && (previewBranches.has(deploymentBranch(environment)) || (environment.CARNETPASS_RUNTIME === 'cloudflare' && deploymentBranch(environment) === 'migration/cloudflare-20261115'))) {
     return environment.VITE_SUPABASE_URL === previewUrl
       ? { name: "preview" }
       : { status: 503, message: "Administration en attente d'une base Preview séparée." };
   }
-  if (environment.VERCEL_ENV === "production" && environment.VERCEL_GIT_COMMIT_REF === "main"
+  if (deploymentEnvironment(environment) === "production" && deploymentBranch(environment) === "main"
     && environment.CARNETPASS_PRODUCTION_ADMIN_ENABLED === "true") {
     const project = environment.CARNETPASS_PRODUCTION_ADMIN_SUPABASE_REF;
     if (!/^[a-z0-9]{20}$/.test(project || "") || nonProductionProjects.has(project)

@@ -64,7 +64,7 @@ test("five identities: direct page/API access, cookies and existing client sessi
     const headers = identity === "anonymous" ? {} : { authorization: `Bearer ${jwt(identity)}` };
     for (const route of ["/administration-interne", "/ADMINISTRATION-INTERNE", "/administration%2Dinterne/", "/api/platform-admin"]) {
       const result = await middleware(new Request(`https://carnetpass.fr${route}`, { headers }));
-      assert.equal(result.status, state.role ? 200 : identity === "anonymous" ? 401 : 403, `${identity} ${route}`);
+      assert.equal(result.status, state.role ? 200 : identity === "anonymous" ? (decodeURIComponent(route).replace(/\/+$/, "") === "/administration-interne" ? 303 : 401) : 403, `${identity} ${route}`);
       assert.match(result.headers.get("cache-control"), /no-store/);
       if (!state.role) assert.doesNotMatch(await result.text(), /Entreprises|scan|RGE|Mettre le site/);
     }
@@ -90,13 +90,13 @@ test("five identities: direct page/API access, cookies and existing client sessi
 
 test("metadata, query parameters and arbitrary role cookies grant nothing; fail closed", () => fixture(async state => {
   assert.equal((await verifiedIdentity(jwt("pro"))).role, null);
-  assert.equal((await middleware(new Request("https://carnetpass.fr/administration-interne?role=founder", { headers: { cookie: "role=founder; maintenance_bypass=true" } }))).status, 401);
+  assert.equal((await middleware(new Request("https://carnetpass.fr/administration-interne?role=founder", { headers: { cookie: "role=founder; maintenance_bypass=true" } }))).status, 303);
   assert.equal(accessToken(new Headers({ cookie: `${INTERNAL_COOKIE}=a; ${INTERNAL_COOKIE}=b` })), null);
   state.role = "founder";
-  assert.equal((await middleware(new Request("https://carnetpass.fr/administration-interne", { headers: { cookie: `${INTERNAL_COOKIE}=forged` } }))).status, 401);
+  assert.equal((await middleware(new Request("https://carnetpass.fr/administration-interne", { headers: { cookie: `${INTERNAL_COOKIE}=forged` } }))).status, 303);
   state.role = null;
   state.enabled = false;
-  assert.equal((await middleware(new Request("https://carnetpass.fr/administration-interne"))).status, 401);
+  assert.equal((await middleware(new Request("https://carnetpass.fr/administration-interne"))).status, 303);
   assert.equal((await middleware(new Request("https://carnetpass.fr/espace-pro"))).status, 200);
   state.failed = true;
   assert.equal((await middleware(new Request("https://carnetpass.fr/espace-pro"))).status, 503);
@@ -156,7 +156,7 @@ test('Stripe return restores through a public shell without opening admin or wea
   assert.equal(oldReturn.status,303); assert.equal(oldReturn.headers.get('location'),'/retour-facturation?test=1');
   assert.equal(await oldReturn.text(),'');
   assert.equal((await middleware(new Request('https://www.carnetpass.fr/retour-facturation?test=1'))).headers.get('x-middleware-next'),'1');
-  assert.equal((await middleware(new Request('https://www.carnetpass.fr/administration-interne'))).status,401);
+  assert.equal((await middleware(new Request('https://www.carnetpass.fr/administration-interne'))).status,303);
   assert.equal((await middleware(new Request('https://www.carnetpass.fr/api/platform-admin?test=1'))).status,401);
   const denied = response();
   await accessSession({method:'POST',headers:{host:'www.carnetpass.fr',origin:'https://attacker.invalid',authorization:`Bearer ${jwt()}`}},denied);

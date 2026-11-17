@@ -564,7 +564,7 @@ Recherche uniquement les passages qui concernent réellement ce code ou l'une de
       shouldUseRag
         ? await searchRagContext(
             openai,
-            ragEmbeddingData,
+            equipmentConfig.loadRagData ? await equipmentConfig.loadRagData() : ragEmbeddingData,
             ragQuestion,
 
             // Pour un code défaut,

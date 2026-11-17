@@ -1,3 +1,4 @@
+import { deploymentEnvironment } from '../shared/runtime-environment.js';
 import OpenAI from "openai";
 import { recordOpenAIHealth } from '../server/lib/admin-service-health.js';
 import { aiRateLimit } from "../server/lib/rate-limit.js";
@@ -52,7 +53,7 @@ export default async function handler(request, response) {
   }
 
   let quotaReservation;
-  if (["preview", "production"].includes(process.env.VERCEL_ENV)) {
+  if (["preview", "production"].includes(deploymentEnvironment(process.env))) {
     try {
       const plan = professional.accessKind === "discovery" ? "free" : await getShibaPlan(request, professional);
       quotaReservation = shibaQuotaEnabled(plan) ? await reserveShibaQuestion(professional, plan) : { allowed: true, enforced: false };

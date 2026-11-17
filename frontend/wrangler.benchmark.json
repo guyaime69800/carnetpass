@@ -1,0 +1,1 @@
+﻿{"name":"carnetpass-local-pdf-benchmark","main":"cloudflare/benchmark-worker.js","compatibility_date":"2026-11-15","compatibility_flags":["nodejs_compat"],"workers_dev":false,"triggers":{"crons":[]},"observability":{"enabled":false}}

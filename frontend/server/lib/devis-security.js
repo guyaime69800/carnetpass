@@ -1,3 +1,4 @@
+import { deploymentEnvironment } from '../../shared/runtime-environment.js';
 import { createClient } from "@supabase/supabase-js";
 import { Redis } from "@upstash/redis";
 import { Ratelimit } from "@upstash/ratelimit";
@@ -37,7 +38,7 @@ export async function rateRequest(req, scope, identity = null, max = 60) {
   const rate = new Ratelimit({
     redis: devisRedis(),
     limiter: Ratelimit.slidingWindow(max, "10 m"),
-    prefix: `carnetpass:devis:${process.env.VERCEL_ENV || "local"}:${scope}`,
+    prefix: `carnetpass:devis:${deploymentEnvironment(process.env) || "local"}:${scope}`,
     analytics: false,
   });
   const result = await rate.limit(key);

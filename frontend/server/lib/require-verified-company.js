@@ -1,3 +1,4 @@
+import { deploymentEnvironment } from '../../shared/runtime-environment.js';
 import { additionalAccountAccess } from "./additional-account-access.js";
 import { createClient } from "@supabase/supabase-js";
 import { getDiscoveryAccess } from "../../shared/discovery-access.js";
@@ -200,7 +201,7 @@ export async function requireVerifiedCompany(req, res) {
 
     const { data: subscription, error: subscriptionError } = await supabase
       .from("subscriptions")
-      .select(process.env.VERCEL_ENV === 'production'
+      .select(deploymentEnvironment(process.env) === 'production'
         ? "plan, status, trial_ends_at, current_period_end, stripe_live_managed"
         : "plan, status, trial_ends_at, current_period_end")
       .eq("company_id", membership.company_id)
