@@ -7,9 +7,11 @@ import { PRIVATE_R2_SCHEME, privateR2Configuration, validatePrivateKey } from ".
 //    délivre une URL d'envoi signée de 10 minutes vers une clé d'ATTENTE
 //    `pending-uploads/<uploadId>`, avec type et taille exacts signés.
 // 2. complete : l'API relit l'objet en attente (taille, type réel, SHA-256),
-//    puis le copie dans R2 vers une clé FINALE tirée au hasard côté serveur,
-//    jamais communiquée au navigateur : l'URL d'envoi ne peut donc pas
-//    remplacer le fichier après vérification. L'objet en attente est supprimé.
+//    puis réécrit ELLE-MÊME les octets vérifiés (10 Mio max) vers une clé
+//    FINALE tirée au hasard côté serveur, jamais communiquée au navigateur :
+//    l'URL d'envoi ne peut donc pas remplacer le fichier après vérification.
+//    L'objet en attente est supprimé. Pas de CopyObject : sa réponse XML n'est
+//    pas lisible par le SDK AWS dans un Worker (DOMParser absent).
 //
 // Une règle de cycle de vie R2 sur `pending-uploads/` (à décider) effacera les
 // envois abandonnés. Ce module ne contrôle pas les droits : l'appelant le fait.
@@ -24,6 +26,9 @@ const ticketKey = (uploadId) => `carnetpass:attachments:r2:${uploadId}`;
 const pendingKey = (uploadId) => `pending-uploads/${uploadId}`;
 const failure = (status, code, publicMessage) =>
   Object.assign(new Error(code), { status, code, publicMessage });
+// Dans un Worker, le corps XML d'une erreur S3 n'est pas désérialisable :
+// on s'appuie aussi sur le statut HTTP brut.
+const httpStatus = (error) => error?.$metadata?.httpStatusCode ?? error?.$response?.statusCode;
 
 export function detectMimeType(header) {
   if (header.length >= 5 && header.subarray(0, 5).toString("ascii") === "%PDF-") return "application/pdf";
@@ -82,7 +87,7 @@ async function inspectPending(client, bucket, key, ticket) {
   try {
     stored = await client.send(new GetObjectCommand({ Bucket: bucket, Key: key }), { abortSignal: AbortSignal.timeout(60_000) });
   } catch (error) {
-    if (error?.name === "NoSuchKey" || error?.$metadata?.httpStatusCode === 404) {
+    if (error?.name === "NoSuchKey" || httpStatus(error) === 404) {
       throw failure(409, "UPLOAD_NOT_RECEIVED", "Le fichier n'a pas encore été reçu. Réessaie l'envoi.");
     }
     throw error;
@@ -91,17 +96,18 @@ async function inspectPending(client, bucket, key, ticket) {
   if (Number(stored.ContentLength) !== ticket.size || stored.ContentType !== ticket.mimeType || !stored.Body) throw invalid();
   const stream = typeof stored.Body.transformToWebStream === "function" ? stored.Body.transformToWebStream() : stored.Body;
   const hash = createHash("sha256");
-  let header = Buffer.alloc(0);
+  const parts = [];
   let total = 0;
   for await (const chunk of stream) {
     const bytes = Buffer.from(chunk);
     total += bytes.length;
     if (total > ticket.size || total > MAX_ATTACHMENT_BYTES) throw invalid();
     hash.update(bytes);
-    if (header.length < 1_024) header = Buffer.concat([header, bytes.subarray(0, 1_024 - header.length)]);
+    parts.push(bytes);
   }
-  if (total !== ticket.size || detectMimeType(header) !== ticket.mimeType) throw invalid();
-  return { sha256: hash.digest("hex"), etag: stored.ETag };
+  const content = Buffer.concat(parts, total);
+  if (total !== ticket.size || detectMimeType(content.subarray(0, 1_024)) !== ticket.mimeType) throw invalid();
+  return { sha256: hash.digest("hex"), content };
 }
 
 // deps.verifyScope(ticket) : l'appelant revérifie que l'équipement et
@@ -119,7 +125,7 @@ export async function completeAttachmentR2Upload({ creator, uploadId }, deps) {
   const owner = (deps.randomId || randomUUID)();
   if (!await deps.store.set(lock, owner, { nx: true, ex: 600 })) throw failure(409, "UPLOAD_IN_PROGRESS", "La vérification de ce fichier est déjà en cours.");
   const { client, configuration, owned } = await clientFor(deps);
-  const { CopyObjectCommand, DeleteObjectCommand, HeadObjectCommand } = await s3();
+  const { DeleteObjectCommand, HeadObjectCommand, PutObjectCommand } = await s3();
   const removePending = () => client.send(new DeleteObjectCommand({ Bucket: configuration.bucket, Key: pendingKey(uploadId) })).catch(() => {});
   try {
     try { await deps.verifyScope(ticket); }
@@ -128,10 +134,10 @@ export async function completeAttachmentR2Upload({ creator, uploadId }, deps) {
     try { inspected = await inspectPending(client, configuration.bucket, pendingKey(uploadId), ticket); }
     catch (error) { if (error?.status === 400) await removePending(); throw error; }
     const key = finalKey(ticket.equipmentId, ticket.mimeType, deps.randomId || randomUUID);
-    await client.send(new CopyObjectCommand({
-      Bucket: configuration.bucket, Key: key, CopySource: `${configuration.bucket}/${pendingKey(uploadId)}`,
-      CopySourceIfMatch: inspected.etag, MetadataDirective: "REPLACE", Metadata: { sha256: inspected.sha256 },
-      ContentType: ticket.mimeType, CacheControl: "private, no-store",
+    await client.send(new PutObjectCommand({
+      Bucket: configuration.bucket, Key: key, Body: inspected.content, ContentLength: inspected.content.length,
+      Metadata: { sha256: inspected.sha256 }, ContentType: ticket.mimeType, CacheControl: "private, no-store",
+      IfNoneMatch: "*",
     }), { abortSignal: AbortSignal.timeout(60_000) });
     const head = await client.send(new HeadObjectCommand({ Bucket: configuration.bucket, Key: key }));
     if (Number(head.ContentLength) !== ticket.size || head.ContentType !== ticket.mimeType || head.Metadata?.sha256 !== inspected.sha256) {

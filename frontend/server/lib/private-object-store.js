@@ -102,8 +102,10 @@ async function withClient(env, deps, action) {
   finally { if (!deps.client) client.destroy?.(); }
 }
 
+// Dans un Worker, le corps XML d'une erreur S3 n'est pas désérialisable :
+// on s'appuie aussi sur le statut HTTP brut.
 const notFound = (error) => error?.name === "NoSuchKey" || error?.name === "NotFound"
-  || error?.$metadata?.httpStatusCode === 404;
+  || error?.$metadata?.httpStatusCode === 404 || error?.$response?.statusCode === 404;
 
 function webStream(body) {
   if (!body) return null;

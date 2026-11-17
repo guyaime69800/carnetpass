@@ -14,7 +14,8 @@ export const submissionR2Enabled = (env = process.env) =>
   deploymentEnvironment(env) === "production" && env.CARNETPASS_SUBMISSIONS_R2_ENABLED === "true";
 
 const failure = (code) => Object.assign(new Error(code), { code });
-const preconditionFailed = (error) => error?.name === "PreconditionFailed" || error?.$metadata?.httpStatusCode === 412;
+const preconditionFailed = (error) => error?.name === "PreconditionFailed"
+  || error?.$metadata?.httpStatusCode === 412 || error?.$response?.statusCode === 412;
 
 export async function storeSubmissionInR2(db, { documentId, bytes, sha256 }, deps = {}) {
   const env = deps.env || process.env;
