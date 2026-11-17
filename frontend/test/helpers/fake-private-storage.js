@@ -13,7 +13,7 @@ export function fakeR2() {
         if (input.IfNoneMatch === "*" && objects.has(input.Key)) {
           throw Object.assign(new Error("PreconditionFailed"), { name: "PreconditionFailed", $metadata: { httpStatusCode: 412 } });
         }
-        objects.set(input.Key, { bytes: Buffer.from(input.Body), contentType: input.ContentType, etag: `"e${++version}"` });
+        objects.set(input.Key, { bytes: Buffer.from(input.Body), contentType: input.ContentType, etag: `"e${++version}"`, metadata: input.Metadata });
         return {};
       }
       const missing = () => Object.assign(new Error("NoSuchKey"), { name: "NoSuchKey", $metadata: { httpStatusCode: 404 } });
@@ -24,7 +24,8 @@ export function fakeR2() {
           ContentType: stored.contentType,
           ContentLength: stored.bytes.length,
           ETag: stored.etag,
-          Body: { transformToWebStream: () => new Blob([stored.bytes]).stream() },
+          // Comme le SDK : flux itérable, convertible en flux Web.
+          Body: (() => { const body = new Blob([stored.bytes]).stream(); body.transformToWebStream = () => body; return body; })(),
         };
       }
       if (name === "HeadObjectCommand") {
