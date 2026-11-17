@@ -27,7 +27,7 @@ test("activation R2 avec configuration invalide : refus explicite, pas de repli 
 
 test("une Preview ne peut pas viser le compartiment privé de production", () => {
   assert.throws(() => privateR2Configuration(r2Env("preview", { R2_PRIVATE_BUCKET_NAME: "carnetpass-private-files-production" })), /PRIVATE_R2_BUCKET_INVALID/);
-  assert.equal(privateR2Configuration(r2Env("preview")).bucket, "carnetpass-private-files-preview");
+  assert.equal(privateR2Configuration(r2Env("preview")).bucket, "carnetpass-private-files-test");
 });
 
 test("chemins refusés : traversée, préfixe hors périmètre, double barre", () => {

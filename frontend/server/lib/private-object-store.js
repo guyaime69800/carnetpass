@@ -23,6 +23,11 @@ const ALLOWED_PREFIXES = ["equipment-attachments/", "regulatory/"];
 const KEY_PATTERN = /^[A-Za-z0-9._\-/]{1,400}$/;
 const ENDPOINT_PATTERN = /^https:\/\/[a-f0-9]{32}\.eu\.r2\.cloudflarestorage\.com$/;
 const CATALOG_BUCKET = "carnetpass-documents-production";
+// Un compartiment par environnement ; la Preview utilise l'espace de TEST.
+const PRIVATE_BUCKETS = Object.freeze({
+  preview: "carnetpass-private-files-test",
+  production: "carnetpass-private-files-production",
+});
 
 const failure = (code) => Object.assign(new Error(code), { code });
 
@@ -54,7 +59,7 @@ export function privateR2Configuration(env = process.env) {
   if (environment !== "production" && environment !== "preview") throw failure("PRIVATE_R2_ENVIRONMENT_INVALID");
   if (!ENDPOINT_PATTERN.test(env.R2_ENDPOINT || "")) throw failure("PRIVATE_R2_ENDPOINT_INVALID");
   const bucket = env.R2_PRIVATE_BUCKET_NAME;
-  if (bucket !== `carnetpass-private-files-${environment}` || bucket === CATALOG_BUCKET) {
+  if (bucket !== PRIVATE_BUCKETS[environment] || bucket === CATALOG_BUCKET) {
     throw failure("PRIVATE_R2_BUCKET_INVALID");
   }
   const accessKeyId = env.R2_PRIVATE_ACCESS_KEY_ID;

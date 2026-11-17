@@ -114,14 +114,14 @@ export const r2Env =(environment = "production", extra = {}) => ({
   CARNETPASS_RUNTIME: "cloudflare",
   CARNETPASS_ENV: environment,
   R2_ENDPOINT: `https://${"a".repeat(32)}.eu.r2.cloudflarestorage.com`,
-  R2_PRIVATE_BUCKET_NAME: `carnetpass-private-files-${environment}`,
+  R2_PRIVATE_BUCKET_NAME: `carnetpass-private-files-${environment === "preview" ? "test" : environment}`,
   R2_PRIVATE_ACCESS_KEY_ID: "fake-id",
   R2_PRIVATE_SECRET_ACCESS_KEY: "fake-secret",
   ...extra,
 });
 
 export const fakeConfiguration = (environment = "production") => ({
-  endpoint: "https://fake", bucket: `carnetpass-private-files-${environment}`, credentials: {},
+  endpoint: "https://fake", bucket: `carnetpass-private-files-${environment === "preview" ? "test" : environment}`, credentials: {},
 });
 
 export async function readAll(stream) {

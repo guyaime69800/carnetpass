@@ -9,7 +9,9 @@ import { platformDocumentEnvironment, platformDocumentPathname } from "./lib/pla
 
 export const maxDuration = 300;
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i;
+// Corrigé le 17/11 : l'ancienne expression oubliait le 4e groupe et son
+// tiret, et refusait donc tout identifiant réel (réponse 400 systématique).
+export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const MAX_BYTES = 10 * 1024 * 1024;
 const db = () => createClient(process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY,
   { auth: { persistSession: false, autoRefreshToken: false } });
