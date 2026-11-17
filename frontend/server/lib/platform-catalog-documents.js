@@ -43,7 +43,7 @@ export default async function handler(req, res) {
   if (environment.status) return res.status(environment.status).json({ error: "Catalogue indisponible." });
   let professional;
   try { professional = await catalogAccess(req, res); }
-  catch { return res.status(503).json({ error: 'Vérification de l’accès au catalogue momentanément indisponible.' }); }
+  catch (error) { console.error('Catalogue : accès', String(error?.name || "Error"), String(error?.code || ""), String(error?.message || "").slice(0, 160)); return res.status(503).json({ error: 'Vérification de l’accès au catalogue momentanément indisponible.' }); }
   if (!professional) return;
   const adminCatalog = professional.accessKind === 'admin_catalog';
   if (!adminCatalog && !platformDocumentCatalogAllowed(environment.name, professional.accessKind)) {
@@ -53,7 +53,8 @@ export default async function handler(req, res) {
     if (!adminCatalog && !await discoveryDocumentsQuotaAvailable(professional)) {
       return res.status(403).json({ code: "DISCOVERY_QUOTA_REACHED", error: "Les 20 questions de votre essai Découverte ont été utilisées. L’accès aux documents est terminé." });
     }
-  } catch {
+  } catch (error) {
+    console.error('Catalogue : quota', String(error?.name || "Error"), String(error?.code || ""), String(error?.message || "").slice(0, 160));
     return res.status(503).json({ error: "Vérification de l’accès au catalogue momentanément indisponible." });
   }
   if (!process.env.SUPABASE_SECRET_KEY) return res.status(503).json({ error: "Catalogue indisponible." });
@@ -105,7 +106,8 @@ export default async function handler(req, res) {
     }
     const list = await readCatalogueList(db);
     return res.status(200).json(catalogPayload(list.documents, list.managedModels));
-  } catch {
+  } catch (error) {
+    console.error('Catalogue : lecture', String(error?.name || "Error"), String(error?.code || ""), String(error?.message || "").slice(0, 160));
     if (!res.headersSent) return res.status(503).json({ error: "Catalogue indisponible." });
   }
 }

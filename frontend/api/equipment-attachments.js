@@ -1415,7 +1415,8 @@ export default async function handler(req, res) {
             });
         }
 
-        console.error("Erreur interne API pièces jointes privées.");
+        // Diagnostic sans données : type, code et début du message technique.
+        console.error("Erreur interne API pièces jointes privées.", String(error?.name || "Error"), String(error?.code || ""), String(error?.message || "").slice(0, 160));
 
         return res.status(500).json({
             ok: false,
