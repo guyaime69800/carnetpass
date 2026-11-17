@@ -1,12 +1,12 @@
 import { createHash } from "node:crypto";
-import { Readable } from "node:stream";
-import { pipeline } from "node:stream/promises";
 import { createClient } from "@supabase/supabase-js";
 import { del, get, issueSignedToken } from "@vercel/blob";
 import { handleUploadPresigned } from "@vercel/blob/client";
 import { Redis } from "@upstash/redis";
 import { Ratelimit } from "@upstash/ratelimit";
 import { requireVerifiedCompany } from "../server/lib/require-verified-company.js";
+import { deletePrivateObject } from "../server/lib/private-object-store.js";
+import { deliverAttachmentFile } from "../server/lib/equipment-attachment-delivery.js";
 
 // API privée des pièces jointes CarnetPass.
 //
@@ -1145,28 +1145,6 @@ async function loadPrivateAttachment(
     return data;
 }
 
-function asciiFilename(value) {
-    const normalized = value
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-zA-Z0-9._ -]/g, "_")
-        .replace(/[\r\n"]/g, "_")
-        .trim();
-
-    return normalized.slice(0, 140) || "document-carnetpass";
-}
-
-function contentDisposition(filename, download) {
-    const disposition = download ? "attachment" : "inline";
-    const fallback = asciiFilename(filename);
-    const encoded = encodeURIComponent(filename)
-        .replace(/[!'()*]/g, (character) =>
-            `%${character.charCodeAt(0).toString(16).toUpperCase()}`
-        );
-
-    return `${disposition}; filename="${fallback}"; filename*=UTF-8''${encoded}`;
-}
-
 async function streamAttachment(req, res, creator, supabase) {
     const attachmentId = requireUuid(
         queryValue(req.query?.attachmentId),
@@ -1189,46 +1167,7 @@ async function streamAttachment(req, res, creator, supabase) {
         creator.companyId
     );
 
-    const blob = await get(attachment.blob_pathname, {
-        access: "private",
-    });
-
-    if (!blob || blob.statusCode !== 200 || !blob.stream) {
-        throw requestError(
-            410,
-            "ATTACHMENT_FILE_MISSING",
-            "Le fichier associé à cette pièce jointe n'est plus disponible."
-        );
-    }
-
-    if (
-        blob.blob.pathname !== attachment.blob_pathname ||
-        blob.blob.contentType !== attachment.mime_type ||
-        Number(blob.blob.size) !== Number(attachment.size_bytes)
-    ) {
-        throw requestError(
-            409,
-            "ATTACHMENT_INTEGRITY_ERROR",
-            "L'intégrité de cette pièce jointe doit être vérifiée."
-        );
-    }
-
-    res.statusCode = 200;
-    res.setHeader("Content-Type", attachment.mime_type);
-    res.setHeader("Content-Length", String(blob.blob.size));
-    res.setHeader(
-        "Content-Disposition",
-        contentDisposition(
-            attachment.original_filename,
-            action === "download"
-        )
-    );
-    res.setHeader("X-Content-Type-Options", "nosniff");
-    res.setHeader("Cache-Control", "private, no-store, max-age=0");
-    res.setHeader("CDN-Cache-Control", "no-store");
-    res.setHeader("Vercel-CDN-Cache-Control", "no-store");
-
-    await pipeline(Readable.fromWeb(blob.stream), res);
+    return deliverAttachmentFile(res, attachment, action);
 }
 
 async function readAttachments(req, res) {
@@ -1323,9 +1262,9 @@ async function deleteAttachment(req, res) {
     }
 
     try {
-        await del(attachment.blob_pathname);
+        await deletePrivateObject(attachment.blob_pathname);
     } catch {
-        console.error("Nettoyage du Blob privé différé.");
+        console.error("Nettoyage du fichier privé différé.");
 
         return res.status(202).json({
             ok: true,

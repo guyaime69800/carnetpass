@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
-import { del, get, put } from "@vercel/blob";
+import { del, put } from "@vercel/blob";
+import { getPrivateObject } from "./lib/private-object-store.js";
 import { requireVerifiedCompany } from "./lib/require-verified-company.js";
 import { platformDocumentEnvironment, platformDocumentPathname } from "./lib/platform-document-environment.js";
 
@@ -69,7 +70,9 @@ export default async function handler(req, res) {
     if (countError) return fail(res, 503, "Vérification des propositions indisponible.");
     if (count >= 10) return fail(res, 429, "Tu as déjà 10 documents en attente de validation.");
 
-    const stored = await get(attachment.blob_pathname, { access: "private", useCache: false });
+    // Source : pièce jointe privée de l'entreprise, Blob historique ou R2.
+    // La copie vers le catalogue reste, pour l'instant, une écriture Blob.
+    const stored = await getPrivateObject(attachment.blob_pathname);
     if (!stored?.stream || stored.blob?.pathname !== attachment.blob_pathname
       || stored.blob?.contentType !== "application/pdf"
       || stored.blob?.size !== attachment.size_bytes) {
