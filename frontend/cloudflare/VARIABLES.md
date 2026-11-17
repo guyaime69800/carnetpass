@@ -29,6 +29,7 @@ Tout nom `VITE_` peut être intégré au JavaScript du navigateur. Aucune clé s
 | R2 lecture | `R2_ENDPOINT`, `R2_BUCKET_NAME`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `CARNETPASS_R2_READ_ENABLED` |
 | R2 import existant | `R2_UPLOAD_ACCESS_KEY_ID`, `R2_UPLOAD_SECRET_ACCESS_KEY` |
 | Reprise des copies R2 | `R2_MIGRATION_ACCESS_KEY_ID`, `R2_MIGRATION_SECRET_ACCESS_KEY` |
+| Fichiers privés d'entreprise dans R2 (pièces jointes, fiches clim/PAC), ajout du 17 novembre | `R2_ENDPOINT` (commun), `R2_PRIVATE_BUCKET_NAME` (= `carnetpass-private-files-preview` ou `-production`, imposé par le code), `R2_PRIVATE_ACCESS_KEY_ID`, `R2_PRIVATE_SECRET_ACCESS_KEY` (clé limitée à ce seul compartiment), `CARNETPASS_PRIVATE_R2_WRITE_ENABLED` (défaut : absent = Blob), `CARNETPASS_PRIVATE_R2_READ_LEGACY` (défaut : absent) |
 | Anciens fichiers Blob | `BLOB_STORE_ID`, `BLOB_WEBHOOK_PUBLIC_KEY`, `PUBLIC_DOCS_STORE_ID`, `PUBLIC_DOCS_WEBHOOK_PUBLIC_KEY` ; accès serveur autonome à établir, notamment `BLOB_READ_WRITE_TOKEN` si le SDK l'utilise hors Vercel |
 | Stripe réel, après tests uniquement | `STRIPE_SECRET_KEY`, `STRIPE_EXPECTED_ACCOUNT_ID`, `STRIPE_LIVE_WEBHOOK_SECRET` |
 | Stripe test | `STRIPE_TEST_SECRET_KEY`, `STRIPE_TEST_WEBHOOK_SECRET`, `CARNETPASS_ADMIN_TEST_STRIPE_KEY` selon le parcours concerné |
