@@ -1,5 +1,5 @@
 // Read the complete lightweight catalogue. Large contact packs are read only for a selected document.
-const METADATA_KEYS = ['source', 'version', 'type', 'rights', 'phases', 'identity', 'validation', 'technicalVerification', 'processingAuthorization', 'testDocument', 'catalogPublication', 'documentaryReview'];
+export const METADATA_KEYS = ['source', 'version', 'type', 'rights', 'phases', 'identity', 'validation', 'technicalVerification', 'processingAuthorization', 'testDocument', 'catalogPublication', 'documentaryReview'];
 export const DOCUMENT_FIELDS = 'id,manufacturer,model_name,model_reference,title,catalog_category,hotline_phone,brand_hotlines,model_aliases,rag_status,sha256,size_bytes,status,reviewed_by,collector_ingestion_key,collector_metadata';
 const BASE_FIELDS = 'created_at,' + DOCUMENT_FIELDS.split(',').filter(field => !['brand_hotlines', 'collector_metadata'].includes(field)).join(',');
 const LIGHT_FIELDS = BASE_FIELDS + ',' + METADATA_KEYS.map(key => `_cm_${key}:collector_metadata->${key}`).join(',');

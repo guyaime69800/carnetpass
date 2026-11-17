@@ -1,5 +1,5 @@
 import { collectorDocumentAllowed } from '../server/lib/collector-document-policy.js';
-import { listAdminDocuments } from "../server/lib/list-admin-documents.js";
+import { ADMIN_LIST_COLUMNS, hydrateAdminMetadata, listAdminDocuments } from "../server/lib/list-admin-documents.js";
 import { createHash } from "node:crypto";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
@@ -347,9 +347,10 @@ export default async function handler(req, res) {
       await pipeline(Readable.from(byteChunks(verified.bytes)), res);
       return;
     }
-    const { data, error } = await listAdminDocuments(service(), "id, blob_pathname, manufacturer, model_name, model_reference, title, original_filename, size_bytes, sha256, status, catalog_category, distribution_confirmed_at, hotline_phone, model_aliases, rag_status, rag_error, rag_started_at, rag_indexed_at, created_at, collector_ingestion_key, collector_metadata")
+    // Projection allégée : jamais collector_metadata complet (contacts répétés).
+    const { data, error } = await listAdminDocuments(service(), ADMIN_LIST_COLUMNS);
 
-    if (!error) return res.status(200).json({ ok: true, documents: data.filter((entry) => entry.rag_error !== "deleted_by_admin"), publicationReady: true, hotlineReady: true });
+    if (!error) return res.status(200).json({ ok: true, documents: hydrateAdminMetadata(data).filter((entry) => entry.rag_error !== "deleted_by_admin"), publicationReady: true, hotlineReady: true });
     const fallback = await listAdminDocuments(service(), "id, blob_pathname, manufacturer, model_name, model_reference, title, original_filename, size_bytes, sha256, status, catalog_category, hotline_phone, model_aliases, created_at")
 
     return fallback.error ? fail(res, 503, "Documents indisponibles.")
