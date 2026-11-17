@@ -1,10 +1,13 @@
-import { del } from "@vercel/blob";
 import { devisRedis, fail } from "./devis-security.js";
+import { deletePrivateObject, isPrivateR2Pathname, PRIVATE_R2_SCHEME } from "./private-object-store.js";
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 export function validCleanupPath(job) {
  if(!uuid.test(job.company_id) || !uuid.test(job.equipment_id) || typeof job.pathname!=="string" || job.pathname.includes("..")) return false;
- return job.pathname.startsWith("equipment-attachments/"+job.equipment_id+"/") || job.pathname.startsWith("regulatory/"+job.company_id+"/"+job.equipment_id+"/");
+ // Même périmètre pour Blob et R2 : le préfixe fournisseur est retiré avant contrôle.
+ const key=isPrivateR2Pathname(job.pathname)?job.pathname.slice(PRIVATE_R2_SCHEME.length):job.pathname;
+ return key.startsWith("equipment-attachments/"+job.equipment_id+"/") || key.startsWith("regulatory/"+job.company_id+"/"+job.equipment_id+"/");
 }
+const del=(pathname)=>deletePrivateObject(pathname);
 async function eraseRegistry(job, redis, db) {
  // Compare the stored company AND equipment before touching an entry or any shared index.
  let cursor=job.scan_cursor || "0", keys;
