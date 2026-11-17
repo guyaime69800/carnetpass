@@ -42,6 +42,22 @@ test("pièce jointe Blob historique : toujours lisible (retour arrière)", async
   assert.match(res.headers["content-disposition"], /^inline;/);
 });
 
+test("API : sans activation R2, le dépôt R2 est refusé et le navigateur revient au dépôt Blob", async () => {
+  const { default: handler } = await import("../api/equipment-attachments.js");
+  const previous = process.env.CARNETPASS_PRIVATE_R2_WRITE_ENABLED;
+  delete process.env.CARNETPASS_PRIVATE_R2_WRITE_ENABLED;
+  try {
+    let status;
+    let payload;
+    const res = { headersSent: false, setHeader() {}, status(code) { status = code; return this; }, json(value) { payload = value; return this; } };
+    await handler({ method: "POST", headers: {}, body: { type: "attachment.r2.begin" } }, res);
+    assert.equal(status, 409);
+    assert.equal(payload.code, "UPLOAD_PROVIDER_BLOB");
+  } finally {
+    if (previous !== undefined) process.env.CARNETPASS_PRIVATE_R2_WRITE_ENABLED = previous;
+  }
+});
+
 test("pièce jointe : taille ou type divergents => 409, fichier absent => 410, chemin invalide => 409", async () => {
   const r2 = fakeR2();
   r2.objects.set(key, { bytes, contentType: "application/pdf" });

@@ -5,7 +5,16 @@ import { handleUploadPresigned } from "@vercel/blob/client";
 import { Redis } from "@upstash/redis";
 import { Ratelimit } from "@upstash/ratelimit";
 import { requireVerifiedCompany } from "../server/lib/require-verified-company.js";
-import { deletePrivateObject } from "../server/lib/private-object-store.js";
+import {
+    deletePrivateObject,
+    privateR2Configuration,
+    privateWriteProvider,
+} from "../server/lib/private-object-store.js";
+import {
+    beginAttachmentR2Upload,
+    completeAttachmentR2Upload,
+    detectMimeType,
+} from "../server/lib/equipment-attachment-r2-upload.js";
 import { deliverAttachmentFile } from "../server/lib/equipment-attachment-delivery.js";
 
 // API privée des pièces jointes CarnetPass.
@@ -645,48 +654,6 @@ function parseTrustedTokenPayload(tokenPayload) {
     return value;
 }
 
-function detectMimeType(header) {
-    if (
-        header.length >= 5 &&
-        header.subarray(0, 5).toString("ascii") === "%PDF-"
-    ) {
-        return "application/pdf";
-    }
-
-    // Certains PDF contiennent quelques octets avant leur en-tête.
-    if (header.toString("latin1").includes("%PDF-")) {
-        return "application/pdf";
-    }
-
-    if (
-        header.length >= 3 &&
-        header[0] === 0xff &&
-        header[1] === 0xd8 &&
-        header[2] === 0xff
-    ) {
-        return "image/jpeg";
-    }
-
-    if (
-        header.length >= 8 &&
-        header.subarray(0, 8).equals(
-            Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
-        )
-    ) {
-        return "image/png";
-    }
-
-    if (
-        header.length >= 12 &&
-        header.subarray(0, 4).toString("ascii") === "RIFF" &&
-        header.subarray(8, 12).toString("ascii") === "WEBP"
-    ) {
-        return "image/webp";
-    }
-
-    return null;
-}
-
 async function inspectPrivateBlob(pathname, expectedMimeType) {
     const result = await get(pathname, {
         access: "private",
@@ -948,9 +915,133 @@ async function issueUploadAuthorization(req, res, body) {
     };
 }
 
+function createUploadStore() {
+    const url =
+        process.env.UPSTASH_REDIS_REST_URL ||
+        process.env.UPSTASH_REDIS_REST_KV_REST_API_URL;
+    const token =
+        process.env.UPSTASH_REDIS_REST_TOKEN ||
+        process.env.UPSTASH_REDIS_REST_KV_REST_API_TOKEN;
+
+    return url && token ? new Redis({ url, token }) : null;
+}
+
+// Dépôt R2 privé (activé seulement si CARNETPASS_PRIVATE_R2_WRITE_ENABLED).
+// Sinon, réponse 409 UPLOAD_PROVIDER_BLOB : le navigateur reprend le dépôt
+// Vercel Blob historique. Mêmes contrôles de session, d'entreprise,
+// d'équipement, d'intervention et de quotas que le dépôt Blob.
+async function handleR2UploadRequest(req, res, body) {
+    const begin = body.type === "attachment.r2.begin";
+    let provider;
+
+    try {
+        provider = begin ? privateWriteProvider() : (privateR2Configuration(), "r2");
+    } catch {
+        throw requestError(
+            503,
+            "STORAGE_UNAVAILABLE",
+            "Le stockage des pièces jointes est momentanément indisponible."
+        );
+    }
+
+    if (provider !== "r2") {
+        return res.status(409).json({
+            ok: false,
+            code: "UPLOAD_PROVIDER_BLOB",
+            error: "Dépôt historique à utiliser.",
+        });
+    }
+
+    let input = null;
+
+    if (begin) {
+        input = parseClientPayload(body.clientPayload);
+        req.headers.authorization = `Bearer ${input.accessToken}`;
+    }
+
+    const creator = await requireVerifiedCompany(req, res);
+    if (!creator) return;
+
+    if (
+        !(await checkRateLimit(
+            rateLimiters?.requests,
+            `${creator.userId}:${getClientIp(req)}`,
+            res
+        ))
+    ) {
+        return;
+    }
+
+    if (
+        begin &&
+        !(await checkRateLimit(
+            rateLimiters?.mutations,
+            `${creator.companyId}:${creator.userId}`,
+            res
+        ))
+    ) {
+        return;
+    }
+
+    const store = createUploadStore();
+
+    if (!store) {
+        throw requestError(
+            503,
+            "RATE_LIMIT_UNAVAILABLE",
+            "Le contrôle de sécurité est momentanément indisponible."
+        );
+    }
+
+    const supabase = createAdminSupabase();
+
+    if (begin) {
+        await loadEquipment(supabase, input.equipmentId, creator.companyId);
+        await loadIntervention(
+            supabase,
+            input.interventionId,
+            input.equipmentId,
+            creator.companyId
+        );
+
+        return res.status(200).json(
+            await beginAttachmentR2Upload(
+                { creator, input, size: body.size },
+                { store }
+            )
+        );
+    }
+
+    return res.status(200).json(
+        await completeAttachmentR2Upload(
+            { creator, uploadId: body.uploadId },
+            {
+                store,
+                db: supabase,
+                verifyScope: async (ticket) => {
+                    await loadEquipment(supabase, ticket.equipmentId, ticket.companyId);
+                    await loadIntervention(
+                        supabase,
+                        ticket.interventionId,
+                        ticket.equipmentId,
+                        ticket.companyId
+                    );
+                },
+            }
+        )
+    );
+}
+
 async function handleUploadRequest(req, res) {
     const body = readJsonBody(req);
     let authorization = null;
+
+    if (
+        body.type === "attachment.r2.begin" ||
+        body.type === "attachment.r2.complete"
+    ) {
+        return handleR2UploadRequest(req, res, body);
+    }
 
     if (body.type === "blob.generate-presigned-url") {
         authorization = await issueUploadAuthorization(req, res, body);

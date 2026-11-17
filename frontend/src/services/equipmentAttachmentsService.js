@@ -76,6 +76,45 @@ export async function uploadEquipmentAttachment({
         originalFilename: file.name,
         accessToken,
     });
+
+    // Dépôt R2 privé si le serveur l'a activé ; sinon (409
+    // UPLOAD_PROVIDER_BLOB), dépôt Vercel Blob historique ci-dessous.
+    const begin = await fetch(API_URL, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+            type: "attachment.r2.begin",
+            clientPayload,
+            size: file.size,
+        }),
+    });
+    const started = await begin.json().catch(() => null);
+
+    if (begin.ok && started?.provider === "r2") {
+        const sent = await fetch(started.url, {
+            method: "PUT",
+            headers: started.headers,
+            body: file,
+        });
+
+        if (!sent.ok) throw new Error("Envoi du fichier impossible.");
+
+        const done = await fetch(API_URL, {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+                type: "attachment.r2.complete",
+                uploadId: started.uploadId,
+            }),
+        });
+
+        return readApiResponse(done, "Vérification du fichier impossible.");
+    }
+
+    if (!(begin.status === 409 && started?.code === "UPLOAD_PROVIDER_BLOB")) {
+        throw new Error(started?.error || "Envoi du fichier impossible.");
+    }
+
     return uploadPresigned(pathname, file, {
         access: "private",
         clientPayload,
