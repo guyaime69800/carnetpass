@@ -11,6 +11,10 @@ if (offline) {
   vars.VITE_SUPABASE_PUBLISHABLE_KEY = 'offline-build-only-not-a-working-key';
 }
 if (!vars.VITE_SUPABASE_URL || !vars.VITE_SUPABASE_PUBLISHABLE_KEY) throw Error('Set the public VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY locally');
+// Incident du 18/11 : un export Vercel remplace certaines valeurs par « [SENSITIVE] »,
+// compilées telles quelles dans le site (page blanche). Refus explicite.
+const masked = Object.keys(vars).filter((name) => name.startsWith('VITE_') && /^\[SENSITIVE\]$|\\n$/.test(String(vars[name]).trim()));
+if (masked.length) throw Error(`MASKED_PUBLIC_VALUE: ${masked.join(', ')}`);
 if (workerConfiguration({ ...vars, CARNETPASS_RELEASE_BRANCH: environment === 'production' ? 'main' : 'migration/cloudflare-20261115' })) throw Error('BUILD_DATABASE_TARGET_REFUSED');
 for (const file of ['scripts/validate-equipment-catalog.mjs', 'scripts/render-public-pages.mjs', 'node_modules/vite/bin/vite.js', 'scripts/audit-client-secret-exposure.mjs', 'scripts/prepare-cloudflare-rag.mjs']) {
   const run = spawnSync(process.execPath, [file, ...(file.includes('/vite/') ? ['build'] : [])], { env: vars, stdio: 'inherit' });
