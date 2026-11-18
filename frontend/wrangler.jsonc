@@ -43,10 +43,10 @@
         "CARNETPASS_RUNTIME": "cloudflare",
         "CARNETPASS_ENV": "production",
         "CARNETPASS_RELEASE_BRANCH": "main",
-        "CARNETPASS_SCHEDULED_ENABLED": "false",
-        "CARNETPASS_SCHEDULER_OWNER": "none"
+        "CARNETPASS_SCHEDULED_ENABLED": "true",
+        "CARNETPASS_SCHEDULER_OWNER": "cloudflare"
       },
-      "triggers": { "crons": [] }
+      "triggers": { "crons": ["*/5 * * * *", "0 8 * * *", "15 * * * *"] }
     }
   }
 }
