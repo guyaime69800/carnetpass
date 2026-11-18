@@ -1,6 +1,8 @@
 import OpenAI from "openai";
 import { recordOpenAIHealth } from '../server/lib/admin-service-health.js';
 import { sharedDocumentScope } from '../shared/platform-document-scope.js';
+import { collectorDocumentAllowed, collectorDocumentsShareVariant } from '../server/lib/collector-document-policy.js';
+import { hotlineAnswer } from '../shared/brand-hotlines.js';
 import { createClient } from "@supabase/supabase-js";
 
 import { getEquipmentConfig } from "../server/lib/equipment-registry.js";
@@ -202,26 +204,27 @@ export default async function handler(
       const db = createClient(process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY,
         { auth: { persistSession: false, autoRefreshToken: false } });
       const { data: indexed, error: indexError } = await db.from("platform_document_intake")
-        .select("id, manufacturer, model_name, model_reference, model_aliases, catalog_category, title, hotline_phone, rag_data")
+        .select("id, status, reviewed_by, manufacturer, model_name, model_reference, model_aliases, catalog_category, title, hotline_phone, brand_hotlines, rag_data, sha256, collector_ingestion_key, collector_metadata")
         .in("id", platformDocumentIds).eq("status", "approved").eq("rag_status", "ready")
         .not("distribution_confirmed_at", "is", null);
       if (indexError) throw indexError;
       if (!indexed?.length || indexed.length !== platformDocumentIds.length
-        || indexed.some((item) => !Array.isArray(item.rag_data?.items) || !item.rag_data.items.length)) {
+        || indexed.some((item) => !collectorDocumentAllowed(item, body.platformModelReference) || !Array.isArray(item.rag_data?.items) || !item.rag_data.items.length)) {
         return response.status(409).json({ error: "Un document n'est pas encore indexé pour Shiba." });
       }
       const scope = sharedDocumentScope(indexed, body.platformModelReference, equipmentConfig?.equipmentData.identity);
-      if (!scope) {
+      if (!scope || !collectorDocumentsShareVariant(indexed)) {
         return response.status(400).json({ error: "Documents de modèles différents." });
       }
       const dynamicDocuments = indexed.map((item) => ({ documentId: item.id, title: item.title, storage: "private" }));
       const base = { identity: {
-        brand: scope.manufacturer, model: scope.model, manufacturerReference: scope.reference,
+        brand: scope.manufacturer, model: scope.model, manufacturerReference: scope.reference, category: indexed[0]?.catalog_category,
       } };
       equipmentConfig = {
         equipmentData: {
           ...base,
           documents: dynamicDocuments,
+          hotlinePacks: indexed.map(item=>item.brand_hotlines).filter(Boolean),
           support: base.support?.hotline?.phone ? base.support : indexed.find((item) => item.hotline_phone)?.hotline_phone
             ? { hotline: { label: "Hotline constructeur", phone: indexed.find((item) => item.hotline_phone).hotline_phone } } : base.support,
         },
@@ -258,12 +261,15 @@ export default async function handler(
       ragEmbeddingData,
     } = equipmentConfig;
 
-    const hotlineQuestion = /(?:hotline|service client|num[eé]ro.*(?:t[eé]l[eé]phone|appeler)|contacter.*(?:fabricant|constructeur|chaffoteaux))/i.test(question);
+    const hotlineQuestion = /(?:hotline|\bsav\b|assistance technique|service client|num[eé]ro.*(?:t[eé]l[eé]phone|appeler)|contacter.*(?:fabricant|constructeur|chaffoteaux))/i.test(question);
     const hotline = equipmentData.support?.hotline;
-    if (hotlineQuestion && hotline?.phone) {
+    if (hotlineQuestion) {
+      const scope=body.hotlineScope||{};
+      if ((scope.country && !/^[A-Z]{2}$/.test(scope.country)) || (scope.service && !['technical_professional','after_sales','customer_service','unspecified'].includes(scope.service)) || (scope.range && (typeof scope.range!=='string'||scope.range.length>160))) return response.status(400).json({error:'Sélection de contact invalide.'});
+      const packs=equipmentData.hotlinePacks?.length?equipmentData.hotlinePacks:hotline?.phone?[{services:{unspecified:{observations:[{phone:hotline.phone,source:hotline.source||'Fiche équipement CarnetPass',country:null,manufacturerVerified:false,service:'unspecified'}]}}}]:[];
       return response.status(200).json({
         ok: true,
-        answer: `${hotline.label ?? "Service client constructeur"} : ${hotline.phone}.${hotline.source ? ` Source : ${hotline.source}.` : ""}`,
+        answer: hotlineAnswer(packs,{country:scope.country||undefined,service:scope.service||(/\bsav\b|après.vente/i.test(question)?'after_sales':/assistance technique/i.test(question)?'technical_professional':/service client/i.test(question)?'customer_service':undefined),range:scope.range||equipmentData.identity?.model,category:equipmentData.identity?.category}),
       });
     }
 
@@ -558,7 +564,7 @@ Recherche uniquement les passages qui concernent réellement ce code ou l'une de
       shouldUseRag
         ? await searchRagContext(
             openai,
-            ragEmbeddingData,
+            equipmentConfig.loadRagData ? await equipmentConfig.loadRagData() : ragEmbeddingData,
             ragQuestion,
 
             // Pour un code défaut,

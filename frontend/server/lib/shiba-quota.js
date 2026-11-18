@@ -1,3 +1,4 @@
+import { deploymentEnvironment } from '../../shared/runtime-environment.js';
 import { Redis } from "@upstash/redis";
 import { createClient } from "@supabase/supabase-js";
 import { liveCreditStoreEnabled, liveCreditBalance, reserveLiveCredit, refundLiveCredit } from './stripe-live-credits.js';
@@ -12,10 +13,10 @@ function defaultRedis() {
   return redis;
 }
 
-export const shibaQuotaEnabled = (plan) => process.env.VERCEL_ENV === "preview"
-  || (process.env.VERCEL_ENV === "production" && ["free", "pro", "team"].includes(plan));
+export const shibaQuotaEnabled = (plan) => deploymentEnvironment(process.env) === "preview"
+  || (deploymentEnvironment(process.env) === "production" && ["free", "pro", "team"].includes(plan));
 
-export const shibaQuotaRequiresAccount = (request, environment = process.env.VERCEL_ENV) =>
+export const shibaQuotaRequiresAccount = (request, environment = deploymentEnvironment(process.env)) =>
   environment === "preview" || (environment === "production" && Boolean(request.headers?.authorization));
 
 export function shibaQuotaLimit(plan, additionalAccount = false) {

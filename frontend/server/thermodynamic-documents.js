@@ -1,14 +1,15 @@
+import { deploymentEnvironment, deploymentBranch } from '../shared/runtime-environment.js';
 import { createClient } from "@supabase/supabase-js";
-import { del, get, put } from "@vercel/blob";
-import { createHash, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
+import { archiveThermodynamicPdf, discardThermodynamicArchive, readThermodynamicArchive } from "./lib/thermodynamic-document-archive.js";
 import { requireVerifiedCompany } from "./lib/require-verified-company.js";
 import { platformDocumentEnvironment } from "./lib/platform-document-environment.js";
 import { buildThermodynamicPdf } from "./lib/thermodynamic-document-pdf.js";
 import { THERMODYNAMIC_KINDS, normalizeThermodynamicData, normalizeDrawnSignature, validateIssue } from "./lib/thermodynamic-document-schema.js";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const enabled = () => process.env.VERCEL_ENV === "preview"
-  && process.env.VERCEL_GIT_COMMIT_REF === "feature/documentation-multi-docs"
+const enabled = () => deploymentEnvironment(process.env) === "preview"
+  && deploymentBranch(process.env) === "feature/documentation-multi-docs"
   && process.env.VITE_SUPABASE_URL === "https://bqqzzbwqmiyxcotvqtoc.supabase.co";
 const fail = (res, status, error) => res.status(status).json({ ok: false, error });
 const validId = (value) => typeof value === "string" && UUID.test(value);
@@ -53,12 +54,9 @@ export default async function handler(req, res) {
       if (error || !data) return fail(res, 404, "Document introuvable.");
       if (req.query?.format !== "pdf") return res.status(200).json({ ok: true, document: data });
       if (data.status !== "issued") return fail(res, 409, "Émettez le document avant de télécharger le PDF.");
-      const stored = await get(data.pdf_pathname, { access: "private", useCache: false });
-      if (!stored?.stream || stored.blob?.pathname !== data.pdf_pathname
-        || stored.blob?.contentType !== "application/pdf"
-        || stored.blob?.size !== data.pdf_size_bytes) return fail(res, 409, "Archive PDF indisponible.");
-      const pdf = Buffer.from(await new Response(stored.stream).arrayBuffer());
-      if (createHash("sha256").update(pdf).digest("hex") !== data.pdf_sha256) return fail(res, 409, "Intégrité du PDF non confirmée.");
+      const archive = await readThermodynamicArchive(data);
+      if (!archive.ok) return fail(res, 409, archive.reason === "integrity" ? "Intégrité du PDF non confirmée." : "Archive PDF indisponible.");
+      const { pdf } = archive;
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader("Content-Disposition", `inline; filename=fiche-${data.id}.pdf`);
       res.setHeader("Content-Length", String(pdf.length));
@@ -115,25 +113,24 @@ export default async function handler(req, res) {
     };
     if (issue) {
       const pdf = buildThermodynamicPdf(values);
-      const stored = await put(`regulatory/${professional.companyId}/${linked.equipment.id}/${documentId}.pdf`, pdf, {
-        access: "private", contentType: "application/pdf", addRandomSuffix: true,
-      });
+      const stored = await archiveThermodynamicPdf({ companyId: professional.companyId,
+        equipmentId: linked.equipment.id, documentId }, pdf);
       archivedPathname = stored.pathname;
       values.pdf_pathname = stored.pathname;
-      values.pdf_sha256 = createHash("sha256").update(pdf).digest("hex");
-      values.pdf_size_bytes = pdf.length;
+      values.pdf_sha256 = stored.sha256;
+      values.pdf_size_bytes = stored.sizeBytes;
     }
     const query = existing ? db.from("thermodynamic_documents").update(values).eq("id", existing.id)
       .eq("company_id", professional.companyId).eq("status", "draft")
       : db.from("thermodynamic_documents").insert(values);
     const { data, error } = await query.select("id, intervention_id, equipment_id, kind, status, form_data, operator_signature, holder_signature, issued_at, created_at").single();
     if (error) {
-      if (archivedPathname) await del(archivedPathname).catch(() => {});
+      await discardThermodynamicArchive(archivedPathname);
       return fail(res, 503, "Enregistrement du document momentanément indisponible.");
     }
     return res.status(issue ? 200 : 201).json({ ok: true, document: data });
   } catch (error) {
-    if (archivedPathname) await del(archivedPathname).catch(() => {});
+    await discardThermodynamicArchive(archivedPathname);
     if (String(error?.message).startsWith("MISSING:")) return fail(res, 400, `Champs obligatoires : ${error.message.slice(8)}`);
     if (["SIGNATURE_INVALID", "SIGNATURES_REQUIRED"].includes(error?.message)) return fail(res, 400, "Les signatures du technicien et du client sont nécessaires.");
     if (error?.message === "QUANTITY_INVALID") return fail(res, 400, "Les quantités de fluide doivent être des nombres positifs.");

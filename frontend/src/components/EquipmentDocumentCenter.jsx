@@ -17,6 +17,7 @@ import shibaTechnicien from "../assets/simba-assistance-technique.webp";
 import "./EquipmentDocumentCenter.css";
 import { useAuth } from "../hooks/useAuth";
 import ShibaUsage from "./ShibaUsage";
+import BrandSupport from './BrandSupport';
 import { openShibaRecharge, refreshShibaUsage } from "../services/shibaUsageEvents";
 
 const DOCUMENT_FILTERS = [
@@ -170,6 +171,7 @@ function EquipmentDocumentCenterContent({
   ).map((document) => document.documentId);
   const canAskAi = Boolean(technicalEquipmentId || indexedPlatformDocumentIds.length);
   const [aiQuestion, setAiQuestion] = useState("");
+  const [hotlineScope,setHotlineScope]=useState({});
   const [aiAnswer, setAiAnswer] = useState("");
   const [aiError, setAiError] = useState("");
   const [aiBusy, setAiBusy] = useState(false);
@@ -489,6 +491,7 @@ function EquipmentDocumentCenterContent({
         },
         body: JSON.stringify({
           equipmentId: technicalEquipmentId,
+          hotlineScope,
           platformDocumentIds: indexedPlatformDocumentIds,
           question: aiQuestion.trim(),
         }),
@@ -556,6 +559,7 @@ function EquipmentDocumentCenterContent({
 
   return (
     <div className="equipment-workspace__documents">
+      <BrandSupport key={equipment.id} brand={equipment.brand} category={equipment.type} range={equipment.model} contactPacks={technicalDocuments.map(d=>d.brandHotlines).filter(Boolean)} onScopeChange={setHotlineScope}/>
       <div className={`equipment-workspace__top ${!loading && technicalDocuments.length > 0 ? "has-assistant" : ""}`}>
       <section
         className="equipment-workspace__document-library"

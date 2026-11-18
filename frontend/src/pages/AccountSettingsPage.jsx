@@ -9,6 +9,7 @@ import { signOut } from "../services/authService";
 import { getDiscoveryAccess } from "../../shared/discovery-access.js";
 import PasswordField from "../components/PasswordField";
 import AccountInvoices from "../components/AccountInvoices";
+import InternalAdminLink from "../components/InternalAdminLink";
 import { sendTestBillingConfirmation, startBilling, liveBillingPortal } from "../services/billingService";
 import "./AccountSettingsPage.css";
 
@@ -29,7 +30,6 @@ export default function AccountSettingsPage() {
   const [company, setCompany] = useState(null);
   const [portalCompany, setPortalCompany] = useState(null);
   const [testSubscription, setTestSubscription] = useState(null);
-  const [platformAdmin, setPlatformAdmin] = useState(false);
   const [maintenanceAdmin, setMaintenanceAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
@@ -41,7 +41,8 @@ export default function AccountSettingsPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [billingRefresh, setBillingRefresh] = useState(0);
-  const returningFromPayment = new URLSearchParams(window.location.search).get('paiement') === 'retour';
+  const returningFromPayment = new URLSearchParams(window.location.search).get('paiement') === 'retour'
+    || new URLSearchParams(window.location.search).get('abonnement') === 'retour';
 
   useEffect(() => {
     if (!returningFromPayment || !user?.id) return;
@@ -50,7 +51,7 @@ export default function AccountSettingsPage() {
       if (active) { setCompany(result); setBillingRefresh(value => value + 1); }
     }).catch(() => {});
     const timer = window.setInterval(refresh, 5000);
-    const stop = window.setTimeout(() => window.clearInterval(timer), 60000);
+    const stop = window.setTimeout(() => window.clearInterval(timer), 360000);
     return () => { active = false; window.clearInterval(timer); window.clearTimeout(stop); };
   }, [returningFromPayment, user?.id]);
 
@@ -82,9 +83,6 @@ export default function AccountSettingsPage() {
   useEffect(() => {
     if (!session?.access_token) return;
     let active = true;
-    fetch("/api/platform-admin", { headers: { Authorization: `Bearer ${session.access_token}` } })
-      .then((response) => { if (active) setPlatformAdmin(response.ok); })
-      .catch(() => {});
     fetch("/api/maintenance-control", { headers: { Authorization: `Bearer ${session.access_token}` } })
       .then((response) => { if (active) setMaintenanceAdmin(response.ok); })
       .catch(() => {});
@@ -121,8 +119,8 @@ export default function AccountSettingsPage() {
   return (
     <main className="account-settings">
       <header><Link to="/espace-pro">← Retour à mon espace</Link><h1>Paramètres du compte</h1><p>{user.email}</p></header>
-      {returningFromPayment && <p role="status">Retour de Stripe : votre formule et vos factures sont actualisées pendant une minute. Les droits sont confirmés après réception du paiement.</p>}
-      {platformAdmin && <p><Link to="/administration-interne">Administration interne CarnetPass</Link></p>}
+      {returningFromPayment && <p role="status">Retour de Stripe : les informations de votre abonnement sont actualisées pendant quelques minutes. Une résiliation confirmée apparaît avec sa date de fin ; aucun changement n’est confirmé sur cette page avant sa synchronisation avec Stripe.</p>}
+      <p><InternalAdminLink /></p>
       {maintenanceAdmin && <p><Link to="/administration-maintenance">Mode maintenance du site</Link></p>}
       {loading ? <p>Chargement…</p> : <div className="account-settings-grid">
         <section className="account-settings-card">
@@ -165,13 +163,14 @@ export default function AccountSettingsPage() {
           </form>
           <button className="account-settings-secondary" type="button" disabled={Boolean(busy)} onClick={() => run("logout", async () => { await signOut(); navigate("/connexion"); return "Déconnexion effectuée."; })}>Se déconnecter</button>
         </section>
-        <section className="account-settings-card" id="formule">
-          <h2>Formule et essai</h2>
+        <section className="account-settings-card account-settings-subscription" id="formule">
+          <h2>Mon abonnement</h2>
           {portalCompany && portalCompany === company?.id && ['owner', 'admin'].includes(company.role) &&
             <button type="button" className="account-settings-secondary" disabled={Boolean(busy)} onClick={() => run('live-portal', async () => {
               window.location.assign(await liveBillingPortal(session.access_token));
               return 'Ouverture du portail Stripe.';
-            })}>Gérer mon abonnement</button>}
+            })}>{subscription?.stripe_cancel_at ? 'Consulter ma résiliation et mes factures' : 'Résilier mon abonnement'}</button>}
+          {portalCompany && portalCompany === company?.id && <p>Le portail sécurisé Stripe permet de confirmer la résiliation. Elle prend effet à la fin de la période payée ; ouvrir le portail ne résilie pas votre abonnement.</p>}
           {!company ? <><p>Aucune entreprise associée.</p><Link className="account-settings-plan-link" to="/espace-pro?configuration=entreprise">Renseigner mon entreprise →</Link></> : <>
             <p>Entreprise : <strong>{company.name}</strong></p>
             <p>Formule : <strong>{subscription?.plan === "free" ? "Découverte gratuite" : subscription?.plan === "team" ? "Équipe" : subscription?.plan === "pro" ? "Pro" : subscription?.plan || "Non disponible"}</strong></p>

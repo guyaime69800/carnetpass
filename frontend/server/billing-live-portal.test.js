@@ -33,7 +33,7 @@ test('portal binds the verified responsible user to the stored company customer'
     if (path.startsWith('billing_portal/configurations?')) return Response.json({ data: [configuration] });
     assert.equal(path, 'billing_portal/sessions');
     assert.equal(options.body.get('customer'), 'cus_owned');
-    assert.equal(options.body.get('return_url'), configuration.default_return_url);
+    assert.equal(options.body.get('return_url'), `${configuration.default_return_url}?abonnement=retour#formule`);
     return Response.json({ customer, livemode: true, configuration: configuration.id, url: target });
   } });
   async function run(action = 'portal', auth = true) {

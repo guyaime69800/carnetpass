@@ -1,5 +1,6 @@
+import { deploymentEnvironment } from '../../shared/runtime-environment.js';
 // Entitlements are read with the authenticated user's RLS scope, never browser metadata.
-export async function additionalAccountAccess(client, professional, environment = process.env.VERCEL_ENV) {
+export async function additionalAccountAccess(client, professional, environment = deploymentEnvironment(process.env)) {
  const {data: assignment,error} = await client.from("pro_account_assignments").select("user_id").eq("company_id",professional.companyId).eq("user_id",professional.userId).maybeSingle();
  if(error) throw new Error("Additional account lookup unavailable");
  if(!assignment)return {additionalAccount:false};

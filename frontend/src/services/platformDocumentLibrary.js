@@ -1,4 +1,5 @@
 import { documentTypeFromTitle } from "../lib/document-types.js";
+export function hydrateBrandContacts(payload){return (payload.documents||[]).map(d=>({...d,brand_hotlines:d.brand_hotlines||payload.contactPacks?.[d.brand_contact_key]||null}));}
 function normalizeReference(value) {
   return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "")
     .toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -45,6 +46,17 @@ function completionModelLabels(item) {
   const brand = normalizeReference(item.brand);
   const label = String(item.modelFamily || item.model || '').trim();
   const ref = String(item.manufacturerReference || '');
+  if (brand === 'airwell') {
+    const match = label.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .match(/^WELLEA\s+M\s+HT\s+(\d+)\s*kW\s+(monophase|triphase)\s*[-–·]\s*(BDHW-(\d{3})R-04(M25|T35))$/i);
+    // Display grouping only. Keep exact references and document lists unchanged.
+    if (match && Number(match[4]) === Number(match[1]) * 10
+      && (match[5].toUpperCase() === 'M25') === (match[2].toLowerCase() === 'monophase')) {
+      const supply = match[2].toLowerCase() === 'monophase' ? 'Monophasé' : 'Triphasé';
+      return { family: 'WELLEA M HT', model: `${match[1]} kW · ${supply} · ${match[3].toUpperCase()}`,
+        reference: ref, power: Number(match[1]) };
+    }
+  }
   if (brand === 'dedietrich') {
     const neovo = [ref, label].map(value => value.match(/^neovo[\s-]+condens[\s-]+efu[\s-]+c[\s-]+(\d+)(?:[\s-]+(plus))?$/i)).find(Boolean);
     if (neovo) return { family: `NeOvo Condens EFU C${neovo[2] ? ' Plus' : ''}`,
@@ -178,6 +190,8 @@ export function catalogModelsWithPublishedDocuments(_catalog, documents) {
     }];
     model.searchAliases = [...new Set([...(model.searchAliases || []), ...(document.model_aliases || [])])];
     if (document.hotline_phone) model.hotlinePhone = document.hotline_phone;
+    if (document.brand_hotlines) model.brandHotlines = document.brand_hotlines;
+    if (document.brand_hotlines) model.hotlinePacks = [...(model.hotlinePacks||[]),document.brand_hotlines];
   }
   // Attach shared notices to existing exact model cards only. Aliases are
   // document-specific: never infer coverage from the family or another PDF.
@@ -216,7 +230,19 @@ export function publishedDocumentsForEquipment(entries, equipment) {
     sourceName: entry.manufacturer,
     storage: "platform-private",
     ragStatus: entry.rag_status || "pending",
+    brandHotlines: entry.brand_hotlines || null,
   }));
+}
+
+export async function getCatalogueDocumentMetadata(documentId, accessToken) {
+  const response = await fetch(`/api/platform-catalog-documents?id=${encodeURIComponent(documentId)}&metadata=1`, {
+    headers: { Authorization: `Bearer ${accessToken}` }, signal: AbortSignal.timeout(20000),
+  });
+  const payload = await response.json().catch(() => null);
+  if (!response.ok) throw new Error(payload?.error || 'Informations du document indisponibles.');
+  const entry = hydrateBrandContacts(payload).find(item => item.id === documentId);
+  if (!entry) throw new Error('Document indisponible.');
+  return entry;
 }
 
 export async function getPlatformDocumentsForEquipment(equipment, accessToken) {
@@ -229,7 +255,10 @@ export async function getPlatformDocumentsForEquipment(equipment, accessToken) {
     throw new Error(details?.error || "Les documents publiés sont momentanément indisponibles.");
   }
   const result = await response.json();
-  const documents = publishedDocumentsForEquipment(result.documents, equipment);
+  const documents = publishedDocumentsForEquipment(hydrateBrandContacts(result), equipment);
+  // Read complete contact packs only for documents of this exact equipment.
+  const details = await Promise.all(documents.map(document => getCatalogueDocumentMetadata(document.documentId, accessToken)));
+  for (const document of documents) document.brandHotlines = details.find(entry => entry.id === document.documentId)?.brand_hotlines || null;
   documents.managed = publishedDocumentsForEquipment((result.managedModels || []).map((entry) => ({ ...entry, title: "" })), equipment).length > 0;
   return documents;
 }

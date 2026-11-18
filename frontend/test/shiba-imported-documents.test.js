@@ -28,6 +28,10 @@ test("Shiba accepts published indexed documents in Production and preserves acco
     const low=await invoke({aal:'aal1'});assert.equal(low.statusCode,403);assert.equal(reads,1);
     const anonymous=await invoke({authenticated:false});assert.equal(anonymous.statusCode,401);assert.equal(reads,1);
     const mismatched=await invoke({equipmentId:'0010017388'});assert.equal(mismatched.statusCode,400);
+    indexed=[{...indexed[0],collector_ingestion_key:'collector-fixture',collector_metadata:{testDocument:true,phases:{validated:false}}}];
+    const technicalTest=await invoke();assert.equal(technicalTest.statusCode,409);
+    indexed=[{...indexed[0],collector_metadata:{testDocument:false,phases:{validated:false}}}];
+    const pendingCollector=await invoke();assert.equal(pendingCollector.statusCode,409);
     indexed=[];const unavailable=await invoke();assert.equal(unavailable.statusCode,409);
     process.env.CARNETPASS_PRODUCTION_ADMIN_ENABLED='false';const disabled=await invoke();assert.equal(disabled.statusCode,404);
   }finally{globalThis.fetch=previousFetch;for(const key of Object.keys(process.env))if(!(key in previous))delete process.env[key];Object.assign(process.env,previous);}

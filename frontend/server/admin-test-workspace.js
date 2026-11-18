@@ -47,7 +47,7 @@ export async function adminTestWorkspace(req, res, { user, database, env = proce
     if (body.action === 'analyze') {
       if (!analyze && !env.OPENAI_API_KEY) throw fail(503, 'Scan IA indisponible ; utilisez la saisie manuelle.');
       const image = await imageReader(body.image);
-      await reserve(redis(), user.id, { ...env, VERCEL_ENV: 'admin-test' });
+      await reserve(redis(), user.id, { ...env, SHIBA_SCAN_BUDGET_SCOPE: 'admin-test' });
       let raw;
       if (analyze) raw = await analyze(image);
       else {

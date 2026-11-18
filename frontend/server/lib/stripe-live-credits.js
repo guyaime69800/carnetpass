@@ -1,8 +1,9 @@
+import { deploymentEnvironment, deploymentBranch } from '../../shared/runtime-environment.js';
 import { randomUUID } from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
 
 export function liveCreditStoreEnabled(env = process.env) {
-  return env.VERCEL_ENV === 'production' && env.VERCEL_GIT_COMMIT_REF === 'main'
+  return deploymentEnvironment(env) === 'production' && deploymentBranch(env) === 'main'
     && env.VITE_SUPABASE_URL === 'https://tsyukqcyfxcrjrhopvpv.supabase.co'
     && env.CARNETPASS_STRIPE_LIVE_PROCESSING_ENABLED === 'true';
 }

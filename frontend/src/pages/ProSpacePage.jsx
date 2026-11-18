@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import InternalAdminLink from "../components/InternalAdminLink";
 import { signOut, updateProfessionalPhone } from "../services/authService";
 import { activeStripeTestPlan, getStripeTestSubscription } from "../services/stripeTestSubscription";
 import {
@@ -1619,6 +1620,7 @@ export default function ProSpacePage() {
   if (loading) {
     return (
       <main className="pro-space pro-space--center">
+        <p><InternalAdminLink className="pro-settings-link" /></p>
         <div className="pro-loading" role="status">
           <span className="pro-spinner" />
           <strong>Préparation de votre espace professionnel</strong>
@@ -1637,6 +1639,7 @@ export default function ProSpacePage() {
           </span>
 
           <h1>Impossible de charger votre espace</h1>
+          <p><InternalAdminLink className="pro-settings-link" /></p>
           <p>{loadError}</p>
 
           <button
@@ -1658,6 +1661,7 @@ export default function ProSpacePage() {
   if (!company && routeParams.get("configuration") !== "entreprise") {
     return <main className="pro-space pro-space--center"><section className="pro-empty-state">
       <h1>Votre espace professionnel</h1>
+      <p><InternalAdminLink className="pro-settings-link" /></p>
       <p>Vous êtes connecté avec {user?.email}. Aucune entreprise n’est associée à ce compte.</p>
       <p>Pour démarrer votre essai gratuit de 5 jours, renseignez votre activité. Vous pourrez ajouter jusqu’à 5 équipements, sans carte bancaire. Le SIRET est facultatif pendant l’essai.</p>
       <Link className="pro-primary-button" to="/espace-pro?configuration=entreprise">Démarrer mon essai gratuit de 5 jours</Link>
@@ -1673,6 +1677,7 @@ export default function ProSpacePage() {
           <Brand />
 
           <div className="pro-header-actions">
+            <InternalAdminLink className="pro-settings-link" />
             <span className="pro-secure-badge">
               <span aria-hidden="true">🔒</span>
               Session sécurisée
@@ -1916,6 +1921,7 @@ export default function ProSpacePage() {
         <Brand />
 
         <div className="pro-header-actions">
+          <InternalAdminLink className="pro-settings-link" />
           <span className="pro-plan-badge">Accès {company.is_demo === true && plan === "enterprise" ? "Test — fonctions complètes" : getPlanLabel(plan)}{testPlan ? ` · abonnement test ${getPlanLabel(testPlan)}` : ""}</span>
 
           <button

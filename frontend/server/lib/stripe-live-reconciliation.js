@@ -1,4 +1,28 @@
 import { productionPrices, validateProductionPrice } from './stripe-production-catalog.js';
+import { liveEventReceipt } from './stripe-live-webhook.js';
+
+// Genuine Stripe events only; bounded scan of already linked subscriptions.
+export async function recoverSubscriptionEvents(db, stripe, now = Date.now(), env = process.env) {
+  const account = await stripe('account');
+  if (!account?.id || account.id !== env.STRIPE_EXPECTED_ACCOUNT_ID) throw new Error('Stripe account mismatch');
+  const known = await db.from('stripe_live_company_state').select('subscription_id');
+  if (known.error) throw Object.assign(new Error('Billing storage unavailable'), { code: 'RECOVERY_STORAGE_UNAVAILABLE' });
+  const ids = new Set((known.data || []).map(row => row.subscription_id).filter(Boolean));
+  if (!ids.size) return { recovered: 0, scanTruncated: false };
+  const result = await stripe(`events?type=customer.subscription.updated&limit=100&created%5Bgte%5D=${Math.floor(now / 1000) - 29 * 86400}`);
+  if (!Array.isArray(result?.data)) throw new Error('Stripe events unavailable');
+  let recovered = 0;
+  for (const event of [...result.data].reverse()) {
+    if (event.object !== 'event' || event.livemode !== true || event.type !== 'customer.subscription.updated'
+      || !/^evt_[A-Za-z0-9]+$/.test(event.id || '') || !Number.isSafeInteger(event.created)
+      || event.created > Math.floor(now / 1000) + 300 || event.context
+      || (event.account && event.account !== account.id) || !ids.has(event.data?.object?.id)) continue;
+    const recorded = await db.rpc('record_stripe_live_event', { receipt: liveEventReceipt(event, account.id) });
+    if (recorded.error) throw Object.assign(new Error('Billing event recovery unavailable'), { code: 'RECOVERY_RECEIPT_UNAVAILABLE' });
+    if (recorded.data === 'recorded') recovered++;
+  }
+  return { recovered, scanTruncated: result.has_more === true };
+}
 
 const id = (value) => typeof value === 'string' ? value : value?.id;
 const must = (condition) => { if (!condition) throw new Error('Stripe payment requires review'); };
@@ -98,7 +122,7 @@ export function createLiveStripeReader(env = process.env, request = fetch) {
         Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, 'Stripe-Version': '2026-08-26.dahlia',
       },
     }); } catch { throw new Error('Stripe read unavailable'); }
-    if (!response.ok) throw new Error('Stripe read unavailable');
+    if (!response.ok) throw Object.assign(new Error('Stripe read unavailable'), { code: `STRIPE_READ_HTTP_${response.status}` });
     try { return await response.json(); } catch { throw new Error('Stripe read unavailable'); }
   };
 }

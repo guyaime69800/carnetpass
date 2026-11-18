@@ -1,0 +1,295 @@
+[
+  {
+    "equipmentId": "atlantic-naia-2-micro-25-021272",
+    "documents": [
+      {
+        "source": "atlantic-u0619432-1904-fr-15.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/967ca3f57364e5314601cb87b2a6fdc3d0e40134d48135e47351d7d3b920548a.json",
+        "sha256": "967ca3f57364e5314601cb87b2a6fdc3d0e40134d48135e47351d7d3b920548a",
+        "bytes": 6017208
+      },
+      {
+        "source": "atlantic-u0619432-reglages-extrait.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/c7ddb2fd43d335be7c284f21e8b7cca0f92d92835be723320a913889938fe87e.json",
+        "sha256": "c7ddb2fd43d335be7c284f21e8b7cca0f92d92835be723320a913889938fe87e",
+        "bytes": 1205703
+      },
+      {
+        "source": "atlantic-naia-naema-v1-v2-sav.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/8ab92f0f036cc1618a461425cefe3efceabd52d59f596aa7e143efc2beebeac1.json",
+        "sha256": "8ab92f0f036cc1618a461425cefe3efceabd52d59f596aa7e143efc2beebeac1",
+        "bytes": 1469164
+      },
+      {
+        "source": "atlantic-021272-nomenclature-2018.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/1fe1ded860630056c113fd514276b1fd6c9cf6b46fa115b0ade335ff060f91bf.json",
+        "sha256": "1fe1ded860630056c113fd514276b1fd6c9cf6b46fa115b0ade335ff060f91bf",
+        "bytes": 683415
+      }
+    ]
+  },
+  {
+    "equipmentId": "chaffoteaux-mira-c-green-ultra-25-fr-3310543",
+    "documents": [
+      {
+        "source": "chaffoteaux-chaffoteaux-3310543-installation-maintenance.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/0fcbbc01f4d31b223d106d1ab916898e505024397c8013303254e58f3afc715e.json",
+        "sha256": "0fcbbc01f4d31b223d106d1ab916898e505024397c8013303254e58f3afc715e",
+        "bytes": 6220798
+      },
+      {
+        "source": "chaffoteaux-chaffoteaux-3310543-settings-extract.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/f4384752811e1f32d93d0eaf044f9b90c18fc353c3f86e6de217e95796582fde.json",
+        "sha256": "f4384752811e1f32d93d0eaf044f9b90c18fc353c3f86e6de217e95796582fde",
+        "bytes": 372866
+      },
+      {
+        "source": "chaffoteaux-chaffoteaux-3310543-exploded-view.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/daa5b5d6dedf64254db6a7e30a6ef2738f73e4bebd4f50ca68f4a728bb1d0204.json",
+        "sha256": "daa5b5d6dedf64254db6a7e30a6ef2738f73e4bebd4f50ca68f4a728bb1d0204",
+        "bytes": 2329343
+      }
+    ]
+  },
+  {
+    "equipmentId": "chaffoteaux-mira-c-green-ultra-30-fr-3310544",
+    "documents": [
+      {
+        "source": "chaffoteaux-chaffoteaux-3310544-installation-maintenance.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/3ecd177086f35484bf4315c20e7bf0ecf7cf64f8d6ac1de86f675adddbc9917a.json",
+        "sha256": "3ecd177086f35484bf4315c20e7bf0ecf7cf64f8d6ac1de86f675adddbc9917a",
+        "bytes": 6220849
+      },
+      {
+        "source": "chaffoteaux-chaffoteaux-3310544-settings-extract.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/61fac5e0c41847d00419fe18736d6d509c843edabff0e6770820b418a54752ff.json",
+        "sha256": "61fac5e0c41847d00419fe18736d6d509c843edabff0e6770820b418a54752ff",
+        "bytes": 372866
+      },
+      {
+        "source": "chaffoteaux-chaffoteaux-3310544-exploded-view.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/5594b32418c2458578387d539a57abe9d73c7be11466b7094fe530281f98f7db.json",
+        "sha256": "5594b32418c2458578387d539a57abe9d73c7be11466b7094fe530281f98f7db",
+        "bytes": 504172
+      }
+    ]
+  },
+  {
+    "equipmentId": "chaffoteaux-mira-c-green-ultra-35-fr-3310545",
+    "documents": [
+      {
+        "source": "chaffoteaux-chaffoteaux-3310545-installation-maintenance.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/c268e6022f3f06feb6e5f3db67182cefb3e52ead3adbb0a7b57191458021d6f6.json",
+        "sha256": "c268e6022f3f06feb6e5f3db67182cefb3e52ead3adbb0a7b57191458021d6f6",
+        "bytes": 6220883
+      },
+      {
+        "source": "chaffoteaux-chaffoteaux-3310545-settings-extract.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/d8b0be8e9df6d80cd7dbc8f41315776d968d1b4d56580037a282031f940dfb1e.json",
+        "sha256": "d8b0be8e9df6d80cd7dbc8f41315776d968d1b4d56580037a282031f940dfb1e",
+        "bytes": 373031
+      },
+      {
+        "source": "chaffoteaux-chaffoteaux-3310545-exploded-view.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/e94994f039360b26bc8afdabd34ebef5eb9ba24f23887b79bb5595d5b275a5cc.json",
+        "sha256": "e94994f039360b26bc8afdabd34ebef5eb9ba24f23887b79bb5595d5b275a5cc",
+        "bytes": 2329158
+      }
+    ]
+  },
+  {
+    "equipmentId": "de-dietrich-mcr-2-24-7841749",
+    "documents": [
+      {
+        "source": "de-dietrich-7838865-04.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/b57cb37fa007c9e672ab9284177cf0615b04fbfe34b074d5817229a9239d20f4.json",
+        "sha256": "b57cb37fa007c9e672ab9284177cf0615b04fbfe34b074d5817229a9239d20f4",
+        "bytes": 9681006
+      },
+      {
+        "source": "de-dietrich-de-dietrich-mcr-2-24-exploded-view-2024-03-21.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/d0e77906ebfff0574b4d57ebdaa42312c305ec8187dac2fd20febe152c890955.json",
+        "sha256": "d0e77906ebfff0574b4d57ebdaa42312c305ec8187dac2fd20febe152c890955",
+        "bytes": 184687
+      },
+      {
+        "source": "de-dietrich-7838860-04.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/8f4f95805e1300160bffdb256d5da5f4692f914090a668bde946f36903efbbed.json",
+        "sha256": "8f4f95805e1300160bffdb256d5da5f4692f914090a668bde946f36903efbbed",
+        "bytes": 5189626
+      }
+    ]
+  },
+  {
+    "equipmentId": "elm-leblanc-megalia-cgla23-4h-5-7716704261",
+    "documents": [
+      {
+        "source": "elm-leblanc-elm-leblanc-7716704261-installation.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/527682d9a0953c93ace40aae809bbe8f9f9af8831d5c813c430279c1433257f4.json",
+        "sha256": "527682d9a0953c93ace40aae809bbe8f9f9af8831d5c813c430279c1433257f4",
+        "bytes": 4902106
+      },
+      {
+        "source": "elm-leblanc-elm-leblanc-7716704261-exploded-view.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/b705bc63c76449c586a41fe74337ddbd719c0baa534e4f6f56bb792e3e56f704.json",
+        "sha256": "b705bc63c76449c586a41fe74337ddbd719c0baa534e4f6f56bb792e3e56f704",
+        "bytes": 1565380
+      }
+    ]
+  },
+  {
+    "equipmentId": "frisquet-hydromotrix-vent-23-2000-0006000-0806000",
+    "documents": [
+      {
+        "source": "frisquet-frisquet-hydromotrix-vent-23-2000-exploded-view.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/289479cc8ab4f6d7a3bf34cea4ae73e1dc06428950ba944a5dd1303a523d57f0.json",
+        "sha256": "289479cc8ab4f6d7a3bf34cea4ae73e1dc06428950ba944a5dd1303a523d57f0",
+        "bytes": 960956
+      },
+      {
+        "source": "frisquet-frisquet-hydromotrix-vent-23-2000-installation.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/909a6b599be4d0bd7f955a252e636a7e0481fa0804e96798cd34bfdcc59d7010.json",
+        "sha256": "909a6b599be4d0bd7f955a252e636a7e0481fa0804e96798cd34bfdcc59d7010",
+        "bytes": 1296427
+      },
+      {
+        "source": "frisquet-frisquet-hydromotrix-vent-23-2000-troubleshooting.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/3896eca5ddc28b4715f76d13f0a46a9360ad08ac18c5e86a9ef1a76413767ac9.json",
+        "sha256": "3896eca5ddc28b4715f76d13f0a46a9360ad08ac18c5e86a9ef1a76413767ac9",
+        "bytes": 4765507
+      },
+      {
+        "source": "frisquet-frisquet-hydromotrix-vent-23-2000-user-manual.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/845e111c2312ea3a1cb836ce7df2ce84ed0ec0ad0a4811893c44ffee82d005ff.json",
+        "sha256": "845e111c2312ea3a1cb836ce7df2ce84ed0ec0ad0a4811893c44ffee82d005ff",
+        "bytes": 1154468
+      }
+    ]
+  },
+  {
+    "equipmentId": "frisquet-hydromotrix-vent-32-2000-0014000-0803000",
+    "documents": [
+      {
+        "source": "frisquet-frisquet-hydromotrix-vent-32-2000-exploded-view.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/b9737a575ccf09e65bbdd92a3d1ce87e362186a4901323117b429f2885ee4d4b.json",
+        "sha256": "b9737a575ccf09e65bbdd92a3d1ce87e362186a4901323117b429f2885ee4d4b",
+        "bytes": 915220
+      },
+      {
+        "source": "frisquet-frisquet-hydromotrix-vent-32-2000-installation.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/5f517c4403857ba5ea0ee72a684bf9500969ac611ffd027ee90da7c872194865.json",
+        "sha256": "5f517c4403857ba5ea0ee72a684bf9500969ac611ffd027ee90da7c872194865",
+        "bytes": 1296427
+      },
+      {
+        "source": "frisquet-frisquet-hydromotrix-vent-32-2000-troubleshooting.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/f079f4488c0b84683fa12002cf0b4b655aae0fbca59b5483a3efc2f406a6d0eb.json",
+        "sha256": "f079f4488c0b84683fa12002cf0b4b655aae0fbca59b5483a3efc2f406a6d0eb",
+        "bytes": 4765507
+      },
+      {
+        "source": "frisquet-frisquet-hydromotrix-vent-32-2000-user-manual.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/25546fa9eca6776637d5720cebf8306d1b6663ea5c1274ca9350e6feb48410d5.json",
+        "sha256": "25546fa9eca6776637d5720cebf8306d1b6663ea5c1274ca9350e6feb48410d5",
+        "bytes": 1154468
+      }
+    ]
+  },
+  {
+    "equipmentId": "frisquet-hydromotrix-vent-32-9701000-0014000",
+    "documents": [
+      {
+        "source": "frisquet-frisquet-hydromotrix-vent-32-exploded-view.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/192fa227c8e2e44dc4ef3e8945fcbbc0a5c22810455aabc5cf13d357415a8884.json",
+        "sha256": "192fa227c8e2e44dc4ef3e8945fcbbc0a5c22810455aabc5cf13d357415a8884",
+        "bytes": 642489
+      },
+      {
+        "source": "frisquet-frisquet-hydromotrix-vent-32-installation.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/07c402f2c2e7fb423a25803f4e6f7abc7c88de39502b738c22bc6e7dee3efd92.json",
+        "sha256": "07c402f2c2e7fb423a25803f4e6f7abc7c88de39502b738c22bc6e7dee3efd92",
+        "bytes": 1548731
+      },
+      {
+        "source": "frisquet-frisquet-hydromotrix-vent-32-user-manual.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/a847a1ec2b15bbf852819d97e6ba639bf4951df40bb3b807135d29e8d9e734be.json",
+        "sha256": "a847a1ec2b15bbf852819d97e6ba639bf4951df40bb3b807135d29e8d9e734be",
+        "bytes": 783749
+      }
+    ]
+  },
+  {
+    "equipmentId": "sd-themaplus-condens-30-a-h-fr-0010017388",
+    "documents": [
+      {
+        "source": "saunier-duval-0020238207-08.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/c2dd6b1854e9d2711b92c89971edd7da8855a110bbf1d9a28c552638bba39771.json",
+        "sha256": "c2dd6b1854e9d2711b92c89971edd7da8855a110bbf1d9a28c552638bba39771",
+        "bytes": 4548824
+      },
+      {
+        "source": "saunier-duval-sd-themaplus-condens-30-a-exploded-view-0010017388.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/d5184e1cff2aac315abd053fb561a57b0f1c602ce9fdfd8dacd7cddd325c91c3.json",
+        "sha256": "d5184e1cff2aac315abd053fb561a57b0f1c602ce9fdfd8dacd7cddd325c91c3",
+        "bytes": 1501267
+      }
+    ]
+  },
+  {
+    "equipmentId": "sd-themafast-condens-30-a-h-fr-0010017417",
+    "documents": [
+      {
+        "source": "saunier-duval-0020238209-04.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/807851183db452773c3ad1025eb3c8e54f73b0a4ac6edefed51d6a3aca8423dd.json",
+        "sha256": "807851183db452773c3ad1025eb3c8e54f73b0a4ac6edefed51d6a3aca8423dd",
+        "bytes": 5103569
+      },
+      {
+        "source": "saunier-duval-sd-themafast-condens-30-a-exploded-view-0010017417.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/bb6d0de6b35e3b3ffe8da6c04386fd6d7c6c8bcc8ea9cd0124984e3f6cfa4195.json",
+        "sha256": "bb6d0de6b35e3b3ffe8da6c04386fd6d7c6c8bcc8ea9cd0124984e3f6cfa4195",
+        "bytes": 1409729
+      },
+      {
+        "source": "saunier-duval-0020200493-01.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/464f7559e3cdd0394226fd74ba920bee05f1d1fdb9b145d5d22b168c317fc01a.json",
+        "sha256": "464f7559e3cdd0394226fd74ba920bee05f1d1fdb9b145d5d22b168c317fc01a",
+        "bytes": 1296251
+      }
+    ]
+  },
+  {
+    "equipmentId": "sd-themaplus-condens-25-a-h-fr-0010021497",
+    "documents": [
+      {
+        "source": "saunier-duval-sd-0010021497-installation.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/14e403bd76b7d3e76ec7dc44f0a081d3fd6efe8068b0232313b71d8db10a5be3.json",
+        "sha256": "14e403bd76b7d3e76ec7dc44f0a081d3fd6efe8068b0232313b71d8db10a5be3",
+        "bytes": 5010218
+      },
+      {
+        "source": "saunier-duval-sd-0010021497-utilisation.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/244ea7ed74741954a18d460ba5f748b30f0b80f122810c6da25be78e04310009.json",
+        "sha256": "244ea7ed74741954a18d460ba5f748b30f0b80f122810c6da25be78e04310009",
+        "bytes": 1388570
+      },
+      {
+        "source": "saunier-duval-sd-0010021497-vue-eclatee.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/2e4b621ea4ba157ea333c6625c2bc59e21ece78180c3997b5d255779b03f995b.json",
+        "sha256": "2e4b621ea4ba157ea333c6625c2bc59e21ece78180c3997b5d255779b03f995b",
+        "bytes": 1408698
+      }
+    ]
+  },
+  {
+    "equipmentId": "vaillant-ecotec-plus-vuw-26cs-1-5-n-fr-8000044523",
+    "documents": [
+      {
+        "source": "vaillant-0020279448-11.full.embeddings.json",
+        "pathname": "/__carnetpass_private/rag/f7d3c67b693ebf6e1c5fa65ec978765a6417b284d351494b4586db29babf9605.json",
+        "sha256": "f7d3c67b693ebf6e1c5fa65ec978765a6417b284d351494b4586db29babf9605",
+        "bytes": 11988534
+      }
+    ]
+  }
+]

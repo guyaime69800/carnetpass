@@ -378,18 +378,22 @@ export default function PlatformAdminPage() {
     : null;
   const pendingCount = documents.filter((entry) => entry.status === "pending_review").length;
   const pendingDocuments = documents.filter((entry) => entry.status === "pending_review");
+  const catalogueOnly = entry => entry.status === 'approved' && entry.collector_metadata?.catalogPublication?.authorized === true
+    && entry.collector_metadata.catalogPublication.scope === 'catalogue_only';
   const awaitingDistribution = documents.filter((entry) => data?.environment === "production"
-    && entry.status === "approved" && entry.distribution_confirmed_at == null);
+    && entry.status === "approved" && entry.distribution_confirmed_at == null && !catalogueOnly(entry));
   const archivedDocuments = documents.filter((entry) => entry.status !== "pending_review"
     && !awaitingDistribution.includes(entry));
   function renderDocument(entry, duplicate = false) {
     const awaitingPublication = data.environment === "production" && entry.status === "approved"
-      && entry.distribution_confirmed_at == null;
+      && entry.distribution_confirmed_at == null && !catalogueOnly(entry);
     const category = reviewCategories[entry.id] || entry.catalog_category || "";
     const content = <>
       {duplicate && <p className="admin-document-warning">Doublon possible : même fichier pour cette référence et cette catégorie. Vérifiez les fiches avant toute suppression.</p>}
       <p className="platform-admin-document-name"><strong>{entry.manufacturer} · {entry.model_name ? `${entry.model_name} · ` : ""}{entry.model_reference}</strong> · {entry.title} <span>({awaitingPublication ? "En attente de diffusion" : entry.status === "approved" ? "Publié" : entry.status === "rejected" ? "Rejeté" : "À valider"})</span></p>
       <p className="platform-admin-document-filename">{entry.original_filename}</p>
+      {entry.collector_metadata?.rights?.status === 'not_established' && <p>Droits de diffusion : non établi — aucun justificatif enregistré.</p>}
+      {catalogueOnly(entry) && <p>Disponible dans le catalogue uniquement. Mise au catalogue autorisée séparément ; elle ne confirme pas les droits de diffusion. Indexation Shiba inchangée.</p>}
       <button type="button" disabled={busy || entry.rag_status === "indexing"} onClick={() => setEditingDocument({ ...entry })}>Modifier la fiche</button>
       {editingDocument?.id === entry.id && <form onSubmit={saveDocument}>
         <label>Fabricant <input required minLength={2} maxLength={120} value={editingDocument.manufacturer} onChange={(event) => setEditingDocument({ ...editingDocument, manufacturer: event.target.value })} /></label>
@@ -409,8 +413,8 @@ export default function PlatformAdminPage() {
         {entryNotices[`${entry.id}:r2`] && <p role={entryNotices[`${entry.id}:r2`].kind === "error" ? "alert" : "status"}>{entryNotices[`${entry.id}:r2`].text}</p>}
       </div>}
       {entry.status === "approved" && <div className="platform-admin-document-index">
-        <p>Shiba : {entry.rag_status === "ready" ? "prêt" : entry.rag_status === "needs_ocr" ? "OCR nécessaire" : entry.rag_status === "failed" ? "échec de l'indexation" : entry.rag_status === "indexing" ? "indexation en cours" : "à indexer"}{entry.rag_error ? ` — ${entry.rag_error}` : ""}</p>
-        {entry.rag_status !== "ready" && entry.rag_status !== "needs_ocr" && <button type="button" disabled={busy} onClick={() => indexDocument(entry)}>{entry.rag_status === "indexing" ? "Vérifier ou relancer l'indexation" : "Indexer pour Shiba"}</button>}
+        <p>Shiba : {entry.rag_status === "ready" ? "prêt" : entry.rag_status === "needs_ocr" ? "OCR nécessaire" : entry.rag_status === "failed" ? "échec de l'indexation" : entry.rag_status === "indexing" ? "indexation en cours" : catalogueOnly(entry) ? "non indexé — statut conservé" : "à indexer"}{entry.rag_error ? ` — ${entry.rag_error}` : ""}</p>
+        {!catalogueOnly(entry) && entry.rag_status !== "ready" && entry.rag_status !== "needs_ocr" && <button type="button" disabled={busy} onClick={() => indexDocument(entry)}>{entry.rag_status === "indexing" ? "Vérifier ou relancer l'indexation" : "Indexer pour Shiba"}</button>}
         {entryNotices[`${entry.id}:index`] && <p role={entryNotices[`${entry.id}:index`].kind === "error" ? "alert" : "status"} className={`platform-admin-inline-${entryNotices[`${entry.id}:index`].kind}`}>{entryNotices[`${entry.id}:index`].text}</p>}
       </div>}
       {hotlineReady && entry.status === "approved" && <div>

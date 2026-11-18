@@ -50,6 +50,9 @@ export default function AccessBoundary({ children }) {
   if (privateLogin) return children;
   if (loading || decision?.key !== key) return <main><p role="status">Vérification de l’accès…</p></main>;
   if (decision.mfaRequired) return <Navigate to="/securite-compte" replace state={{ from: location }} />;
+  if (!token && pathname.startsWith('/administration-') && !decision.maintenance) {
+    return <Navigate to="/connexion-interne" replace state={{ from: location }} />;
+  }
   if (!decision.allowed) return <main style={{ maxWidth: 650, margin: "15vh auto", padding: 28 }}>
     <h1>{decision.maintenance ? "Le site est momentanément en maintenance." : "Accès indisponible."}</h1>
     {decision.maintenance && <p>{decision.message || "Merci de revenir dans quelques instants."}</p>}

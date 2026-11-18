@@ -1,4 +1,5 @@
-import { listAdminDocuments } from "../server/lib/list-admin-documents.js";
+import { collectorDocumentAllowed } from '../server/lib/collector-document-policy.js';
+import { ADMIN_LIST_COLUMNS, hydrateAdminMetadata, listAdminDocuments } from "../server/lib/list-admin-documents.js";
 import { createHash } from "node:crypto";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
@@ -140,11 +141,21 @@ export default async function handler(req, res) {
       const title = clean(req.body.title, 200);
       if (!manufacturer || !reference || !title || !catalogCategories.has(category)) return fail(res, 400, "Renseignez le fabricant, la référence, le titre et la catégorie.");
       const { data: current, error: readError } = await db.from("platform_document_intake")
-        .select("id, manufacturer, model_reference, title, catalog_category, status, rag_status, rag_error, rag_data, distribution_confirmed_at")
+        .select("id, manufacturer, model_name, model_reference, title, catalog_category, status, rag_status, rag_error, rag_data, distribution_confirmed_at, collector_metadata")
         .eq("id", id).maybeSingle();
       if (readError) return fail(res, 503, "Lecture de la fiche indisponible.");
       if (!current || current.rag_error === "deleted_by_admin") return fail(res, 404, "Fiche introuvable.");
       if (current.rag_status === "indexing") return fail(res, 409, "Attendez la fin de l’indexation avant de modifier la fiche.");
+      let collectorChange = {};
+      if(current.collector_metadata) {
+        const variant = req.body.modelVariant === undefined ? current.collector_metadata.identity?.variant : clean(req.body.modelVariant,160);
+        if(req.body.modelVariant && !variant) return fail(res,400,'Variante exacte invalide.');
+        const identity = variant ? {manufacturer,model:modelName || current.model_name,reference,variant,category} : null;
+        collectorChange = {collector_metadata:{...current.collector_metadata,identity,identityEstablishedByAdmin:!!identity,
+          validation:{humanValidation:'pending',manufacturerApplicability:'not_verified'},
+          phases:{...current.collector_metadata.phases,associated:!!identity,validated:false,indexed:false}},
+          status:'pending_review',distribution_confirmed_at:null,rag_status:'pending',rag_data:null};
+      }
       const withdrawn = manufacturer !== current.manufacturer || reference !== current.model_reference || category !== current.catalog_category;
       const ragData = current.rag_data?.items ? { ...current.rag_data, items: current.rag_data.items.map((item) => ({
         ...item, documentId: title, documentType: documentTypeFromTitle(title), section: `${title} - page ${item.page}`,
@@ -152,7 +163,7 @@ export default async function handler(req, res) {
       const { data: updated, error } = await db.from("platform_document_intake")
         .update({ manufacturer, model_reference: reference, ...(modelName ? { model_name: modelName } : {}), title, catalog_category: category, rag_data: ragData,
           distribution_confirmed_at: withdrawn ? null : current.distribution_confirmed_at,
-          reviewed_by: user.id, reviewed_at: new Date().toISOString() })
+          reviewed_by: user.id, reviewed_at: new Date().toISOString(),...collectorChange })
         .eq("id", id).eq("status", current.status).eq("rag_status", current.rag_status).select("id").maybeSingle();
       if (error) return fail(res, 503, "Modification de la fiche impossible.");
       if (!updated) return fail(res, 409, "La fiche a changé. Actualisez la liste.");
@@ -180,11 +191,11 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true });
     }
     let { data: entry, error: lookupError } = await db.from("platform_document_intake")
-      .select("id, blob_pathname, size_bytes, sha256, status, title, rag_status, rag_error, rag_started_at, distribution_confirmed_at")
+      .select("id, blob_pathname, size_bytes, sha256, status, reviewed_by, model_name, title, rag_status, rag_error, rag_started_at, distribution_confirmed_at, manufacturer, model_reference, collector_ingestion_key, collector_metadata")
       .eq("id", id).maybeSingle();
     if (lookupError) {
       const fallback = await db.from("platform_document_intake")
-        .select("id, blob_pathname, size_bytes, sha256, status, title").eq("id", id).maybeSingle();
+        .select("id, blob_pathname, size_bytes, sha256, status, title, manufacturer, model_reference, collector_ingestion_key, collector_metadata").eq("id", id).maybeSingle();
       entry = fallback.data; lookupError = fallback.error;
     }
     if (lookupError || !entry) return fail(res, 404, "Document introuvable.");
@@ -204,6 +215,17 @@ export default async function handler(req, res) {
       }
     }
     if (action === "unpublish") {
+      const catalogueOnly=entry.collector_metadata?.catalogPublication?.authorized===true
+        && entry.collector_metadata.catalogPublication.scope==='catalogue_only';
+      if (catalogueOnly && environment.name==='production' && entry.status==='approved') {
+        const metadata={...entry.collector_metadata,catalogPublication:{...entry.collector_metadata.catalogPublication,authorized:false,withdrawnAt:new Date().toISOString(),withdrawnBy:user.id}};
+        const {data:withdrawn,error}=await db.from('platform_document_intake')
+          .update({collector_metadata:metadata,reviewed_by:user.id,reviewed_at:new Date().toISOString()})
+          .eq('id',id).eq('status','approved').eq('collector_metadata->catalogPublication->>authorized','true').select('id').maybeSingle();
+        if(error)return fail(res,503,'Retrait du catalogue impossible.');
+        if(!withdrawn)return fail(res,409,'Document déjà retiré ou modifié.');
+        return res.status(200).json({ok:true});
+      }
       if (environment.name !== "production" || entry.status !== "approved"
         || !entry.distribution_confirmed_at) return fail(res, 409, "Document non diffusé.");
       const { data: withdrawn, error } = await db.from("platform_document_intake")
@@ -238,6 +260,7 @@ export default async function handler(req, res) {
       if (deletedError) return fail(res, 503, "PDF retiré, mais archivage de la suppression indisponible. Réessayez.");
       return res.status(200).json({ ok: true });
     }
+    if (["approve", "publish-imported", "index"].includes(action) && !collectorDocumentAllowed(entry)) return fail(res, 409, "Vérifiez et enregistrez la référence, la variante exacte et les pages justificatives avant la validation documentaire du collecteur.");
     if (action === "index") {
       if (entry.rag_status === undefined) return fail(res, 503, "Indexation indisponible dans cette base Supabase.");
       if (entry.status !== "approved") return fail(res, 409, "Publiez le document avant son indexation.");
@@ -324,9 +347,10 @@ export default async function handler(req, res) {
       await pipeline(Readable.from(byteChunks(verified.bytes)), res);
       return;
     }
-    const { data, error } = await listAdminDocuments(service(), "id, blob_pathname, manufacturer, model_name, model_reference, title, original_filename, size_bytes, sha256, status, catalog_category, distribution_confirmed_at, hotline_phone, model_aliases, rag_status, rag_error, rag_started_at, rag_indexed_at, created_at")
+    // Projection allégée : jamais collector_metadata complet (contacts répétés).
+    const { data, error } = await listAdminDocuments(service(), ADMIN_LIST_COLUMNS);
 
-    if (!error) return res.status(200).json({ ok: true, documents: data.filter((entry) => entry.rag_error !== "deleted_by_admin"), publicationReady: true, hotlineReady: true });
+    if (!error) return res.status(200).json({ ok: true, documents: hydrateAdminMetadata(data).filter((entry) => entry.rag_error !== "deleted_by_admin"), publicationReady: true, hotlineReady: true });
     const fallback = await listAdminDocuments(service(), "id, blob_pathname, manufacturer, model_name, model_reference, title, original_filename, size_bytes, sha256, status, catalog_category, hotline_phone, model_aliases, created_at")
 
     return fallback.error ? fail(res, 503, "Documents indisponibles.")

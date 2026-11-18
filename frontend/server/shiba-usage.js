@@ -1,9 +1,10 @@
+import { deploymentEnvironment } from '../shared/runtime-environment.js';
 import { requireVerifiedCompany } from "./lib/require-verified-company.js";
 import { getShibaPlan, readShibaUsage, shibaQuotaEnabled } from "./lib/shiba-quota.js";
 
 export default async function handler(request, response) {
   if (request.method !== "GET") return response.status(405).json({ error: "Méthode non autorisée." });
-  if (!shibaQuotaEnabled() && process.env.VERCEL_ENV !== "production") return response.status(200).json({ enabled: false });
+  if (!shibaQuotaEnabled() && deploymentEnvironment(process.env) !== "production") return response.status(200).json({ enabled: false });
   const professional = await requireVerifiedCompany(request, response);
   if (!professional) return;
   try {

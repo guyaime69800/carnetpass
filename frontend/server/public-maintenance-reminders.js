@@ -1,3 +1,4 @@
+import { deploymentEnvironment, deploymentBranch, previewOrigin } from '../shared/runtime-environment.js';
 import { createHash, randomBytes } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 import { Redis } from "@upstash/redis";
@@ -16,10 +17,10 @@ const redisClient = () => new Redis({
 });
 
 export function publicReminderEnabled(environment) {
-  return (environment.VERCEL_ENV === "preview"
-    && environment.VERCEL_GIT_COMMIT_REF === "feature/documentation-multi-docs"
+  return (deploymentEnvironment(environment) === "preview"
+    && deploymentBranch(environment) === "feature/documentation-multi-docs"
     && environment.VITE_SUPABASE_URL === previewProject)
-    || (environment.VERCEL_ENV === "production" && environment.PUBLIC_REMINDERS_ENABLED === "true");
+    || (deploymentEnvironment(environment) === "production" && environment.PUBLIC_REMINDERS_ENABLED === "true");
 }
 
 function database() {
@@ -80,7 +81,7 @@ async function requestVerification(req, res) {
   try {
     if (!(await throttle(req, email))) return res.status(200).json(generic);
     // In Preview, sending is restricted to one explicitly configured test inbox.
-    if (process.env.VERCEL_ENV === "preview"
+    if (deploymentEnvironment(process.env) === "preview"
       && email !== String(process.env.REMINDER_TEST_EMAIL || "").trim().toLowerCase()) {
       return res.status(200).json(generic);
     }
@@ -111,8 +112,8 @@ async function requestVerification(req, res) {
         expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString() })
       .select("id").single();
     if (insertError || !request) throw new Error("REQUEST_SAVE_FAILED");
-    const site = process.env.VERCEL_ENV === "preview"
-      ? `https://${process.env.VERCEL_URL}` : "https://www.carnetpass.fr";
+    const site = deploymentEnvironment(process.env) === "preview"
+      ? previewOrigin() : "https://www.carnetpass.fr";
     const link = `${site}/rappel/activer#verify=${verifyToken}&manage=${manageToken}`;
     await sendReminderEmail({
       to: email,

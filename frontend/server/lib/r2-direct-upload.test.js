@@ -47,10 +47,10 @@ function fixture() {
       return { ContentLength: object.bytes.length, ContentType: "application/pdf", ETag: object.etag,
         Body: Readable.from([object.bytes]) };
     }
-    if (command.constructor.name === "CopyObjectCommand") {
-      const source = objects.get(input.CopySource.slice(config.bucket.length + 1));
-      assert.equal(input.CopySourceIfMatch, source.etag);
-      objects.set(input.Key, { ...source, metadata: input.Metadata }); return {};
+    if (command.constructor.name === "PutObjectCommand") {
+      assert.equal(input.IfNoneMatch, "*");
+      if (objects.has(input.Key)) throw Object.assign(Error("PreconditionFailed"), { name: "PreconditionFailed" });
+      objects.set(input.Key, { bytes: Buffer.from(input.Body), etag: '"put"', metadata: input.Metadata }); return {};
     }
     if (command.constructor.name === "HeadObjectCommand") {
       const object = objects.get(input.Key);
@@ -88,7 +88,11 @@ test("direct import becomes verified R2-only intake, reads without Blob, and fin
   assert.equal(f.records.size, 1); assert.equal(f.attempts.length, 1);
   const read = await loadR2Pdf(f.db, entry, f.deps.env, f.deps);
   assert.ok(read.ok); assert.deepEqual(read.bytes, bytes);
-  assert.ok(!f.calls.includes("PutObjectCommand"), "permanent copy stays inside R2");
+  // Workers: no CopyObject (XML reply unreadable there). The server writes the
+  // verified bytes once to the permanent key, never overwriting.
+  assert.ok(!f.calls.includes("CopyObjectCommand"), "no CopyObject on Workers");
+  assert.equal(f.calls.filter(name => name === "PutObjectCommand").length, 1, "single server-side write");
+  assert.equal(f.objects.get(`platform-documents/sha256/${sha256}.pdf`).metadata.sha256, sha256);
 });
 
 test("identical PDFs keep separate model records and reuse one permanent R2 object", async () => {
@@ -98,7 +102,8 @@ test("identical PDFs keep separate model records and reuse one permanent R2 obje
   }
   assert.equal(f.records.size, 2); assert.equal(f.copies.size, 1);
   assert.deepEqual(f.attempts.map(item => item.outcome), ["verified", "reused"]);
-  assert.equal(f.calls.filter(name => name === "CopyObjectCommand").length, 1);
+  assert.equal(f.calls.filter(name => name === "PutObjectCommand").length, 1);
+  assert.equal(f.calls.filter(name => name === "CopyObjectCommand").length, 0);
 });
 
 test("batch aliases are bounded and saved on pending intake without publication", async () => {

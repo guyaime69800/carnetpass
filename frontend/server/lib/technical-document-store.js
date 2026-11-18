@@ -1,3 +1,4 @@
+import { deploymentEnvironment, deploymentBranch } from '../../shared/runtime-environment.js';
 const productionSupabaseUrl = "https://tsyukqcyfxcrjrhopvpv.supabase.co";
 // These two source files have identical indexed pages to the shared originals.
 const sharedDocuments = new Map([
@@ -9,7 +10,7 @@ const sharedDocuments = new Map([
 ]);
 
 export function technicalDocumentBlobLocation(documentUrl, environment) {
-  if (environment.VERCEL_ENV !== "production" || environment.VERCEL_GIT_COMMIT_REF !== "main"
+  if (deploymentEnvironment(environment) !== "production" || deploymentBranch(environment) !== "main"
     || environment.VITE_SUPABASE_URL !== productionSupabaseUrl) return documentUrl;
 
   const pathname = documentUrl.startsWith("https://") ? new URL(documentUrl).pathname : documentUrl;

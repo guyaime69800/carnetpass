@@ -1,6 +1,8 @@
+import { deploymentEnvironment } from '../../shared/runtime-environment.js';
 import { get } from "@vercel/blob";
 import { loadPlatformPdf } from "./verify-platform-pdf.js";
 import OpenAI from "openai";
+import { collectorDocumentAllowed } from './collector-document-policy.js';
 // pdfjs utilise ce module comme worker intégré en Node ; l'import statique
 // garantit sa présence dans le bundle de la fonction Vercel.
 import "pdfjs-dist/legacy/build/pdf.worker.mjs";
@@ -63,6 +65,10 @@ export async function extractPdfItems(bytes, entry) {
         items.push({
           chunkId: `${entry.id}-page-${pageNumber}-chunk-${index + 1}`,
           documentId: entry.title,
+          documentEntryId: entry.id,
+          sourceSha256: entry.sha256,
+          equipmentReference: entry.collector_metadata?.identity?.reference || entry.model_reference,
+          equipmentVariant: entry.collector_metadata?.identity?.variant || null,
           documentType: documentTypeFromTitle(entry.title),
           page: pageNumber,
           section: `${entry.title} - page ${pageNumber}`,
@@ -78,7 +84,8 @@ export async function extractPdfItems(bytes, entry) {
   }
 }
 
-export async function indexPlatformDocument(db, entry) {
+export async function indexPlatformDocument(db, entry, dependencies = {}) {
+  if (!collectorDocumentAllowed(entry) && !(dependencies.isolatedTest === true && db.kind === 'isolated-sqlite' && entry.collector_metadata?.testDocument === true)) return { status: 'validation_required' };
   if (entry.rag_status === "indexing") {
     const started = Date.parse(entry.rag_started_at || "");
     if (!Number.isFinite(started) || Date.now() - started < 15 * 60 * 1000) return { status: "indexing" };
@@ -96,16 +103,17 @@ export async function indexPlatformDocument(db, entry) {
   if (!claimed) return { status: "indexing" };
 
   try {
-    const stored = await loadPlatformPdf(entry, process.env.VERCEL_ENV,
-      pathname => get(pathname, { access: "private", useCache: false }), db);
+    const stored = await (dependencies.loadPdf || (() => loadPlatformPdf(entry, deploymentEnvironment(process.env),
+      pathname => get(pathname, { access: "private", useCache: false }), db)))();
     if (!stored.ok) throw new Error("PDF privé indisponible ou modifié.");
     const { items, pageCount, blankPages } = await extractPdfItems(stored.bytes, entry);
+    if (entry.collector_metadata?.validation?.evidence?.some(e => e.pdfPage > pageCount)) throw new Error('DOCUMENTARY_EVIDENCE_PAGE_INVALID');
     if (!items.length || blankPages > pageCount * 0.8) {
       await db.from("platform_document_intake").update({ rag_status: "needs_ocr", rag_error: "PDF scanné ou texte insuffisant : OCR nécessaire.", rag_data: null })
         .eq("id", entry.id).eq("rag_status", "indexing");
       return { status: "needs_ocr" };
     }
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    const openai = dependencies.openai || new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     for (let offset = 0; offset < items.length; offset += 32) {
       const batch = items.slice(offset, offset + 32);
       const result = await openai.embeddings.create({ model: EMBEDDING_MODEL, dimensions: EMBEDDING_DIMENSIONS, input: batch.map((item) => item.text) });

@@ -7,6 +7,7 @@ import { getEquipmentDocumentLibrary } from "../services/equipmentKnowledge";
 import { catalogModelFamily, catalogModelFamilies, catalogModelLabel, catalogModelReferenceLabel, compareCatalogModels, catalogModelsWithPublishedDocuments, sharedNoticeGroups, sharedNoticeBrandSummary } from "../services/platformDocumentLibrary";
 import DocumentPreviewModal from "./DocumentPreviewModal";
 import BrandSupport from "./BrandSupport";
+import { hydrateBrandContacts, getCatalogueDocumentMetadata } from '../services/platformDocumentLibrary.js';
 import ShibaUsage from "./ShibaUsage";
 import { openShibaRecharge, refreshShibaUsage } from "../services/shibaUsageEvents";
 import "./TechnicalCatalogModal.css";
@@ -64,7 +65,8 @@ function TechnicalCatalogContent({ onClose, onAddEquipment, canAddEquipment, cat
   const [publishedDocumentsError, setPublishedDocumentsError] = useState("");
   const [publishedDocumentsReload, setPublishedDocumentsReload] = useState(0);
   const [modelReturnStep, setModelReturnStep] = useState("models");
-  const [support, setSupport] = useState(null);
+  const [, setSupport] = useState(null);
+  const [hotlineScope, setHotlineScope] = useState({});
   const [documentsBusy, setDocumentsBusy] = useState(false);
   const [documentsError, setDocumentsError] = useState("");
   const [previewDocument, setPreviewDocument] = useState(null);
@@ -95,14 +97,14 @@ function TechnicalCatalogContent({ onClose, onAddEquipment, canAddEquipment, cat
     if (!session?.access_token) return;
     const controller = new AbortController();
     fetch("/api/platform-catalog-documents", {
-      headers: { Authorization: `Bearer ${session.access_token}` }, signal: controller.signal,
+      headers: { Authorization: `Bearer ${session.access_token}` }, signal: AbortSignal.any([controller.signal, AbortSignal.timeout(30000)]),
     }).then(async (response) => {
       const result = await response.json().catch(() => null);
       if (!response.ok) throw new Error(result?.error || "Chargement des documents publiés impossible.");
       return result;
     }).then((result) => {
       if (!controller.signal.aborted) {
-        const latest = result?.documents || [];
+        const latest = hydrateBrandContacts(result||{});
         setPublishedDocuments(latest); setPublishedDocumentsError("");
         const byId = new Map(latest.map((item) => [item.id, item]));
         const updateDocuments = (items) => items.filter((item) => item.storage !== "platform-private" || byId.has(item.documentId))
@@ -121,7 +123,7 @@ function TechnicalCatalogContent({ onClose, onAddEquipment, canAddEquipment, cat
         setAnswer(""); setPreviewDocument(null);
       }
     }).catch((error) => {
-      if (!controller.signal.aborted) setPublishedDocumentsError(error.message);
+      if (!controller.signal.aborted) setPublishedDocumentsError(error.name === 'TimeoutError' ? 'Le catalogue ne répond pas dans le délai prévu. Réessayez.' : error.message);
     }).finally(() => {
       if (!controller.signal.aborted) setPublishedDocumentsBusy(false);
     });
@@ -172,6 +174,7 @@ function TechnicalCatalogContent({ onClose, onAddEquipment, canAddEquipment, cat
   function toAssistantPicker() { clearModel({ preserveQuestion: true }); setQuery(""); setStep("assistant-picker"); }
 
   async function selectModel(item, fromAssistant = false, returnStep = "models") {
+    setHotlineScope({});
     clearModel({ preserveQuestion: true });
     const request = ++documentRequest.current;
     setModelReturnStep(returnStep);
@@ -181,13 +184,24 @@ function TechnicalCatalogContent({ onClose, onAddEquipment, canAddEquipment, cat
       setDocuments(item.publishedDocuments);
     }
     if (item.hotlinePhone) setSupport({ hotline: { label: "Hotline", phone: item.hotlinePhone } });
-    if (!item.equipmentId) return;
+    if (!item.equipmentId && !item.publishedDocuments?.length) return;
     setDocumentsBusy(true);
     try {
+      let published = item.publishedDocuments || [];
+      if (published.length && session?.access_token) {
+        const details = await Promise.all(published.map(document => getCatalogueDocumentMetadata(document.documentId, session.access_token)));
+        if (request !== documentRequest.current) return;
+        const fresh = catalogModelsWithPublishedDocuments([], details).find(model => brandKey(model.brand) === brandKey(item.brand) && model.manufacturerReference === item.manufacturerReference && model.type === item.type);
+        if (fresh) {
+          item = { ...item, ...fresh }; published = item.publishedDocuments;
+          selectedModel.current = item; setModel(item); setDocuments(published);
+        }
+      }
+      if (!item.equipmentId) return;
       const library = await getEquipmentDocumentLibrary(item.equipmentId);
       if (request === documentRequest.current) {
         const indexedDocuments = Array.isArray(library?.documents) ? library.documents : [];
-        setDocuments([...indexedDocuments, ...(item.publishedDocuments || [])]);
+        setDocuments([...indexedDocuments, ...published]);
         setSupport(item.hotlinePhone ? { ...(library?.support || {}), hotline: { label: "Hotline", phone: item.hotlinePhone } } : library?.support ?? null);
       }
     } catch (loadError) {
@@ -254,7 +268,7 @@ function TechnicalCatalogContent({ onClose, onAddEquipment, canAddEquipment, cat
         method: "POST",
         headers: { "Content-Type": "application/json", ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}) },
         body: JSON.stringify(useDocumentation
-          ? { equipmentId: model.equipmentId, platformModelReference: model.manufacturerReference, platformDocumentIds: (model.publishedDocuments || [])
+          ? { equipmentId: model.equipmentId, hotlineScope: {...hotlineScope,range:hotlineScope.range||catalogModelFamily(model)}, platformModelReference: model.manufacturerReference, platformDocumentIds: (model.publishedDocuments || [])
             .filter((document) => document.ragStatus === "ready").map((document) => document.documentId), question: requestQuestion }
           : { brand: model.brand, model: model.model, reference: model.manufacturerReference, category: category?.label || model.type, question: requestQuestion }),
       });
@@ -398,7 +412,8 @@ function TechnicalCatalogContent({ onClose, onAddEquipment, canAddEquipment, cat
             </div>
           </>}
           {model && ["model", "documents", "assistant"].includes(step) && <>
-            <div className="technical-catalog-model-heading"><div><span className="technical-catalog-kicker">{model.brand}</span><h3>{model.model}{model.variant ? ` · ${model.variant}` : ""}</h3><p>Réf. produit : {model.manufacturerReference || "non renseignée"}</p>{!!model.searchAliases?.length && <p>Autres références couvertes : {model.searchAliases.join(", ")}</p>}{support?.hotline?.phone && <p>Hotline : <a href={`tel:${support.hotline.phone.replace(/\s+/g, "")}`}>{support.hotline.phone}</a></p>}</div>{step === "model" && <button type="button" className="technical-catalog-back" onClick={assistantOrigin ? toAssistantPicker : toModels}>← {assistantOrigin ? "Choisir un autre modèle" : modelReturnStep === "published" ? "Documents publiés" : "Tous les modèles"}</button>}</div>
+            <BrandSupport key={`${model.brand}-${model.manufacturerReference}`} brand={model.brand} category={model.type||type} range={catalogModelFamily(model)} contactPacks={model.hotlinePacks||[model.brandHotlines]} onScopeChange={setHotlineScope} />
+            <div className="technical-catalog-model-heading"><div><span className="technical-catalog-kicker">{model.brand}</span><h3>{model.model}{model.variant ? ` · ${model.variant}` : ""}</h3><p>Réf. produit : {model.manufacturerReference || "non renseignée"}</p>{!!model.searchAliases?.length && <p>Autres références couvertes : {model.searchAliases.join(", ")}</p>}</div>{step === "model" && <button type="button" className="technical-catalog-back" onClick={assistantOrigin ? toAssistantPicker : toModels}>← {assistantOrigin ? "Choisir un autre modèle" : modelReturnStep === "published" ? "Documents publiés" : "Tous les modèles"}</button>}</div>
             {step === "model" && <>
               <section className="technical-catalog-shiba-help" aria-label="Interroger Shiba">
                 <img className="technical-catalog-shiba-research" src={shibaRecherche} alt="Shiba avec un crayon et un cahier" />

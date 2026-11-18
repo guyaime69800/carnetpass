@@ -1,3 +1,4 @@
+import { deploymentEnvironment } from '../shared/runtime-environment.js';
 import { createClient } from "@supabase/supabase-js";
 import { accountMfaAccessError } from "./lib/mfa-access.js";
 import { invoiceRefunds } from "./lib/invoice-refunds.js";
@@ -19,8 +20,8 @@ export default async function invoicesHandler(req, res, { clientFactory = create
   const after = req.query?.after;
   if (after !== undefined && (typeof after !== "string" || !/^in_[a-zA-Z0-9]{1,128}$/.test(after))) return reply(res, 400, { message: "Page de factures invalide." });
   const env = process.env;
-  const testMode = env.VERCEL_ENV === "preview";
-  if (!["preview", "production"].includes(env.VERCEL_ENV)
+  const testMode = deploymentEnvironment(env) === "preview";
+  if (!["preview", "production"].includes(deploymentEnvironment(env))
     || !env.VITE_SUPABASE_URL || !env.VITE_SUPABASE_PUBLISHABLE_KEY || !env.SUPABASE_SECRET_KEY) {
     return reply(res, 503, { message: "Accès aux factures momentanément indisponible." });
   }

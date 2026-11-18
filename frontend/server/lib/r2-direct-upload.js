@@ -1,6 +1,7 @@
+import { deploymentEnvironment } from '../../shared/runtime-environment.js';
 import { randomUUID } from "node:crypto";
 import { Redis } from "@upstash/redis";
-import { CopyObjectCommand, DeleteObjectCommand, HeadObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, HeadObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { r2Configuration, r2Client, r2DocumentKey } from "./r2-document-storage.js";
 import { readVerifiedR2Pdf, r2NativePathname } from "./r2-native-documents.js";
@@ -37,7 +38,7 @@ export function directUploadMetadata(body, userId) {
 // The route checks an administrative AAL2 session and production before either call.
 export async function beginDirectR2Upload(body, userId, deps = {}) {
   const metadata = directUploadMetadata(body, userId), env = deps.env || process.env;
-  if (env.VERCEL_ENV !== "production") throw failure(403, "Envoi R2 réservé à la production.");
+  if (deploymentEnvironment(env) !== "production") throw failure(403, "Envoi R2 réservé à la production.");
   const store = deps.store || storeFrom(env), config = deps.configuration || r2Configuration(env, "upload");
   const id = randomUUID(), key = `platform-documents/incoming/${id}.pdf`;
   const client = deps.client || r2Client(config);
@@ -52,7 +53,7 @@ export async function beginDirectR2Upload(body, userId, deps = {}) {
 
 export async function completeDirectR2Upload(db, id, userId, deps = {}) {
   const env = deps.env || process.env;
-  if (env.VERCEL_ENV !== "production") throw failure(403, "Envoi R2 réservé à la production.");
+  if (deploymentEnvironment(env) !== "production") throw failure(403, "Envoi R2 réservé à la production.");
   if (typeof id !== "string" || !/^[a-f0-9-]{36}$/.test(id)) throw failure(400, "Envoi invalide.");
   const store = deps.store || storeFrom(env);
   const ticket = await store.get(ticketKey(id));
@@ -82,16 +83,23 @@ export async function completeDirectR2Upload(db, id, userId, deps = {}) {
       await readVerifiedR2Pdf(client, config.bucket, key, entry);
       reused = true;
     } else {
-      // Copy inside R2, pinned to the exact object just verified. The browser's
-      // PUT URL can never modify the permanent, content-addressed object.
-      await client.send(new CopyObjectCommand({ Bucket: config.bucket, Key: key,
-        CopySource: `${config.bucket}/${ticket.key}`, CopySourceIfMatch: staged.etag,
-        MetadataDirective: "REPLACE", Metadata: { sha256: ticket.sha256 },
-        ContentType: "application/pdf", CacheControl: "private, no-store" }),
-      { abortSignal: AbortSignal.timeout(60_000) });
+      // The server writes the exact bytes it just verified. The browser's PUT
+      // URL can never modify the permanent, content-addressed object. No
+      // CopyObject: its XML reply cannot be parsed by the AWS SDK in Workers
+      // (DOMParser is missing there). Never overwrite an existing object.
+      try {
+        await client.send(new PutObjectCommand({ Bucket: config.bucket, Key: key, Body: staged.bytes,
+          ContentLength: staged.bytes.length, Metadata: { sha256: ticket.sha256 },
+          ContentType: "application/pdf", CacheControl: "private, no-store", IfNoneMatch: "*" }),
+        { abortSignal: AbortSignal.timeout(60_000) });
+      } catch (error) {
+        const status = error?.$metadata?.httpStatusCode ?? error?.$response?.statusCode;
+        if (error?.name !== "PreconditionFailed" && status !== 412) throw error;
+        await readVerifiedR2Pdf(client, config.bucket, key, entry);
+      }
       const head = await client.send(new HeadObjectCommand({ Bucket: config.bucket, Key: key }));
       if (head.ContentLength !== ticket.size || head.ContentType !== "application/pdf"
-        || head.Metadata?.sha256 !== ticket.sha256 || head.ETag !== staged.etag) {
+        || head.Metadata?.sha256 !== ticket.sha256) {
         throw failure(503, "Vérification R2 indisponible.");
       }
       const saved = await db.from("platform_document_r2_copies").upsert({ sha256: ticket.sha256,

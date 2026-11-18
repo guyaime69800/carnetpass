@@ -63,7 +63,7 @@ export function createLivePortalHandler({ env = process.env, clientFactory = cre
       const configurations = await stripe('billing_portal/configurations?active=true&is_default=true&limit=2');
       if (configurations.data?.length !== 1 || configurations.has_more) throw Error('Ambiguous configuration');
       const configuration = validatePortalConfiguration(configurations.data[0]);
-      const session = await stripe('billing_portal/sessions', { customer, configuration, return_url: returnUrl, locale: 'fr' });
+      const session = await stripe('billing_portal/sessions', { customer, configuration, return_url: `${returnUrl}?abonnement=retour#formule`, locale: 'fr' });
       const url = new URL(session.url);
       if (session.customer !== customer || session.livemode !== true || session.configuration !== configuration
         || url.protocol !== 'https:' || url.hostname !== 'billing.stripe.com' || url.username || url.password || url.port) throw Error('Session mismatch');

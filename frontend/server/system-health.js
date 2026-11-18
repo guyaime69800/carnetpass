@@ -1,3 +1,4 @@
+import { deploymentEnvironment } from '../shared/runtime-environment.js';
 import { Redis } from "@upstash/redis";
 import { checkEquipmentRegistryV2 } from "./lib/equipment-registry-v2.js";
 import { reportAnomaly } from "./lib/anomaly-alert.js";
@@ -15,7 +16,7 @@ export async function runInternalMonitoring() {
   let redis;
   try {
     redis = new Redis({ url, token });
-    const first = await redis.set(`carnetpass:internal-monitor:${process.env.VERCEL_ENV || "local"}`, "1", { nx: true, ex: 900 });
+    const first = await redis.set(`carnetpass:internal-monitor:${deploymentEnvironment(process.env) || "local"}`, "1", { nx: true, ex: 900 });
     if (first !== "OK") return;
     await redis.ping();
   } catch {
@@ -26,7 +27,7 @@ export async function runInternalMonitoring() {
   const missing = [];
   if (!process.env.OPENAI_API_KEY) missing.push("shiba_configuration");
   if (!process.env.RESEND_API_KEY) missing.push("email_configuration");
-  if (process.env.VERCEL_ENV === "preview" &&
+  if (deploymentEnvironment(process.env) === "preview" &&
     !(process.env.STRIPE_TEST_SECRET_KEY || process.env.STRIPE_SECRET_KEY)?.startsWith("sk_test_")) {
     missing.push("stripe_test_configuration");
   }

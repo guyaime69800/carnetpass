@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAuth } from "../hooks/useAuth";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { signIn, signUp } from "../services/authService";
 import { proInvitationDestination } from '../../shared/pro-invitation.js';
@@ -58,19 +59,25 @@ async function isPlatformAdmin(accessToken) {
 }
 
 async function renewFounderAccess(accessToken) {
-  if (!accessToken) return;
+  if (!accessToken) return false;
   try {
-    await fetch("/api/access-session", { method: "POST", cache: "no-store", headers: { Authorization: `Bearer ${accessToken}` }, signal: AbortSignal.timeout(5000) });
-  } catch { /* The maintenance control page remains available for retry. */ }
+    const response = await fetch("/api/access-session", { method: "POST", cache: "no-store", headers: { Authorization: `Bearer ${accessToken}` }, signal: AbortSignal.timeout(5000) });
+    const result = await response.json();
+    return response.ok && ['founder', 'operator'].includes(result.role);
+  } catch { return false; }
 }
 
 export default function AuthPage({ mode = "connexion" }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { session, loading, security, securityLoading } = useAuth();
   const privateLogin = location.pathname === "/connexion-interne";
   const adminPaths = ["/administration-interne", "/administration-maintenance", "/administration-aides"];
   const queryDestination = new URLSearchParams(location.search).get("destination");
-  const requested = (privateLogin ? "/administration-interne" : location.state?.from?.pathname) || (adminPaths.includes(queryDestination) ? queryDestination : null);
+  const fromPath = location.state?.from?.pathname;
+  const requested = privateLogin
+    ? (adminPaths.includes(fromPath) ? fromPath : adminPaths.includes(queryDestination) ? queryDestination : "/administration-interne")
+    : fromPath || (adminPaths.includes(queryDestination) ? queryDestination : null);
   const adminRequested = adminPaths.includes(requested);
   const scanRequested = requested === "/espace-pro" && location.state?.from?.search === "?action=scan-plaque";
   const testReturn = privateLogin && new URLSearchParams(location.search).get('retour') === 'test';
@@ -83,6 +90,26 @@ export default function AuthPage({ mode = "connexion" }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const privateLoginError = privateLogin && session?.access_token && !loading && !securityLoading
+    ? security?.error || (!['founder', 'operator'].includes(security?.role)
+      ? "Accès réservé à l’équipe CarnetPass. Connectez-vous avec un compte autorisé." : '') : '';
+  const visibleError = errorMessage || privateLoginError;
+
+  useEffect(() => {
+    if (!privateLogin || loading || !session?.access_token || securityLoading) return;
+    if (security?.error || !['founder', 'operator'].includes(security?.role)) return;
+    if (security.needsVerification) {
+      navigate('/securite-compte', { replace: true, state: { from: { pathname: requested, search: testReturn ? '?test=1' : '' } } });
+      return;
+    }
+    let active = true;
+    renewFounderAccess(session.access_token).then(ready => {
+      if (!active) return;
+      if (ready) navigate(destination, { replace: true });
+      else setErrorMessage("L’accès administrateur n’a pas pu être confirmé. Réessayez la connexion.");
+    });
+    return () => { active = false; };
+  }, [privateLogin, loading, session?.access_token, securityLoading, security?.error, security?.role, security?.needsVerification, requested, testReturn, destination, navigate]);
 
   function updateField(event) {
     const { name, value } = event.target;
@@ -310,9 +337,9 @@ export default function AuthPage({ mode = "connexion" }) {
             )}
 
             <div className="auth-feedback" aria-live="polite">
-              {errorMessage && (
+              {visibleError && (
                 <p className="auth-message auth-message-error">
-                  {errorMessage}
+                  {visibleError}
                 </p>
               )}
 

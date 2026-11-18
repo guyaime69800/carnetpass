@@ -10,14 +10,19 @@ export async function loadMfaSecurity(accessToken) {
     }),
   ]);
   if (factors.error || assurance.error) throw new Error("Contrôle de sécurité indisponible. Réessayez.");
-  let admin = false;
-  if (response.ok) admin = (await response.json()).mfaRequired === true;
+  let role = null;
+  if (response.ok) {
+    const status = await response.json();
+    if (['founder', 'operator'].includes(status.role)) role = status.role;
+  }
   else if (response.status !== 404) throw new Error("Contrôle de sécurité indisponible. Réessayez.");
+  const admin = role !== null;
   const verified = (factors.data?.totp || []).filter((factor) => factor.status === "verified");
   const enrolled = (factors.data?.all || []).some((factor) => factor.status === "verified");
   return {
     factors: verified,
     admin,
+    role,
     enrolled,
     assurance: assurance.data?.currentLevel,
     needsVerification: (admin || enrolled) && assurance.data?.currentLevel !== "aal2",

@@ -1,3 +1,4 @@
+import { deploymentEnvironment } from '../shared/runtime-environment.js';
 import { createClient } from "@supabase/supabase-js";
 import { Redis } from "@upstash/redis";
 import { createHash, randomBytes } from "node:crypto";
@@ -22,7 +23,7 @@ async function readBody(req) {
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
-  if (process.env.VERCEL_ENV !== "production") return res.status(404).json({ ok: false });
+  if (deploymentEnvironment(process.env) !== "production") return res.status(404).json({ ok: false });
   if (!["GET", "POST", "DELETE"].includes(req.method)) return res.status(405).json({ ok: false });
   const url = process.env.VITE_SUPABASE_URL;
   const publicKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;

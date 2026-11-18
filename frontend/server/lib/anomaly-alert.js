@@ -1,3 +1,4 @@
+import { deploymentEnvironment } from '../../shared/runtime-environment.js';
 import { Redis } from "@upstash/redis";
 
 const allowed = new Set(["polygon_warning", "polygon_critical", "polygon_unavailable", "service_unavailable", "shiba_grounding", "shiba_unavailable"]);
@@ -10,7 +11,7 @@ export async function reportAnomaly(type, detail) {
 
   try {
     const redis = new Redis({ url: process.env.UPSTASH_REDIS_REST_KV_REST_API_URL, token: process.env.UPSTASH_REDIS_REST_KV_REST_API_TOKEN });
-    const key = `carnetpass:anomaly-alert:${process.env.VERCEL_ENV || "local"}:${type}`;
+    const key = `carnetpass:anomaly-alert:${deploymentEnvironment(process.env) || "local"}:${type}`;
     const first = await redis.set(key, "1", { nx: true, ex: 3600 });
     if (first !== "OK") return;
     const response = await fetch("https://api.resend.com/emails", {
@@ -19,7 +20,7 @@ export async function reportAnomaly(type, detail) {
       body: JSON.stringify({
         from: "CarnetPass <contact@carnetpass.fr>",
         to: ["contact@carnetpass.fr"],
-        subject: `[CarnetPass ${process.env.VERCEL_ENV || "local"}] Anomalie ${type}`,
+        subject: `[CarnetPass ${deploymentEnvironment(process.env) || "local"}] Anomalie ${type}`,
         text: `Anomalie détectée : ${type}\nDétail technique : ${safeDetail}\nConsultez les journaux Vercel pour le diagnostic. Aucune donnée personnelle ni clé n'est incluse dans cette alerte.`,
       }),
     });

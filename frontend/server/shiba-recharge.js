@@ -1,3 +1,4 @@
+import { deploymentEnvironment } from '../shared/runtime-environment.js';
 import { acceptedCommercialTerms } from "../shared/commercial-terms.js";
 import liveBillingHandler from './billing-live.js';
 import { requireVerifiedCompany } from "./lib/require-verified-company.js";
@@ -15,7 +16,7 @@ async function readRechargeAmount(request) {
 }
 
 export default async function shibaRechargeHandler(request, response) {
-  if (process.env.VERCEL_ENV === 'production') return liveBillingHandler(request, response, { recharge: true });
+  if (deploymentEnvironment(process.env) === 'production') return liveBillingHandler(request, response, { recharge: true });
   response.setHeader("Cache-Control", "no-store");
   if (request.method !== "POST") return response.status(405).json({ error: "Méthode non autorisée." });
   if (!rechargeStripeAvailable()) return response.status(503).json({ error: "Recharge test indisponible." });

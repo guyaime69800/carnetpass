@@ -1,3 +1,4 @@
+import { deploymentEnvironment } from './shared/runtime-environment.js';
 ﻿import { next } from "@vercel/functions";
 import { maintenanceAllowedPath, maintenanceHtml } from "./server/lib/maintenance-state.js";
 import { accessToken, internalPathRole, permits, privateHeaders, readMaintenance, verifiedIdentity, verifiedRequestIdentity } from "./server/lib/internal-access.js";
@@ -32,7 +33,7 @@ async function routeRequest(request) {
   let pathname;
   try { pathname = decodeURIComponent(url.pathname).replace(/\/+$/, "") || "/"; }
   catch { return new Response("Requête invalide.", { status: 400, headers: privateHeaders }); }
-  const production = process.env.VERCEL_ENV === "production" && ["www.carnetpass.fr", "carnetpass.fr"].includes(url.hostname);
+  const production = deploymentEnvironment(process.env) === "production" && ["www.carnetpass.fr", "carnetpass.fr"].includes(url.hostname);
   const resource = publicResource(pathname, production);
   if ((resource || isPublicPresentation(pathname)) && !routingFlags && ["GET", "HEAD"].includes(request.method)) {
     if (url.pathname !== pathname) return new Response(null, { status: 308, headers: { ...privateHeaders, Location: `${url.origin}${pathname}${url.search}` } });
@@ -62,6 +63,11 @@ async function routeRequest(request) {
           && url.searchParams.size === 1 && url.searchParams.get('test') === '1') {
           return new Response(null, { status: 303, headers: { ...privateHeaders, Location: '/retour-facturation?test=1' } });
         }
+        // Restore the public login flow without exposing protected HTML or APIs.
+        if (!identity.user && !routingFlags && pathname === '/administration-interne'
+          && ['GET', 'HEAD'].includes(request.method)) {
+          return new Response(null, { status: 303, headers: { ...privateHeaders, Location: '/connexion-interne' } });
+        }
         return new Response("Accès refusé.", { status: identity.user ? 403 : 401, headers: privateHeaders });
       }
       if (state.enabled && !identity.role) {
@@ -85,7 +91,7 @@ export default async function middleware(request) {
   response.headers.set('Permissions-Policy', 'camera=(self), microphone=(), geolocation=()');
   // Non-public pages, callbacks, QR tokens and all Preview responses stay out of search.
   const path = new URL(request.url).pathname.replace(/\/+$/, "") || "/";
-  if (process.env.VERCEL_ENV !== "production" || !["www.carnetpass.fr", "carnetpass.fr"].includes(new URL(request.url).hostname) || !isPublicPresentation(path) || response.status >= 400) {
+  if (deploymentEnvironment(process.env) !== "production" || !["www.carnetpass.fr", "carnetpass.fr"].includes(new URL(request.url).hostname) || !isPublicPresentation(path) || response.status >= 400) {
     response.headers.set("X-Robots-Tag", "noindex, nofollow");
   }
   return response;

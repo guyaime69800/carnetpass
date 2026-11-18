@@ -1,12 +1,17 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
-import { del, get, put } from "@vercel/blob";
+import { del, put } from "@vercel/blob";
+import { getPrivateObject } from "./lib/private-object-store.js";
+import { r2NativePathname } from "./lib/r2-native-documents.js";
+import { storeSubmissionInR2, submissionR2Enabled } from "./lib/platform-submission-r2.js";
 import { requireVerifiedCompany } from "./lib/require-verified-company.js";
 import { platformDocumentEnvironment, platformDocumentPathname } from "./lib/platform-document-environment.js";
 
 export const maxDuration = 300;
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i;
+// Corrigé le 17/11 : l'ancienne expression oubliait le 4e groupe et son
+// tiret, et refusait donc tout identifiant réel (réponse 400 systématique).
+export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const MAX_BYTES = 10 * 1024 * 1024;
 const db = () => createClient(process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY,
   { auth: { persistSession: false, autoRefreshToken: false } });
@@ -19,7 +24,10 @@ export default async function handler(req, res) {
   if (environment.status) return fail(res, environment.status, "Proposition de document indisponible.");
   const professional = await requireVerifiedCompany(req, res);
   if (!professional) return;
-  if (!process.env.SUPABASE_SECRET_KEY || !process.env.BLOB_STORE_ID) {
+  // Production avec CARNETPASS_SUBMISSIONS_R2_ENABLED=true : copie dans R2.
+  // Sinon : copie Vercel Blob, comportement historique.
+  const r2Submission = submissionR2Enabled(process.env);
+  if (!process.env.SUPABASE_SECRET_KEY || (!r2Submission && !process.env.BLOB_STORE_ID)) {
     return fail(res, 503, "Proposition de document momentanément indisponible.");
   }
   const { attachmentId, rightsConfirmed } = req.body || {};
@@ -58,9 +66,12 @@ export default async function handler(req, res) {
       return fail(res, 400, "Renseigne la marque et la référence constructeur exacte de l’équipement avant de proposer ce PDF.");
     }
 
-    const { data: existing, error: existingError } = await database.from("platform_document_intake")
-      .select("id, status").eq("blob_pathname", pathname).maybeSingle();
+    // Une proposition antérieure, Blob ou R2, de la même pièce jointe suffit.
+    const nativePathname = r2Submission ? r2NativePathname(attachment.sha256, attachmentId) : null;
+    const { data: existingRows, error: existingError } = await database.from("platform_document_intake")
+      .select("id, status").in("blob_pathname", nativePathname ? [pathname, nativePathname] : [pathname]).limit(1);
     if (existingError) return fail(res, 503, "Vérification des propositions indisponible.");
+    const existing = existingRows?.[0];
     if (existing) return res.status(200).json({ ok: true, status: existing.status, alreadySubmitted: true });
 
     const { count, error: countError } = await database.from("platform_document_intake")
@@ -69,7 +80,8 @@ export default async function handler(req, res) {
     if (countError) return fail(res, 503, "Vérification des propositions indisponible.");
     if (count >= 10) return fail(res, 429, "Tu as déjà 10 documents en attente de validation.");
 
-    const stored = await get(attachment.blob_pathname, { access: "private", useCache: false });
+    // Source : pièce jointe privée de l'entreprise, Blob historique ou R2.
+    const stored = await getPrivateObject(attachment.blob_pathname);
     if (!stored?.stream || stored.blob?.pathname !== attachment.blob_pathname
       || stored.blob?.contentType !== "application/pdf"
       || stored.blob?.size !== attachment.size_bytes) {
@@ -93,11 +105,20 @@ export default async function handler(req, res) {
       return fail(res, 409, "Le PDF privé ne correspond plus au document enregistré.");
     }
 
-    await put(pathname, Buffer.concat(chunks), {
-      access: "private", contentType: "application/pdf",
-      addRandomSuffix: false, allowOverwrite: false,
-    });
+    let storedPathname = pathname;
+    let r2Outcome = null;
+    if (r2Submission) {
+      const stored = await storeSubmissionInR2(database, { documentId: attachmentId, bytes: Buffer.concat(chunks, size), sha256: digest });
+      storedPathname = stored.pathname;
+      r2Outcome = stored.reused ? "reused" : "verified";
+    } else {
+      await put(pathname, Buffer.concat(chunks), {
+        access: "private", contentType: "application/pdf",
+        addRandomSuffix: false, allowOverwrite: false,
+      });
+    }
     const { error: insertError } = await database.from("platform_document_intake").insert({
+      ...(r2Submission ? { id: attachmentId } : {}),
       uploaded_by: professional.userId,
       manufacturer,
       model_reference: modelReference,
@@ -105,14 +126,21 @@ export default async function handler(req, res) {
         ? String(equipment.model).trim().slice(0, 160) : null,
       title: attachment.title,
       original_filename: attachment.original_filename,
-      blob_pathname: pathname,
+      blob_pathname: storedPathname,
       size_bytes: size,
       sha256: digest,
       status: "pending_review",
     });
     if (insertError) {
+      // L'objet R2 adressé par empreinte peut être partagé : il est conservé.
+      if (r2Submission) return fail(res, 503, "Enregistrement de la proposition impossible. Réessaie.");
       await del(pathname).catch((error) => console.error("Nettoyage du PDF proposé impossible", error));
       return fail(res, 503, "Enregistrement de la proposition impossible. Réessaie.");
+    }
+    if (r2Outcome) {
+      const { error: attemptError } = await database.from("platform_document_r2_attempts").insert({ id: randomUUID(),
+        document_id: attachmentId, outcome: r2Outcome, finished_at: new Date().toISOString() });
+      if (attemptError) console.error("Suivi R2 de la proposition non enregistré.");
     }
     return res.status(201).json({ ok: true, status: "pending_review" });
   } catch (error) {

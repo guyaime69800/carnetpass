@@ -989,6 +989,8 @@ export async function searchRagContext(
       return {
         chunkId:
           item.chunkId,
+        documentEntryId: item.documentEntryId,
+        sourceSha256: item.sourceSha256,
 
         documentId:
           item.documentId,
