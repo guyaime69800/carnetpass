@@ -35,6 +35,10 @@
       "name": "carnetpass-production",
       "workers_dev": false,
       "preview_urls": false,
+      "routes": [
+        { "pattern": "www.carnetpass.fr", "custom_domain": true },
+        { "pattern": "carnetpass.fr", "custom_domain": true }
+      ],
       "vars": {
         "CARNETPASS_RUNTIME": "cloudflare",
         "CARNETPASS_ENV": "production",
