@@ -19,7 +19,7 @@ test("founder scan permission preserves company scope and suspension checks", as
     return new Response(JSON.stringify(body), { headers: { "Content-Type": "application/json" } });
   };
   // auth.getUser is mocked above; model the founder's verified second factor.
-  const bearer = `fixture.${Buffer.from(JSON.stringify({ sub: userId, aal: "aal2" })).toString("base64url")}.fixture`;
+  const bearer = `fixture.${Buffer.from(JSON.stringify({ sub: userId, aal: "aal2" , amr:[{method:'password',timestamp:Math.floor(Date.now()/1000)}]})).toString("base64url")}.fixture`;
   const req = { headers: { authorization: `Bearer ${bearer}` } };
   try {
     await assert.rejects(devisCompany(req, { verified: true, founderTest: true }), { status: 403 });

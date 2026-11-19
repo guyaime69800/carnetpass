@@ -37,7 +37,7 @@ test('portal binds the verified responsible user to the stored company customer'
     return Response.json({ customer, livemode: true, configuration: configuration.id, url: target });
   } });
   async function run(action = 'portal', auth = true) {
-    const token = `header.${Buffer.from(JSON.stringify({ sub: 'user', aal: 'aal2' })).toString('base64url')}.signature`;
+    const token = `header.${Buffer.from(JSON.stringify({ sub: 'user', aal: 'aal2' , amr:[{method:'password',timestamp:Math.floor(Date.now()/1000)}]})).toString('base64url')}.signature`;
     const res = { setHeader() {}, status(code) { this.code = code; return this; }, json(body) { this.body = body; return this; } };
     await handler({ method: action === 'portal-status' ? 'GET' : 'POST', query: { action, customer: 'cus_foreign' },
       headers: auth ? { authorization: `Bearer ${token}` } : {} }, res); return res;

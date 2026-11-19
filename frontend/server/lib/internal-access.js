@@ -45,8 +45,11 @@ export async function verifiedIdentity(token, env = process.env) {
   const rows = await roles.json();
   if (!Array.isArray(rows)) throw new Error("Roles invalid");
   const role = rows.length === 1 && ["founder", "operator"].includes(rows[0].role) ? rows[0].role : null;
-  const mfaRequired = Boolean(role && mfaAccessError(user, token, { required: true }));
-  return { user, role: mfaRequired ? null : role, mfaRequired };
+  const mfaError = role ? mfaAccessError(user, token, { required: true }) : null;
+  // A stale sign-in needs a full new login (password + code), not only a code.
+  const reauthRequired = mfaError?.code === "REAUTH_REQUIRED";
+  const mfaRequired = Boolean(mfaError) && !reauthRequired;
+  return { user, role: mfaError ? null : role, mfaRequired, reauthRequired };
 }
 
 export async function readMaintenance(env = process.env) {

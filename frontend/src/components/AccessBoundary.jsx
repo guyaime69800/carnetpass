@@ -2,6 +2,19 @@ import { useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { isPublicPresentation } from "../../shared/public-site-metadata.js";
+import { signOut } from "../services/authService";
+
+// Internal access older than 12 hours: close the session, then ask for a full login.
+function ReauthRedirect({ from, admin }) {
+  const [done, setDone] = useState(false);
+  useEffect(() => {
+    let active = true;
+    signOut().catch(() => {}).finally(() => { if (active) setDone(true); });
+    return () => { active = false; };
+  }, []);
+  if (!done) return <main><p role="status">Votre connexion a expiré. Déconnexion…</p></main>;
+  return <Navigate to={admin ? "/connexion-interne" : "/connexion"} replace state={{ from, reauth: true }} />;
+}
 
 // SPA navigation must pass a fresh server decision before mounting pages or loading their data.
 export default function AccessBoundary({ children }) {
@@ -32,7 +45,7 @@ export default function AccessBoundary({ children }) {
         const required = pathname === "/administration-maintenance" ? "founder"
           : pathname.startsWith("/administration-") ? "operator" : null;
         const allowed = response.ok && (!required || result.role === "founder" || (required === "operator" && result.role === "operator"));
-        if (active) setDecision({ key, allowed, mfaRequired: result.mfaRequired === true, maintenance: result.maintenance === true, message: result.message });
+        if (active) setDecision({ key, allowed, mfaRequired: result.mfaRequired === true, reauthRequired: result.reauthRequired === true, maintenance: result.maintenance === true, message: result.message });
         if (active && allowed && result.role && token) {
           await fetch("/api/access-session", { method: "POST", cache: "no-store", headers: { Authorization: `Bearer ${token}` } });
         }
@@ -49,6 +62,7 @@ export default function AccessBoundary({ children }) {
   if (presentation) return <main><p role="status">Chargement de la présentation CarnetPass…</p></main>;
   if (privateLogin) return children;
   if (loading || decision?.key !== key) return <main><p role="status">Vérification de l’accès…</p></main>;
+  if (decision.reauthRequired) return <ReauthRedirect from={location} admin={pathname.startsWith("/administration-")} />;
   if (decision.mfaRequired) return <Navigate to="/securite-compte" replace state={{ from: location }} />;
   if (!token && pathname.startsWith('/administration-') && !decision.maintenance) {
     return <Navigate to="/connexion-interne" replace state={{ from: location }} />;

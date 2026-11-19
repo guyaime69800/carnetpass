@@ -63,7 +63,7 @@ test("editing metadata preserves PDF passages and withdraws changed model identi
     CARNETPASS_PRODUCTION_ADMIN_SUPABASE_REF: "abcdefghijklmnopqrst", VITE_SUPABASE_URL: "https://abcdefghijklmnopqrst.supabase.co",
     VITE_SUPABASE_PUBLISHABLE_KEY: "public", SUPABASE_SECRET_KEY: "secret", BLOB_WEBHOOK_PUBLIC_KEY: "test" });
   const id = "00000000-0000-4000-8000-000000000001";
-  const token = `header.${Buffer.from(JSON.stringify({ sub: id, aal: "aal2" })).toString("base64url")}.signature`;
+  const token = `header.${Buffer.from(JSON.stringify({ sub: id, aal: "aal2" , amr:[{method:'password',timestamp:Math.floor(Date.now()/1000)}]})).toString("base64url")}.signature`;
   const current = { id, manufacturer: "Atlantic", model_reference: "023103", title: "Old notice", catalog_category: "heat_pump_indoor", status: "approved", rag_status: "ready", distribution_confirmed_at: "2026-10-08", rag_data: { items: [{ text: "Original PDF text", page: 12, embeddingQ8: "AQ==", embeddingScale: 0.1 }] } };
   let saved;
   globalThis.fetch = async (input, options) => {

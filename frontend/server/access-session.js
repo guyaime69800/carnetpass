@@ -12,7 +12,8 @@ export default async function accessSession(req, res) {
   try {
     // No cookie-only or client-supplied role can mint internal access.
     const token = accessToken(new Headers(req.headers), false);
-    const { user, role, mfaRequired } = await verifiedIdentity(token);
+    const { user, role, mfaRequired, reauthRequired } = await verifiedIdentity(token);
+    if (reauthRequired) { clear(); return res.status(req.method === "GET" ? 200 : 403).json({ ok: true, role: null, authenticated: true, reauthRequired: true }); }
     if (mfaRequired) { clear(); return res.status(req.method === "GET" ? 200 : 403).json({ ok: true, role: null, authenticated: true, mfaRequired: true }); }
     const state = await readMaintenance();
     if (req.method === "POST") {

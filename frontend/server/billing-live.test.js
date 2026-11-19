@@ -72,7 +72,7 @@ function fixture({ role = 'admin', approved = true, saveFailure = false, cancele
   const handler = createLiveBillingHandler({ env, clientFactory: (_, key) => key === 'public' ? auth : database,
     request, rateLimiter: async () => {} });
   async function call(body = {}) {
-    const claims = Buffer.from(JSON.stringify({ sub: userId, aal: 'aal2' })).toString('base64url');
+    const claims = Buffer.from(JSON.stringify({ sub: userId, aal: 'aal2' , amr:[{method:'password',timestamp:Math.floor(Date.now()/1000)}]})).toString('base64url');
     const req = { method: 'POST', headers: { authorization: `Bearer x.${claims}.x` }, body: {
       action: 'checkout', plan: 'pro', requestId, terms: { accepted: true, version: COMMERCIAL_TERMS_VERSION }, ...body,
     } };

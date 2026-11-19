@@ -4,7 +4,7 @@ import { mfaAccessError } from "../server/lib/mfa-access.js";
 import platformAdminHandler from "../server/platform-admin.js";
 
 const user = { id: "00000000-0000-4000-8000-000000000001", email_confirmed_at: "2026-01-01", factors: [{ status: "verified", factor_type: "totp" }] };
-const jwt = (aal, sub = user.id) => `header.${Buffer.from(JSON.stringify({ sub, aal })).toString("base64url")}.signature`;
+const jwt = (aal, sub = user.id) => `header.${Buffer.from(JSON.stringify({ sub, aal , amr:[{method:'password',timestamp:Math.floor(Date.now()/1000)}]})).toString("base64url")}.signature`;
 test("verified factors require AAL2 and bind the assurance to the authenticated user", () => {
   assert.equal(mfaAccessError(user, jwt("aal1")).code, "MFA_REQUIRED");
   assert.equal(mfaAccessError(user, jwt("aal2")), null);

@@ -69,7 +69,7 @@ function fixture({ quantity = 0, role = 'admin' } = {}) {
   };
   const handler = createLiveSeatsHandler({ env, clientFactory: (_, key) => key === 'public' ? auth : db, request, rateLimiter: async () => {} });
   async function call(action, body) {
-    const jwt = 'a.' + Buffer.from(JSON.stringify({ sub: actor, aal: 'aal2' })).toString('base64url') + '.b';
+    const jwt = 'a.' + Buffer.from(JSON.stringify({ sub: actor, aal: 'aal2' , amr:[{method:'password',timestamp:Math.floor(Date.now()/1000)}]})).toString('base64url') + '.b';
     const res = { setHeader() {}, status(value) { this.statusCode = value; return this; }, json(value) { this.body = value; return this; } };
     await handler({ method: action === 'additional-status' ? 'GET' : 'POST', query: { action }, headers: { authorization: 'Bearer ' + jwt },
       body: { requestId: changeId, terms, ...body } }, res); return res;

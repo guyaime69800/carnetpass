@@ -29,7 +29,7 @@ test("company export requires verified account, MFA and responsible membership",
     },
   };
   const run = async (aal = "aal2", query = { action: "export", companyId: "foreign" }) => {
-    const token = `header.${Buffer.from(JSON.stringify({ sub: "user", aal })).toString("base64url")}.signature`;
+    const token = `header.${Buffer.from(JSON.stringify({ sub: "user", aal , amr:[{method:'password',timestamp:Math.floor(Date.now()/1000)}]})).toString("base64url")}.signature`;
     const response = { headers: {}, setHeader(k,v) { this.headers[k] = v; },
       status(code) { this.code = code; return this; }, json(body) { this.body = body; return this; } };
     await handler({ method: "GET", headers: aal ? { authorization: `Bearer ${token}` } : {}, query }, response, dependencies);

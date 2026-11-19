@@ -16,7 +16,7 @@ const settings = {
   UPSTASH_REDIS_REST_KV_REST_API_TOKEN: "redis-test",
   BLOB_WEBHOOK_PUBLIC_KEY: "invalid-local-test-key",
 };
-const jwt = (name = "actor", aal = "aal2") => ["header", Buffer.from(JSON.stringify({sub:"11111111-1111-4111-8111-111111111111",aal,name})).toString("base64url"), "signature"].join(".");
+const jwt = (name = "actor", aal = "aal2") => ["header", Buffer.from(JSON.stringify({sub:"11111111-1111-4111-8111-111111111111",aal,name, amr:[{method:'password',timestamp:Math.floor(Date.now()/1000)}]})).toString("base64url"), "signature"].join(".");
 function response() {
   return { headers: {}, statusCode: 200, setHeader(k, v) { this.headers[k.toLowerCase()] = v; },
     status(n) { this.statusCode = n; return this; }, json(body) { this.body = body; return this; } };

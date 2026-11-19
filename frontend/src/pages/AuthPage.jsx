@@ -89,7 +89,8 @@ export default function AuthPage({ mode = "connexion" }) {
   const [form, setForm] = useState(initialForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState(location.state?.reauth
+    ? "Par sécurité, votre connexion a expiré après 12 heures. Reconnectez-vous avec votre mot de passe et votre code." : "");
   const privateLoginError = privateLogin && session?.access_token && !loading && !securityLoading
     ? security?.error || (!['founder', 'operator'].includes(security?.role)
       ? "Accès réservé à l’équipe CarnetPass. Connectez-vous avec un compte autorisé." : '') : '';

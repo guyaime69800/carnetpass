@@ -6,7 +6,7 @@ test("Shiba accepts published indexed documents in Production and preserves acco
   Object.assign(process.env,{OPENAI_API_KEY:"test",UPSTASH_REDIS_REST_KV_REST_API_URL:"https://redis.invalid",UPSTASH_REDIS_REST_KV_REST_API_TOKEN:"test",VERCEL_ENV:"production",VERCEL_GIT_COMMIT_REF:"main",CARNETPASS_PRODUCTION_ADMIN_ENABLED:"true",CARNETPASS_PRODUCTION_ADMIN_SUPABASE_REF:"abcdefghijklmnopqrst",VITE_SUPABASE_URL:"https://abcdefghijklmnopqrst.supabase.co",VITE_SUPABASE_PUBLISHABLE_KEY:"public",SUPABASE_SECRET_KEY:"secret"});
   const {default:handler}=await import("../api/ai.js");
   const userId="00000000-0000-4000-8000-000000000001",id="00000000-0000-4000-8000-000000000002";
-  const token=aal=>`header.${Buffer.from(JSON.stringify({sub:userId,aal})).toString("base64url")}.signature`;
+  const token=aal=>`header.${Buffer.from(JSON.stringify({sub:userId,aal, amr:[{method:'password',timestamp:Math.floor(Date.now()/1000)}]})).toString("base64url")}.signature`;
   let indexed=[{id,manufacturer:"Atlantic",model_reference:"ALFEA DUO - MH-D8 · 023103",title:"Notice technique",hotline_phone:"03 51 42 70 42",rag_data:{items:[{text:"Sonde de température",page:12}]}}];
   let reads=0;
   globalThis.fetch=async input=>{

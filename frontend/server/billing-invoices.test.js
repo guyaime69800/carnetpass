@@ -37,7 +37,7 @@ test("invoice access enforces account, company, MFA, environment and customer is
     },
   };
   const run = async ({ token = "aal2", query = {} } = {}) => {
-    const bearer = `header.${Buffer.from(JSON.stringify({ sub: "user", aal: token })).toString("base64url")}.signature`;
+    const bearer = `header.${Buffer.from(JSON.stringify({ sub: "user", aal: token , amr:[{method:'password',timestamp:Math.floor(Date.now()/1000)}]})).toString("base64url")}.signature`;
     const res = { setHeader() {}, status(code) { this.code = code; return this; }, json(body) { this.body = body; return this; } };
     await handler({ method: "GET", headers: token ? { authorization: `Bearer ${bearer}` } : {}, query }, res, dependencies);
     return res;
