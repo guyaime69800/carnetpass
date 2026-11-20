@@ -1,2 +1,42 @@
 .vercel
 .env*
+**/node_modules/
+**/dist/
+**/dist-ssr/
+/tmp/npm-stripe-tools/
+/supabase/.temp/
+*.log
+/tmp/vite-admin-document-test/deps/
+/tmp/pdfs-cours/page-*.png
+/tmp/themafast-compatible-check/page-*.png
+/tmp/themafast-v25-r1-check/page-*.png
+/tmp/security-production-20261026.env
+/tmp/return-browser-tls/
+/.worktrees/maintenance-release/
+
+# Instructions locales de Claude : jamais publiées
+CLAUDE.local.md
+
+# Fichiers d'environnement (secrets), dans tous les sous-dossiers
+**/.env*
+
+# Dossiers de travail, de collecte et de documents
+/tmp/
+/output/
+/.worktrees/
+/tools/collector-bridge/
+/documents/
+/lots/
+
+# Documents et données volumineuses
+*.pdf
+*.zip
+*.tar
+*.tar.gz
+*.jsonl
+*.csv
+*.sqlite
+*.db
+
+# Captures d'écran posées à la racine
+/*.png
