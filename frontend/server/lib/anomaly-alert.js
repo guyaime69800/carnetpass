@@ -21,7 +21,7 @@ export async function reportAnomaly(type, detail) {
         from: "CarnetPass <contact@carnetpass.fr>",
         to: ["contact@carnetpass.fr"],
         subject: `[CarnetPass ${deploymentEnvironment(process.env) || "local"}] Anomalie ${type}`,
-        text: `Anomalie détectée : ${type}\nDétail technique : ${safeDetail}\nConsultez les journaux Vercel pour le diagnostic. Aucune donnée personnelle ni clé n'est incluse dans cette alerte.`,
+        text: `Anomalie détectée : ${type}\nDétail technique : ${safeDetail}\nConsultez les journaux du Worker Cloudflare pour le diagnostic. Aucune donnée personnelle ni clé n'est incluse dans cette alerte.`,
       }),
     });
     if (!response.ok) {

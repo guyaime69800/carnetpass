@@ -7,7 +7,7 @@ import {
   POLYGON_MINIMUM_RESERVE_WEI,
 } from "./polygon-wallet-health.js";
 
-// Ce fichier s’exécute uniquement sur le serveur Vercel.
+// Ce fichier s’exécute uniquement côté serveur (Worker Cloudflare).
 // Ne jamais l’importer dans frontend/src.
 
 const POLYGON_CHAIN_ID = 137n;
