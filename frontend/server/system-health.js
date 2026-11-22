@@ -3,6 +3,8 @@ import { Redis } from "@upstash/redis";
 import { checkEquipmentRegistryV2 } from "./lib/equipment-registry-v2.js";
 import { reportAnomaly } from "./lib/anomaly-alert.js";
 
+export const POLYGON_UNAVAILABLE_ALERT_AFTER = 2;
+
 // Internal monitoring runs at most once every 15 minutes per environment.
 // It returns no diagnostic data to visitors or professional accounts.
 export async function runInternalMonitoring() {
@@ -33,14 +35,27 @@ export async function runInternalMonitoring() {
   }
   if (missing.length) await reportAnomaly("service_unavailable", missing.join(","));
 
+  const streakKey = `carnetpass:polygon-unavailable-streak:${deploymentEnvironment(process.env) || "local"}`;
   try {
     const status = await checkEquipmentRegistryV2();
+    await redis.del(streakKey).catch(() => {});
     if (status.chainId !== 137 || status.paused || !status.serverAuthorized || status.balanceStatus === "critical") {
       await reportAnomaly("polygon_critical", "network_contract_authorization_or_balance");
     } else if (status.balanceStatus === "warning") {
       await reportAnomaly("polygon_warning", "low_balance");
     }
   } catch (error) {
-    await reportAnomaly("polygon_unavailable", error?.code || "check_failed");
+    // A single dropped RPC call is not an outage: alert only when two
+    // consecutive checks (about 15 minutes apart) fail.
+    let failures = POLYGON_UNAVAILABLE_ALERT_AFTER;
+    try {
+      failures = await redis.incr(streakKey);
+      await redis.expire(streakKey, 3600);
+    } catch {
+      // Without the counter, keep alerting rather than hiding an outage.
+    }
+    if (failures >= POLYGON_UNAVAILABLE_ALERT_AFTER) {
+      await reportAnomaly("polygon_unavailable", error?.code || "check_failed");
+    }
   }
 }

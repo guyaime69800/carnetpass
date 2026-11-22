@@ -96,3 +96,36 @@ test("le budget Polygon ajoute une marge de gaz et une réserve", () => {
     requiredBalanceWei: 50000000024000000n,
   });
 });
+test("une coupure RPC isolée est rattrapée par un nouvel essai", async () => {
+  const { connectPolygonProvider } = await import("../server/lib/equipment-registry-v2.js");
+  let attempts = 0;
+  const waits = [];
+  const createProvider = () => ({
+    async getNetwork() {
+      attempts += 1;
+      if (attempts < 3) throw new Error("fetch failed");
+      return { chainId: 137n };
+    },
+    destroy() {},
+  });
+  const { network } = await connectPolygonProvider("https://rpc.invalid", {
+    createProvider,
+    wait: async (ms) => { waits.push(ms); },
+  });
+  assert.equal(network.chainId, 137n);
+  assert.equal(attempts, 3);
+  assert.deepEqual(waits, [500, 1500]);
+});
+
+test("une panne RPC durable reste signalée RPC_CONNECTION_FAILED", async () => {
+  const { connectPolygonProvider } = await import("../server/lib/equipment-registry-v2.js");
+  let attempts = 0;
+  await assert.rejects(
+    connectPolygonProvider("https://rpc.invalid", {
+      createProvider: () => ({ async getNetwork() { attempts += 1; throw new Error("down"); } }),
+      wait: async () => {},
+    }),
+    (error) => error?.code === "RPC_CONNECTION_FAILED"
+  );
+  assert.equal(attempts, 3);
+});

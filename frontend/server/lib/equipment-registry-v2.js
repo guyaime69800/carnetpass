@@ -193,6 +193,33 @@ export function buildMaintenanceProof({
     ),
   };
 }
+const RPC_CONNECTION_DELAYS_MS = [0, 500, 1500];
+
+// Public RPC endpoints drop isolated requests. Retry the network handshake with
+// a fresh provider before reporting RPC_CONNECTION_FAILED.
+export async function connectPolygonProvider(rpcUrl, {
+  createProvider = (url) => new ethers.JsonRpcProvider(url),
+  wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+  delaysMs = RPC_CONNECTION_DELAYS_MS,
+} = {}) {
+  let lastError;
+
+  for (const delay of delaysMs) {
+    if (delay > 0) await wait(delay);
+    const provider = createProvider(rpcUrl);
+
+    try {
+      const network = await provider.getNetwork();
+      return { provider, network };
+    } catch (error) {
+      lastError = error;
+      provider.destroy?.();
+    }
+  }
+
+  throw diagnosticError("RPC_CONNECTION_FAILED", lastError);
+}
+
 async function createRegistryContext() {
   const rpcUrl = requiredEnvironmentVariable("POLYGON_RPC_URL");
   const privateKey = normalizePrivateKey(
@@ -235,15 +262,7 @@ async function createRegistryContext() {
     throw diagnosticError("SERVER_WALLET_ADDRESS_INVALID");
   }
 
-  const provider = new ethers.JsonRpcProvider(rpcUrl);
-
-  let network;
-
-  try {
-    network = await provider.getNetwork();
-  } catch (error) {
-    throw diagnosticError("RPC_CONNECTION_FAILED", error);
-  }
+  const { provider, network } = await connectPolygonProvider(rpcUrl);
 
   if (network.chainId !== POLYGON_CHAIN_ID) {
     throw diagnosticError("WRONG_NETWORK");
