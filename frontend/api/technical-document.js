@@ -1,5 +1,7 @@
 import { get } from "@vercel/blob";
+import { createClient } from "@supabase/supabase-js";
 import { randomUUID } from "node:crypto";
+import { loadPlatformPdf } from "../server/lib/verify-platform-pdf.js";
 import { reserveDocumentConsultation } from "../server/lib/document-consultation-quota.js";
 import elmLeblanc from "../src/data/equipment/elm-leblanc-7716704261.json" with { type: "json" };
 import { Readable } from "node:stream";
@@ -52,6 +54,26 @@ const DOCUMENTS = new Set([
   ...FRISQUET_DOCUMENT_URLS.keys(),
 ]);
 
+// A static equipment document stored in the platform catalogue is read from its verified R2 copy,
+// exactly like /api/platform-catalog-documents. Returns null when no approved catalogue entry matches.
+export async function loadCataloguedPdf(location, environmentName, dependencies = {}) {
+  if (typeof location !== "string" || !location.startsWith("platform-documents/")) return null;
+  const db = dependencies.db || (process.env.SUPABASE_SECRET_KEY && process.env.VITE_SUPABASE_URL
+    ? createClient(process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false, autoRefreshToken: false } })
+    : null);
+  if (!db) return null;
+  try {
+    const { data: entry, error } = await db.from("platform_document_intake")
+      .select("blob_pathname, size_bytes, sha256").eq("blob_pathname", location).eq("status", "approved").maybeSingle();
+    if (error || !entry) return null;
+    const load = dependencies.loadPdf || loadPlatformPdf;
+    const stored = await load(entry, environmentName, (pathname) => get(pathname, { access: "private", useCache: false }), db);
+    return stored?.ok ? stored.bytes : null;
+  } catch {
+    return null;
+  }
+}
+
 export default async function handler(req, res) {
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
@@ -92,7 +114,19 @@ export default async function handler(req, res) {
       ?? NAIA_DOCUMENT_URLS.get(pathname)
       ?? CHAFFOTEAUX_DOCUMENT_URLS.get(pathname)
       ?? pathname;
-    const result = await get(technicalDocumentBlobLocation(documentUrl, process.env), { access: "private" });
+    const location = technicalDocumentBlobLocation(documentUrl, process.env);
+    const catalogued = await loadCataloguedPdf(location, environment.name);
+    if (catalogued) {
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Length", String(catalogued.length));
+      res.setHeader("Content-Disposition", "inline");
+      res.setHeader("X-Content-Type-Options", "nosniff");
+      res.setHeader("Cache-Control", "private, no-store");
+      await pipeline(Readable.from([catalogued]), res);
+      return;
+    }
+    // Vercel Blob is suspended since 16/11/2026: this fallback only serves documents not yet copied to R2.
+    const result = await get(location, { access: "private" });
 
     if (!result?.stream || result.statusCode !== 200) {
       return res.status(404).json({ error: "Document introuvable." });

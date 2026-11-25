@@ -20,7 +20,6 @@
       "title": "Notice d'installation et de maintenance - ThemaPlus Condens",
       "documentType": "installation_maintenance",
       "documentCode": "0020238207_08",
-      "documentUrl": "https://9zitc2y9n0ktt4m8.public.blob.vercel-storage.com/saunier-duval/0010017388/notice/saunier-duval-themaplus-condens-notice-installation-et-maintenance-0020238207-08-08-2023-2968673.pdf",
       "revisionDate": "2023-07-10",
       "pageCount": 44,
       "language": "fr",
@@ -54,14 +53,14 @@
         ]
       },
       "verificationStatus": "verified_from_uploaded_pdf",
-      "storage": "external_not_committed",
-      "notes": "Document constructeur conservé hors du dépôt GitHub public."
+      "storage": "unavailable",
+      "notes": "Document constructeur conservé hors du dépôt GitHub public.",
+      "availabilityNote": "PDF temporairement indisponible : l'ancien stockage Vercel Blob est suspendu depuis le 16/11/2026 et ce fichier n'a pas de copie R2. À recollecter."
     },
     {
       "documentId": "sd-themaplus-condens-30-a-exploded-view-0010017388",
       "title": "Vue éclatée - ThemaPlus Condens 30-A (H-FR)",
       "documentType": "exploded_view",
-      "documentUrl": "https://9zitc2y9n0ktt4m8.public.blob.vercel-storage.com/saunier-duval/0010017388/vue-eclatee/Vue%20%C3%A9clat%C3%A9e%20-%20THEMAPLUS%20CONDENS%2030%20-A%20%28H-FR%29%20-%200010017388%20%281%29.pdf",
       "documentCode": null,
       "revisionDate": null,
       "pageCount": 32,
@@ -127,8 +126,9 @@
         ]
       },
       "verificationStatus": "verified_from_uploaded_pdf",
-      "storage": "external_not_committed",
-      "notes": "Catalogue de pièces conservé hors du dépôt GitHub public."
+      "storage": "unavailable",
+      "notes": "Catalogue de pièces conservé hors du dépôt GitHub public.",
+      "availabilityNote": "PDF temporairement indisponible : l'ancien stockage Vercel Blob est suspendu depuis le 16/11/2026 et ce fichier n'a pas de copie R2. À recollecter."
     }
   ],
   "errorCodeIndex": {

@@ -34,7 +34,6 @@
       "title": "Notice d'installation et de maintenance - ecoTEC plus VU/VUW",
       "documentType": "installation_maintenance",
       "documentCode": "0020279448_11",
-      "documentUrl": "https://9zitc2y9n0ktt4m8.public.blob.vercel-storage.com/vaillant/8000044523/notice/_ecotec-plus_1451572.pdf",
       "revisionDate": "2025-09-10",
       "pageCount": 100,
       "language": "fr",
@@ -117,7 +116,8 @@
       },
 
       "verificationStatus": "verified_from_uploaded_pdf",
-      "storage": "external_not_committed",
+      "storage": "unavailable",
+      "availabilityNote": "PDF temporairement indisponible : l'ancien stockage Vercel Blob est suspendu depuis le 16/11/2026 et ce fichier n'a pas de copie R2. À recollecter.",
       "notes": "Notice constructeur Vaillant vérifiée. Vue éclatée avec références de pièces à ajouter ultérieurement."
     }
   ],

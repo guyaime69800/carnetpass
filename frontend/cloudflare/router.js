@@ -11,14 +11,14 @@ export function resolveRoute(url) {
     const values = destination.searchParams.getAll(key);
     query[key] = values.length > 1 ? values : values[0];
   }
-  return { path: destination.pathname, query, load: apiModules[destination.pathname], web: destination.pathname === '/api/document' };
+  return { path: destination.pathname, query, load: apiModules[destination.pathname] };
 }
 export async function dispatchNode(req, res, route) {
   res.status = code => { res.statusCode = code; return res; };
   res.json = data => { res.setHeader('Content-Type', 'application/json; charset=utf-8'); res.end(JSON.stringify(data)); return res; };
   res.send = data => { res.end(data); return res; };
   try {
-    if (!route?.load || route.web) return res.status(404).json({ ok: false });
+    if (!route?.load) return res.status(404).json({ ok: false });
     req.query = route.query;
     const module = await route.load();
     if (/^application\/json(?:;|$)/i.test(req.headers['content-type'] || '') && module.config?.api?.bodyParser !== false && !['GET', 'HEAD'].includes(req.method)) {

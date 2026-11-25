@@ -9,8 +9,10 @@ import { reservePlateBudget } from '../server/plate-scan.js';
 import { workerConfiguration, apiConfiguration } from '../cloudflare/environment.js';
 import { platformAdminEnvironment } from '../server/lib/platform-admin-environment.js';
 
-test('twenty aliases retain exact target and server-owned flags; all eleven direct APIs remain', () => {
-  assert.equal(aliases.length, 20); assert.equal(Object.keys(apiModules).length, 11);
+test('twenty aliases retain exact target and server-owned flags; all ten direct APIs remain', () => {
+  assert.equal(aliases.length, 20); assert.equal(Object.keys(apiModules).length, 10);
+  // /api/document only served Vercel Blob, suspended since 16/11/2026: the route is removed.
+  assert.equal(resolveRoute(new URL('https://test.invalid/api/document?pathname=x.pdf')), null);
   for (const entry of aliases) {
     const target = new URL(entry.destination, 'https://test.invalid');
     const route = resolveRoute(new URL(entry.source + '?document=exact-id', 'https://test.invalid'));

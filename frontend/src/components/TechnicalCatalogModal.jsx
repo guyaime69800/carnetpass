@@ -215,6 +215,10 @@ function TechnicalCatalogContent({ onClose, onAddEquipment, canAddEquipment, cat
   async function openDocumentPreview(document) {
     if (previewBusyId) return;
     setDocumentsError("");
+    if (document.storage === "unavailable" || (!document.documentUrl && document.storage !== "platform-private")) {
+      setDocumentsError("Ce PDF est temporairement indisponible.");
+      return;
+    }
     if (document.storage !== "private" && document.storage !== "platform-private") {
       setPreviewDocument(document);
       return;

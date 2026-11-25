@@ -38,7 +38,6 @@ export default {
       let route;
       try { route = resolveRoute(url); } catch { return new Response('Paramètres de route invalides.', { status: 400, headers: gateHeaders }); }
       if (!route) response = new Response('Route inconnue.', { status: 404 });
-      else if (route.web) response = await (await route.load()).default(request);
       else response = await nodeHandler.fetch(request, env, ctx);
     } else {
       response = await env.ASSETS.fetch(request);

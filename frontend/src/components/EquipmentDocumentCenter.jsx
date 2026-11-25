@@ -719,9 +719,11 @@ function EquipmentDocumentCenterContent({
                       </span>
                       <button
                         type="button"
+                        disabled={technicalDocument.storage === "unavailable"}
+                        title={technicalDocument.storage === "unavailable" ? "PDF temporairement indisponible" : undefined}
                         onClick={() => handleTechnicalDocumentOpen(technicalDocument)}
                       >
-                        Consulter
+                        {technicalDocument.storage === "unavailable" ? "Indisponible" : "Consulter"}
                       </button>
                     </div>
                   </article>

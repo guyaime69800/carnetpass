@@ -1351,6 +1351,9 @@ function App({ initialMode = "public" }) {
                       {document.storage === "private" && (
                         <p className="muted">PDF privé : à consulter dans le dossier professionnel.</p>
                       )}
+                      {document.storage === "unavailable" && (
+                        <p className="muted">PDF temporairement indisponible.</p>
+                      )}
                     </div>
                   )
                 )}
@@ -1605,6 +1608,9 @@ function App({ initialMode = "public" }) {
                       )}
                       {document.storage === "private" && (
                         <p className="muted">PDF privé : à consulter dans le dossier professionnel.</p>
+                      )}
+                      {document.storage === "unavailable" && (
+                        <p className="muted">PDF temporairement indisponible.</p>
                       )}
                     </div>
                   ))}

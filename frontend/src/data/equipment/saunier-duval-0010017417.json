@@ -32,7 +32,6 @@
       "title": "Notice d'installation et de maintenance - ThemaFast Condens / Thema Condens",
       "documentType": "installation_maintenance",
       "documentCode": "0020238209_04",
-      "documentUrl": "https://9zitc2y9n0ktt4m8.public.blob.vercel-storage.com/saunier-duval/0010017417/notice/Notice%20d%E2%80%99installation%20-%20THEMAFAST%20CONDENS%2030-A%20%28H-FR%29%20-%200010017417.pdf",
       "revisionDate": "2019-04-15",
       "pageCount": 44,
       "language": "fr",
@@ -101,7 +100,8 @@
       },
 
       "verificationStatus": "verified_from_uploaded_pdf",
-      "storage": "external_not_committed"
+      "storage": "unavailable",
+      "availabilityNote": "PDF temporairement indisponible : l'ancien stockage Vercel Blob est suspendu depuis le 16/11/2026 et ce fichier n'a pas de copie R2. À recollecter."
     },
 
     {
@@ -109,7 +109,6 @@
       "title": "Vue éclatée - ThemaFast Condens 30-A (H-FR)",
       "documentType": "exploded_view",
       "documentCode": null,
-      "documentUrl": "https://9zitc2y9n0ktt4m8.public.blob.vercel-storage.com/saunier-duval/0010017417/vue-eclatee/Vue%20%C3%A9clat%C3%A9e%20-%20THEMAFAST%20CONDENS%2030-A%20%28H-FR%29%20-%200010017417.pdf",
       "revisionDate": null,
       "pageCount": 30,
       "language": "fr",
@@ -176,7 +175,8 @@
       },
 
       "verificationStatus": "verified_from_uploaded_pdf",
-      "storage": "external_not_committed"
+      "storage": "unavailable",
+      "availabilityNote": "PDF temporairement indisponible : l'ancien stockage Vercel Blob est suspendu depuis le 16/11/2026 et ce fichier n'a pas de copie R2. À recollecter."
     },
 
     {
@@ -184,7 +184,6 @@
       "title": "Notice d'utilisation - ThemaFast Condens / Thema Condens",
       "documentType": "user_manual",
       "documentCode": "0020200493_01",
-      "documentUrl": "https://9zitc2y9n0ktt4m8.public.blob.vercel-storage.com/saunier-duval/0010017417/notice-utilisateur/Notice%20d%E2%80%99utilisation%20-%20THEMAFAST%20CONDENS%2030-A%20%28H-FR%29%20-%200010017417.pdf",
       "revisionDate": "2017-05-19",
       "pageCount": 20,
       "language": "fr",
@@ -231,7 +230,8 @@
       },
 
       "verificationStatus": "verified_from_uploaded_pdf",
-      "storage": "external_not_committed"
+      "storage": "unavailable",
+      "availabilityNote": "PDF temporairement indisponible : l'ancien stockage Vercel Blob est suspendu depuis le 16/11/2026 et ce fichier n'a pas de copie R2. À recollecter."
     }
   ],
 

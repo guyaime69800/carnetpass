@@ -86,7 +86,6 @@ export const apiModules = {
   '/api/ai': () => import('../api/ai.js'),
   '/api/carnetpass-status': () => import('../api/carnetpass-status.js'),
   '/api/carnetpass': () => import('../api/carnetpass.js'),
-  '/api/document': () => import('../api/document.js'),
   '/api/equipment-attachments': () => import('../api/equipment-attachments.js'),
   '/api/interventions': () => import('../api/interventions.js'),
   '/api/platform-admin-documents': () => import('../api/platform-admin-documents.js'),
