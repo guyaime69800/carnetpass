@@ -96,7 +96,7 @@ export function answerFromPublicUserManual(manual, question) {
   if (!manual || typeof question !== "string" || !question.trim()) return null;
   const normalized = normalize(question);
   if (/\b(install|installer|installation|demont|repar|raccord|cabl|frigorif|refrigerant|compresseur)\w*\b/.test(normalized)) {
-    return { answer: "Cette opération relève d’un professionnel. Shiba ne répond ici qu’aux questions d’utilisation couvertes par la notice publique.", page: null, pdfPage: null };
+    return { answer: "Cette opération relève d’un professionnel. L’assistant ne répond ici qu’aux questions d’utilisation couvertes par la notice publique.", page: null, pdfPage: null };
   }
   const scored = manual.topics.map((topic) => ({
     topic,

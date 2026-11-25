@@ -6,13 +6,13 @@ L’entreprise cliente détermine l’utilisation des données de ses clients et
 
 ## Données, finalités et bases juridiques
 
-Les données comprennent les coordonnées du compte et de l’entreprise, habilitations, équipements, interventions, documents, questions Shiba et informations techniques de sécurité. Elles servent à fournir le service demandé, vérifier les accès, répondre aux demandes et prévenir les abus.
+Les données comprennent les coordonnées du compte et de l’entreprise, habilitations, équipements, interventions, documents, questions posées à l’assistant et informations techniques de sécurité. Elles servent à fournir le service demandé, vérifier les accès, répondre aux demandes et prévenir les abus.
 
 La fourniture du service et les démarches précontractuelles reposent sur l’exécution du contrat ou la demande de l’utilisateur ; la sécurité et la prévention des abus sur l’intérêt légitime ; les obligations comptables et légales sur la loi. L’absence de données nécessaires peut empêcher de fournir une fonction.
 
 Le téléphone déclaré et une empreinte de ce numéro servent à limiter les essais répétés. Aucun SMS de vérification n’est envoyé à ce stade. Les réponses concernant l’origine de l’inscription servent à mesurer les canaux d’acquisition. Les demandes commerciales contiennent les coordonnées professionnelles et besoins communiqués.
 
-## Shiba et scan de plaque
+## Assistant CarnetPass et scan de plaque
 
 Les questions, références d’équipements et extraits utiles sont transmis à OpenAI pour les réponses documentaires et recherches Web. Ne transmettez pas de données personnelles inutiles.
 
@@ -30,13 +30,13 @@ Le stockage R2 du catalogue relève de la juridiction européenne. Cela ne signi
 
 Les comptes, carnets et pièces sont conservés pendant leur utilisation pour le service. La suppression du compte retire ses accès, anonymise son profil et retire ses rattachements. Les historiques de l’entreprise ne sont pas automatiquement effacés ; leur conservation doit rester liée à une finalité de traçabilité ou une obligation applicable, avec accès limité. Vous pouvez demander l’examen et l’effacement des données devenues inutiles.
 
-Les compteurs de consultations de notices expirent au plus tard 48 heures après leur dernière réservation ; les reçus de chargement après 15 minutes. Les compteurs mensuels Shiba expirent un jour après leur échéance. Les crédits ajoutés et preuves d’attribution sont conservés pour gérer le solde et éviter une double attribution.
+Les compteurs de consultations de notices expirent au plus tard 48 heures après leur dernière réservation ; les reçus de chargement après 15 minutes. Les compteurs mensuels de l’assistant expirent un jour après leur échéance. Les crédits ajoutés et preuves d’attribution sont conservés pour gérer le solde et éviter une double attribution.
 
 Les durées des journaux, sauvegardes, empreintes anti-abus, demandes commerciales et archives doivent être formalisées et vérifiées avant ouverture. Aucun effacement automatique non implémenté n’est promis. Les pièces comptables seront conservées selon les obligations légales applicables lorsque la vente sera ouverte.
 
 ## Vos droits
 
-Vous pouvez demander accès, rectification, effacement, limitation, portabilité ou opposition selon les conditions applicables à [contact@carnetpass.fr](mailto:contact@carnetpass.fr). Une preuve d’identité proportionnée peut être demandée. Les demandes sont traitées dans les délais du RGPD, en principe un mois ; une prolongation justifiée vous est expliquée. Le responsable de l’entreprise peut récupérer les dossiers techniques et leurs fichiers privés dans des archives ZIP depuis les paramètres du compte, puis effacer un dossier ou tous les dossiers techniques après confirmation. Le nettoyage des fichiers est suivi et repris automatiquement. Le compte, l’abonnement, les factures du service et les notices partagées ne sont pas supprimés par cette action. Les preuves inscrites sur la blockchain sont irréversibles. Le responsable sauvegarde les documents que son entreprise doit conserver avant l’effacement. Vous pouvez saisir la [CNIL](https://www.cnil.fr/fr/plaintes). Les réponses Shiba ne prennent pas à elles seules une décision produisant des effets juridiques sur vous.
+Vous pouvez demander accès, rectification, effacement, limitation, portabilité ou opposition selon les conditions applicables à [contact@carnetpass.fr](mailto:contact@carnetpass.fr). Une preuve d’identité proportionnée peut être demandée. Les demandes sont traitées dans les délais du RGPD, en principe un mois ; une prolongation justifiée vous est expliquée. Le responsable de l’entreprise peut récupérer les dossiers techniques et leurs fichiers privés dans des archives ZIP depuis les paramètres du compte, puis effacer un dossier ou tous les dossiers techniques après confirmation. Le nettoyage des fichiers est suivi et repris automatiquement. Le compte, l’abonnement, les factures du service et les notices partagées ne sont pas supprimés par cette action. Les preuves inscrites sur la blockchain sont irréversibles. Le responsable sauvegarde les documents que son entreprise doit conserver avant l’effacement. Vous pouvez saisir la [CNIL](https://www.cnil.fr/fr/plaintes). Les réponses de l’assistant ne prennent pas à elles seules une décision produisant des effets juridiques sur vous.
 
 ## Données publiques et blockchain
 

@@ -133,8 +133,8 @@ async function reserveQuestionQuota(request, response) {
     }
     return { proceed: true, reservation };
   } catch (error) {
-    console.error("Quota Shiba indisponible :", error);
-    response.status(503).json({ error: "Le compteur Shiba est momentanément indisponible." });
+    console.error("Quota de l’assistant indisponible :", error);
+    response.status(503).json({ error: "Le compteur de l’assistant est momentanément indisponible." });
     return { proceed: false };
   }
 }
@@ -210,7 +210,7 @@ export default async function handler(
       if (indexError) throw indexError;
       if (!indexed?.length || indexed.length !== platformDocumentIds.length
         || indexed.some((item) => !collectorDocumentAllowed(item, body.platformModelReference) || !Array.isArray(item.rag_data?.items) || !item.rag_data.items.length)) {
-        return response.status(409).json({ error: "Un document n'est pas encore indexé pour Shiba." });
+        return response.status(409).json({ error: "Un document n'est pas encore indexé pour l’assistant." });
       }
       const scope = sharedDocumentScope(indexed, body.platformModelReference, equipmentConfig?.equipmentData.identity);
       if (!scope || !collectorDocumentsShareVariant(indexed)) {
@@ -461,7 +461,7 @@ export default async function handler(
       if (!success) {
         if (quotaReservation?.allowed) {
           try { await refundShibaQuestion(quotaReservation); }
-          catch (error) { console.error("Remboursement quota Shiba indisponible :", error); }
+          catch (error) { console.error("Remboursement du quota de l’assistant indisponible :", error); }
           quotaReservation = null;
         }
         const retryAfter = Math.max(
@@ -490,7 +490,7 @@ export default async function handler(
     } catch (rateLimitError) {
       if (quotaReservation?.allowed) {
         try { await refundShibaQuestion(quotaReservation); }
-        catch (error) { console.error("Remboursement quota Shiba indisponible :", error); }
+        catch (error) { console.error("Remboursement du quota de l’assistant indisponible :", error); }
         quotaReservation = null;
       }
       console.error(
@@ -586,7 +586,7 @@ Recherche uniquement les passages qui concernent réellement ce code ou l'une de
         await reportAnomaly("shiba_grounding", evidenceIssue);
         if (quotaReservation?.allowed) {
           try { await refundShibaQuestion(quotaReservation); }
-          catch (refundError) { console.error("Remboursement quota Shiba indisponible :", refundError); }
+          catch (refundError) { console.error("Remboursement du quota de l’assistant indisponible :", refundError); }
           quotaReservation = null;
         }
         return response.status(200).json({ ok: true, answer: UNVERIFIED_ANSWER, verification: "insufficient_evidence" });
@@ -1011,7 +1011,7 @@ ${JSON.stringify(
   } catch (error) {
     if (quotaReservation?.allowed) {
       try { await refundShibaQuestion(quotaReservation); }
-      catch (refundError) { console.error("Remboursement quota Shiba indisponible :", refundError); }
+      catch (refundError) { console.error("Remboursement du quota de l’assistant indisponible :", refundError); }
     }
     console.error(
       "Erreur API IA CarnetPass :",

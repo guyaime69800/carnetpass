@@ -8,19 +8,19 @@ CarnetPass fournit aux professionnels un outil de documentation et de suivi des 
 
 ## Découverte et Pro
 
-Découverte dure 5 jours, sans carte bancaire ni conversion automatique en abonnement. Elle permet jusqu’à 5 équipements, 5 consultations de notices par jour et par utilisateur et 20 questions Shiba pour l’ensemble de l’essai. Documentation et recherche Web partagent les questions. Les accès aux notices et à Shiba prennent fin après 5 jours ou épuisement des 20 questions.
+Découverte dure 5 jours, sans carte bancaire ni conversion automatique en abonnement. Elle permet jusqu’à 5 équipements, 5 consultations de notices par jour et par utilisateur et 20 questions à l’Assistant CarnetPass pour l’ensemble de l’essai. Documentation et recherche Web partagent les questions. Les accès aux notices et à l’assistant prennent fin après 5 jours ou épuisement des 20 questions.
 
-Le compte principal Pro prévoit 20 consultations de notices par jour et 200 questions Shiba par mois. La navigation dans les listes de modèles ne compte pas comme consultation. Une ouverture ou un téléchargement demandé compte ; le repli technique du même chargement ne compte pas deux fois pendant 15 minutes. Une nouvelle ouverture peut compter à nouveau. Un transfert échoué après réservation peut compter ; l’assistance examine les incidents signalés.
+Le compte principal Pro prévoit 20 consultations de notices par jour et 200 questions à l’assistant par mois. La navigation dans les listes de modèles ne compte pas comme consultation. Une ouverture ou un téléchargement demandé compte ; le repli technique du même chargement ne compte pas deux fois pendant 15 minutes. Une nouvelle ouverture peut compter à nouveau. Un transfert échoué après réservation peut compter ; l’assistance examine les incidents signalés.
 
-Les consultations se réinitialisent à minuit, heure de Paris. Les questions mensuelles se réinitialisent le premier jour du mois à 00 h UTC. Les quantités incluses inutilisées ne se cumulent pas. Une recharge ajoute des crédits Shiba ; elle ne prolonge pas l’essai ni le quota de notices. Aucun dépassement ne déclenche de paiement automatique. Les [tarifs](/tarifs) et [CGV B2B](/conditions-commerciales) détaillent l’offre.
+Les consultations se réinitialisent à minuit, heure de Paris. Les questions mensuelles se réinitialisent le premier jour du mois à 00 h UTC. Les quantités incluses inutilisées ne se cumulent pas. Une recharge ajoute des crédits pour l’assistant ; elle ne prolonge pas l’essai ni le quota de notices. Aucun dépassement ne déclenche de paiement automatique. Les [tarifs](/tarifs) et [CGV B2B](/conditions-commerciales) détaillent l’offre.
 
 ## Usage autorisé
 
 Il est interdit de partager un compte, multiplier les essais pour contourner les limites, extraire massivement le catalogue, redistribuer des notices sans autorisation ou saturer le service. Les contrôles de sécurité peuvent limiter temporairement les requêtes en complément des quotas. Aucun stockage illimité n’est promis ; les limites par fichier sont affichées dans les parcours d’import.
 
-## Documentation, Shiba et interventions
+## Documentation, Assistant CarnetPass et interventions
 
-Vérifiez fabricant, modèle, variante, référence et source avant d’utiliser un document. Shiba peut fournir une réponse incomplète ou incorrecte. Il ne remplace ni un professionnel qualifié ni les notices et règles de sécurité applicables. CarnetPass ne réalise ni ne certifie les interventions.
+Vérifiez fabricant, modèle, variante, référence et source avant d’utiliser un document. L’Assistant CarnetPass peut fournir une réponse incomplète ou incorrecte. Il ne remplace ni un professionnel qualifié ni les notices et règles de sécurité applicables. CarnetPass ne réalise ni ne certifie les interventions.
 
 ## Contenus et données
 
@@ -39,4 +39,4 @@ Les réclamations sont adressées à contact@carnetpass.fr. Le droit français s
 
 ## Comptes supplémentaires de l’entreprise
 
-À l’ouverture commerciale, un abonnement Pro à 28 € par mois comprend un compte principal. Chaque compte supplémentaire coûte 20 € par mois et dispose de 150 questions Shiba par mois et de 15 consultations de notices par jour, avec des compteurs individuels. Le responsable choisit le nombre de comptes et accepte le nouveau montant avant activation après paiement. Les quotas inutilisés ne se cumulent pas et ne se transfèrent pas. Retirer un collaborateur libère sa place sans résilier son supplément. Les achats réels restent fermés. [Détail et modalités dans les CGV B2B](/conditions-commerciales).
+À l’ouverture commerciale, un abonnement Pro à 28 € par mois comprend un compte principal. Chaque compte supplémentaire coûte 20 € par mois et dispose de 150 questions à l’assistant par mois et de 15 consultations de notices par jour, avec des compteurs individuels. Le responsable choisit le nombre de comptes et accepte le nouveau montant avant activation après paiement. Les quotas inutilisés ne se cumulent pas et ne se transfèrent pas. Retirer un collaborateur libère sa place sans résilier son supplément. Les achats réels restent fermés. [Détail et modalités dans les CGV B2B](/conditions-commerciales).

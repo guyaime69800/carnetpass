@@ -17,7 +17,7 @@ const options = {
 };
 export function devisDatabase(env = process.env) {
   if (!env.VITE_SUPABASE_URL || !env.SUPABASE_SECRET_KEY)
-    throw fail(503, "Base Shiba Devis non configurée.");
+    throw fail(503, "Base de l’Assistant Devis non configurée.");
   return createClient(env.VITE_SUPABASE_URL, env.SUPABASE_SECRET_KEY, options);
 }
 export function devisRedis(env = process.env) {
@@ -45,7 +45,7 @@ export async function rateRequest(req, scope, identity = null, max = 60) {
   if (!result.success)
     throw fail(
       429,
-      "Protection technique : réessayez dans quelques minutes. Aucun crédit Shiba Bot n’est consommé.",
+      "Protection technique : réessayez dans quelques minutes. Aucun crédit de l’Assistant CarnetPass n’est consommé.",
     );
 }
 export async function readDevisBody(req, max = 32768) {
@@ -176,7 +176,7 @@ export async function devisCompany(
 }
 export async function checked(
   query,
-  message = "Données indisponibles. Appliquez la migration Shiba Devis si nécessaire.",
+  message = "Données indisponibles. Appliquez la migration de l’Assistant Devis si nécessaire.",
 ) {
   const { data, error } = await query;
   if (error) throw fail(503, message);

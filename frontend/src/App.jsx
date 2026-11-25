@@ -1481,7 +1481,7 @@ function App({ initialMode = "public" }) {
               {boiler.carnetPassId && <nav className="public-appliance-nav" aria-label="Rubriques de la fiche publique">
                 <a href="#notice-utilisation-publique">Notice d’utilisation</a>
                 <a href="#historique-interventions">Historique des interventions</a>
-                <a href="#shiba-notice-publique">Shiba Bot</a>
+                <a href="#shiba-notice-publique">Assistant CarnetPass</a>
               </nav>}
 
               <div className="appareil-grid">
@@ -1699,8 +1699,8 @@ function App({ initialMode = "public" }) {
                 </section>}
                 <div className="public-fault-assistant" id="shiba-notice-publique">
                   <div className="public-fault-assistant__heading">
-                    <img src={shibaTechnicien} alt="Logo de l’assistant technique Shiba Bot" width="64" height="64" />
-                    <div><strong>Shiba Bot · notice d’utilisation</strong><p>Posez une question sur l’usage de cet appareil. Shiba répond uniquement à partir des points vérifiés de la notice d’utilisation publique, avec la page source. Pour une intervention technique, contactez un professionnel.</p></div>
+                    <img src={shibaTechnicien} alt="Logo de l’Assistant CarnetPass" width="64" height="64" />
+                    <div><strong>Assistant CarnetPass · notice d’utilisation</strong><p>Posez une question sur l’usage de cet appareil. L’assistant répond uniquement à partir des points vérifiés de la notice d’utilisation publique, avec la page source. Pour une intervention technique, contactez un professionnel.</p></div>
                   </div>
                   {publicUserManual ? <><p>Cinq questions par mois sont possibles pour chaque visiteur et chaque appareil. La notice et l’historique restent accessibles sans cette limite.</p>
                   <form onSubmit={async (event) => {
@@ -1712,10 +1712,10 @@ function App({ initialMode = "public" }) {
                     try {
                       const response = await fetch("/api/public-shiba", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ carnetPassId: boiler.carnetPassId, question: publicFaultQuestion }) });
                       const result = await response.json();
-                      setPublicFaultResponse(result.ok ? `${result.answer}${result.page ? ` (Notice d’utilisation, p. ${result.page}.)` : ""} ${result.remaining} question(s) restante(s) ce mois-ci.` : result.error || "Shiba Bot est momentanément indisponible.");
+                      setPublicFaultResponse(result.ok ? `${result.answer}${result.page ? ` (Notice d’utilisation, p. ${result.page}.)` : ""} ${result.remaining} question(s) restante(s) ce mois-ci.` : result.error || "L’Assistant CarnetPass est momentanément indisponible.");
                       setPublicFaultSource(result.ok && result.pdfPage ? `${result.manualUrl}#page=${result.pdfPage}` : "");
                     } catch {
-                      setPublicFaultResponse("Shiba Bot est momentanément indisponible. Les contacts d’urgence restent accessibles.");
+                      setPublicFaultResponse("L’Assistant CarnetPass est momentanément indisponible. Les contacts d’urgence restent accessibles.");
                       setPublicFaultSource("");
                     }
                   }}>
@@ -1725,11 +1725,11 @@ function App({ initialMode = "public" }) {
                       setPublicFaultResponse("");
                       setPublicFaultSource("");
                     }} placeholder="Ex. Comment nettoyer le filtre ?" />
-                    <button className="btn" type="submit">Demander à Shiba</button>
+                    <button className="btn" type="submit">Demander à l’assistant</button>
                   </form>
                   {publicFaultResponse && <p role="status">{publicFaultResponse}</p>}
                   {publicFaultSource && <a href={publicFaultSource} target="_blank" rel="noopener noreferrer">Voir la page source dans la notice ↗</a>}</>
-                  : <p>Shiba n’est pas disponible tant qu’une notice d’utilisation publique de ce modèle n’a pas été vérifiée. L’historique et les contacts restent accessibles.</p>}
+                  : <p>L’assistant n’est pas disponible tant qu’une notice d’utilisation publique de ce modèle n’a pas été vérifiée. L’historique et les contacts restent accessibles.</p>}
                   <p><strong>Les réparations et interventions techniques sur cet appareil doivent être réalisées par un professionnel qualifié.</strong> En cas de danger immédiat, éloignez-vous et contactez les services d’urgence.</p>
                 </div>
               </>

@@ -123,7 +123,7 @@ export default function MaintenanceReminders({ equipment, session, interventions
     const isCancel = action === "cancel";
     const isUpdate = action === "update";
     if ((isCancel || isUpdate) && active.length !== 1) {
-      setError("Pour modifier ou annuler, ouvrez le rappel concerné : Shiba ne peut pas choisir entre plusieurs rappels.");
+      setError("Pour modifier ou annuler, ouvrez le rappel concerné : l’assistant ne peut pas choisir entre plusieurs rappels.");
       return;
     }
     if (isCancel) {
@@ -133,7 +133,7 @@ export default function MaintenanceReminders({ equipment, session, interventions
     }
     const dueOn = parseReminderDate(shibaRequest, parisToday());
     if (!dueOn || dueOn <= parisToday()) {
-      setError("Shiba n’a pas trouvé de date future non ambiguë. Indiquez « rappel le JJ/MM/AAAA » ou « rappel dans X jours/mois ». La saisie manuelle reste disponible.");
+      setError("L’assistant n’a pas trouvé de date future non ambiguë. Indiquez « rappel le JJ/MM/AAAA » ou « rappel dans X jours/mois ». La saisie manuelle reste disponible.");
       return;
     }
     setProposal({ kind: isUpdate ? "update" : "create", dueOn, recipientEmail,
@@ -263,15 +263,15 @@ export default function MaintenanceReminders({ equipment, session, interventions
         <div className="maintenance-reminders__shiba-heading">
           <img src={shibaTechnicien} alt="" />
           <div>
-            <h4>Programmer avec Shiba Bot</h4>
-            <p>Décrivez l’action à prévoir pour cet appareil. Shiba prépare la date et l’objet du rappel ; vous vérifiez et confirmez avant tout enregistrement.</p>
+            <h4>Programmer avec l’Assistant CarnetPass</h4>
+            <p>Décrivez l’action à prévoir pour cet appareil. L’assistant prépare la date et l’objet du rappel ; vous vérifiez et confirmez avant tout enregistrement.</p>
           </div>
         </div>
         <form className="maintenance-reminders__shiba-form" onSubmit={prepareShiba}>
           <label htmlFor="shiba-reminder-request">Votre demande</label>
           <div className="maintenance-reminders__shiba-row">
             <input id="shiba-reminder-request" type="text" value={shibaRequest} onChange={(event) => setShibaRequest(event.target.value)} placeholder="Écrivez ici votre demande de rappel" maxLength={300} aria-describedby="shiba-reminder-hint" />
-            <button className="pro-primary-button" type="submit" disabled={!shibaRequest.trim() || busy}>Préparer avec Shiba</button>
+            <button className="pro-primary-button" type="submit" disabled={!shibaRequest.trim() || busy}>Préparer avec l’assistant</button>
           </div>
         </form>
         <small id="shiba-reminder-hint">Saisissez votre demande pour activer le bouton. Par exemple : « rappel dépannage le JJ/MM/AAAA » ou « rappel entretien dans X jours/mois ». Aucune instruction d’un document ne déclenche une action.</small>

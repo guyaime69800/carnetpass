@@ -101,7 +101,7 @@ export default function ShibaRechargeModal() {
           {SHIBA_RECHARGE_PACKS.map((item) => <button type="button" key={item.euros}
             className={`shiba-recharge-dialog__pack${selected === item.euros ? " is-selected" : ""}`}
             aria-pressed={selected === item.euros} onClick={() => setSelected(item.euros)}>
-            <strong>{item.euros} €</strong><span>{item.credits} crédits Shiba</span>
+            <strong>{item.euros} €</strong><span>{item.credits} crédits assistant</span>
           </button>)}
         </div>}
         {usage.period !== "trial" && <label className="commercial-terms-acceptance"><input type="checkbox" checked={termsAccepted} onChange={(event) => setTermsAccepted(event.target.checked)} /> J’accepte les <a href="/conditions-commerciales" target="_blank" rel="noopener noreferrer">CGV B2B</a> et les conditions de recharge.</label>}
@@ -109,7 +109,7 @@ export default function ShibaRechargeModal() {
           {busy ? 'Ouverture du paiement…' : `Recharger pour ${pack.euros} €`}
         </button>}
         {error && <p className="shiba-recharge-dialog__error" role="alert">{error}</p>}
-        <p className="shiba-recharge-dialog__notice">Un crédit sert à une question documentaire ou une recherche Web avec Shiba. La recharge ne remplace pas Pro et n’augmente pas le quota quotidien de notices. TVA non applicable, article 293 B du CGI.</p>
+        <p className="shiba-recharge-dialog__notice">Un crédit sert à une question documentaire ou une recherche Web avec l’assistant. La recharge ne remplace pas Pro et n’augmente pas le quota quotidien de notices. TVA non applicable, article 293 B du CGI.</p>
         <p className="shiba-recharge-dialog__notice">{usage.period === "trial"
           ? "Les documents constructeur ne sont plus accessibles après les 20 questions de l’essai. Vos carnets et historiques restent accessibles."
           : `${testBilling

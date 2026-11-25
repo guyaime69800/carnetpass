@@ -17,7 +17,7 @@ export default function CompanyDataControls({company,token}) {
   <p>Le responsable récupère les dossiers de l’entreprise et leurs pièces privées directement ici, y compris après la fin de l’essai. Les factures CarnetPass sont disponibles dans « Mes factures ».</p>
   {!responsible?<p>Ces actions sont réservées au responsable de votre entreprise.</p>:<>
    <button type="button" disabled={busy} onClick={()=>run(()=>downloadCompanyExport(token,setMessage))}>Télécharger mes dossiers et mes fichiers</button>
-   <p>Archive ZIP : équipements, interventions, attestations, rappels, simulations Shiba et pièces privées. Conservez toutes les parties si plusieurs archives sont téléchargées. Évitez de modifier les dossiers pendant l’export.</p>
+   <p>Archive ZIP : équipements, interventions, attestations, rappels, simulations de l’Assistant Devis et pièces privées. Conservez toutes les parties si plusieurs archives sont téléchargées. Évitez de modifier les dossiers pendant l’export.</p>
    <details className="account-settings-danger"><summary>Supprimer des dossiers de mon entreprise</summary>
     <p>Cette suppression est définitive. Choisissez un dossier ou tous les dossiers techniques. Le compte, l’entreprise, l’abonnement et les factures CarnetPass restent en place. Les notices constructeur communes restent disponibles.</p>
     <p>Exportez d’abord les documents que votre entreprise doit conserver. Les preuves inscrites sur la blockchain ne peuvent pas être effacées. Les sauvegardes techniques expirent selon le cycle du prestataire et ne sont pas utilisées pour rétablir les dossiers effacés.</p>

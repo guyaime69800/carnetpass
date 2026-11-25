@@ -184,7 +184,7 @@ test("une recharge payée s'ajoute une seule fois, persiste au changement de moi
 
 test("le message d'épuisement ne promet pas de réinitialisation pour Découverte", () => {
   assert.equal(shibaCreditsExhaustedMessage("month"),
-    "Vos crédits Shiba Bot sont épuisés. Rechargez vos crédits ou attendez leur prochaine réinitialisation.");
+    "Vos crédits pour l’Assistant CarnetPass sont épuisés. Rechargez vos crédits ou attendez leur prochaine réinitialisation.");
   assert.doesNotMatch(shibaCreditsExhaustedMessage("trial"), /prochaine réinitialisation/);
 });
 

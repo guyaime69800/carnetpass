@@ -933,7 +933,7 @@ async function publicShibaQuestion(req, res) {
       model: carnet.identity?.model,
       manufacturerReference: carnet.manufacturerReference,
     });
-    if (!manual) return res.status(409).json({ ok: false, error: "Shiba sera disponible lorsque la notice d’utilisation publique de ce modèle aura été vérifiée." });
+    if (!manual) return res.status(409).json({ ok: false, error: "L’assistant sera disponible lorsque la notice d’utilisation publique de ce modèle aura été vérifiée." });
     const ip = String(req.headers["x-forwarded-for"] || req.headers["x-real-ip"] || "unknown").split(",")[0].trim();
     const visitor = createHash("sha256").update(`${ip}:${carnetPassId}`).digest("hex");
     const now = new Date();
@@ -944,13 +944,13 @@ async function publicShibaQuestion(req, res) {
       const expiresAt = Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1) / 1000;
       await redis.expireat(key, expiresAt);
     }
-    if (count > 5) return res.status(429).json({ ok: false, remaining: 0, error: "Vous avez utilisé vos cinq questions Shiba Bot pour ce mois. La notice et l’historique restent consultables." });
+    if (count > 5) return res.status(429).json({ ok: false, remaining: 0, error: "Vous avez utilisé vos cinq questions à l’Assistant CarnetPass pour ce mois. La notice et l’historique restent consultables." });
     const matched = answerFromPublicUserManual(manual, question);
     return res.status(200).json({ ok: true, remaining: 5 - count,
       answer: matched?.answer || "Je ne trouve pas cette réponse dans la notice d’utilisation publique de ce modèle. Consultez la notice ou contactez l’entreprise intervenante.",
       page: matched?.page || null, pdfPage: matched?.pdfPage || null,
       manualUrl: manual.url, manualTitle: manual.title });
   } catch {
-    return res.status(503).json({ ok: false, error: "Shiba Bot est momentanément indisponible. Les informations de sécurité restent accessibles." });
+    return res.status(503).json({ ok: false, error: "L’Assistant CarnetPass est momentanément indisponible. Les informations de sécurité restent accessibles." });
   }
 }

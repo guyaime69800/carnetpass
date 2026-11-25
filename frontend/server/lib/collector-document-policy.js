@@ -2,7 +2,7 @@
 // Legacy manually managed records retain their existing authorization checks.
 const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase();
 // Catalogue consultation is an explicit administrative decision, separate from
-// rights evidence and Shiba validation. Never reuse this gate in the indexer.
+// rights evidence and assistant indexing validation. Never reuse this gate in the indexer.
 export function collectorCatalogAllowed(entry) {
   if (collectorDocumentAllowed(entry)) return true;
   const m=entry.collector_metadata,p=m?.catalogPublication,t=m?.documentaryReview,i=m?.identity;

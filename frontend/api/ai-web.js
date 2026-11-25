@@ -66,8 +66,8 @@ export default async function handler(request, response) {
         });
       }
     } catch (error) {
-      console.error("Quota Shiba indisponible :", error);
-      return response.status(503).json({ error: "Le compteur Shiba est momentanément indisponible." });
+      console.error("Quota de l’assistant indisponible :", error);
+      return response.status(503).json({ error: "Le compteur de l’assistant est momentanément indisponible." });
     }
   }
 
@@ -81,7 +81,7 @@ export default async function handler(request, response) {
       max_tool_calls: 2,
       max_output_tokens: 1000,
       instructions: [
-        "Tu es Shiba Bot, assistant technique CarnetPass. Réponds en français de façon concise.",
+        "Tu es l’Assistant CarnetPass, l’assistant technique de CarnetPass. Réponds en français de façon concise.",
         "Recherche des sources sur le Web, en privilégiant les notices officielles du constructeur.",
         "N'invente jamais une vue éclatée, une référence de pièce, un code défaut ni une page de notice.",
         "Si la marque ou la variante ne peut être vérifiée, dis-le explicitement.",
@@ -118,11 +118,11 @@ export default async function handler(request, response) {
   } catch (error) {
     if (quotaReservation?.allowed) {
       try { await refundShibaQuestion(quotaReservation); }
-      catch (refundError) { console.error("Remboursement quota Shiba indisponible :", refundError); }
+      catch (refundError) { console.error("Remboursement du quota de l’assistant indisponible :", refundError); }
     }
-    console.error("Recherche Web Shiba indisponible :", error);
+    console.error("Recherche Web de l’assistant indisponible :", error);
     await recordOpenAIHealth(error);
     await reportAnomaly("shiba_unavailable", "web_search_failed");
-    return response.status(503).json({ error: "La recherche Web de Shiba est momentanément indisponible." });
+    return response.status(503).json({ error: "La recherche Web de l’assistant est momentanément indisponible." });
   }
 }

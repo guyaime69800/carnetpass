@@ -155,6 +155,6 @@ export async function scheduledAidWatch(req) {
   try {
     await watchAidSources();
   } catch {
-    console.warn("Shiba Devis: veille indisponible.");
+    console.warn("Assistant Devis : veille indisponible.");
   }
 }

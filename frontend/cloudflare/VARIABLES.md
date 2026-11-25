@@ -47,7 +47,7 @@ L'inventaire statique complet et ses chemins de code sont générés dans `.clou
 
 - `.dev.vars.preview` : secrets d'exécution de test ; `.dev.vars.production` : secrets de production pour l'opération autorisée ultérieure. Ces fichiers sont ignorés par Git.
 - Variables publiques de build : environnement du terminal ou fichier de variables publiques chargé explicitement. Ne pas placer les secrets serveur dans un fichier public.
-- `ASSETS` : binding configuré pour les fichiers construits. L'accès aux index Shiba privés passe exclusivement par le Worker.
+- `ASSETS` : binding configuré pour les fichiers construits. L'accès aux index privés de l'assistant passe exclusivement par le Worker.
 - `IMAGES` : binding nécessaire au prétraitement réel des photos de plaque ; préparé dans le code mais non activé. Vérifier disponibilité et coût avant ajout de `images.binding = IMAGES`.
 - Test connecté : Supabase isolé `bqqzzbwqmiyxcotvqtoc` et Redis isolé. Vérifier leur disponibilité et leurs clés avant écriture. Paris 2 est refusé en Preview. Ne pas utiliser le compartiment R2 de production pour un essai d'écriture.
 

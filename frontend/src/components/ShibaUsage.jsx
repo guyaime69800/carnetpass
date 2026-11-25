@@ -54,7 +54,7 @@ export default function ShibaUsage({ session }) {
 
   if (!session?.access_token || usage?.enabled === false) return null;
   if (error) return <p className="shiba-usage shiba-usage--error">Le compteur de questions est momentanément indisponible.</p>;
-  if (!usage) return <p className="shiba-usage">Chargement du compteur Shiba Bot…</p>;
+  if (!usage) return <p className="shiba-usage">Chargement du compteur de l’Assistant CarnetPass…</p>;
   const reset = formatShibaResetDate(usage.resetAt);
   const exhausted = usage.remaining <= 0;
   const includedRemaining = Math.max(0, usage.limit - usage.used);
@@ -62,7 +62,7 @@ export default function ShibaUsage({ session }) {
   const testBilling = import.meta.env.VITE_STRIPE_TEST_BILLING_ENABLED === "true";
   return (
     <div className="shiba-usage" aria-live="polite">
-      <div className="shiba-usage__line"><strong>Shiba Bot · documents et Web</strong><span>{exhausted ? "Crédits épuisés" : "Disponible"}</span></div>
+      <div className="shiba-usage__line"><strong>Assistant CarnetPass · documents et Web</strong><span>{exhausted ? "Crédits épuisés" : "Disponible"}</span></div>
       <div className="shiba-usage__balances">
         <span>Crédits inclus disponibles : <strong>{includedRemaining}</strong></span>
         <span>Crédits achetés disponibles : <strong>{purchasedRemaining}</strong></span>
@@ -81,7 +81,7 @@ export default function ShibaUsage({ session }) {
       ) : (
         <>
           <small>{usage.period === "trial"
-            ? `Accès aux documents jusqu’au ${reset || "terme de l’essai"}, ou jusqu’à la 20e question Shiba Bot.`
+            ? `Accès aux documents jusqu’au ${reset || "terme de l’essai"}, ou jusqu’à la 20e question à l’assistant.`
             : `Prochaine réinitialisation le ${reset || "date non disponible"}. Vos carnets, documents et historiques restent accessibles.`}</small>
           {(testBilling || livePurchases.available) && usage.period !== "trial" && <button className="shiba-usage__recharge" type="button" onClick={() => openShibaRecharge(usage, true)}>Recharger CarnetPass</button>}
         </>

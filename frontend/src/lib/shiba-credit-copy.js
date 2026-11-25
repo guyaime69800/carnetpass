@@ -1,8 +1,8 @@
 export function shibaCreditsExhaustedMessage(period) {
   if (period === "month") {
-    return "Vos crédits Shiba Bot sont épuisés. Rechargez vos crédits ou attendez leur prochaine réinitialisation.";
+    return "Vos crédits pour l’Assistant CarnetPass sont épuisés. Rechargez vos crédits ou attendez leur prochaine réinitialisation.";
   }
-  return "Vos crédits Shiba Bot sont épuisés. La formule Découverte ne prévoit pas de réinitialisation.";
+  return "Vos crédits pour l’Assistant CarnetPass sont épuisés. La formule Découverte ne prévoit pas de réinitialisation.";
 }
 
 export function formatShibaResetDate(resetAt) {

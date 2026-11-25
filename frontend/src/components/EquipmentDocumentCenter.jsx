@@ -737,10 +737,10 @@ function EquipmentDocumentCenterContent({
       {!loading && technicalDocuments.length > 0 && (
         <section className="equipment-workspace__ai" aria-labelledby="equipment-ai-title">
           <div className="equipment-workspace__ai-intro">
-            <img className="equipment-workspace__ai-mascot" src={shibaTechnicien} alt="Logo de l’assistant technique Shiba Bot" width="92" height="92" />
+            <img className="equipment-workspace__ai-mascot" src={shibaTechnicien} alt="Logo de l’Assistant CarnetPass" width="92" height="92" />
             <div>
               <span>ASSISTANT IA CARNETPASS</span>
-              <h3 id="equipment-ai-title">Shiba Bot</h3>
+              <h3 id="equipment-ai-title">Assistant CarnetPass</h3>
             </div>
           </div>
           <p>Posez une question sur les notices et la vue éclatée. Vérifiez la page citée avant toute intervention.</p>
@@ -760,11 +760,11 @@ function EquipmentDocumentCenterContent({
               placeholder="Ex. Quelle est la référence du capteur de pression dans la vue éclatée ?"
             />
             <button type="submit" disabled={aiBusy || !canAskAi || !aiQuestion.trim()}>
-              {aiBusy ? "Shiba recherche…" : "Demander à Shiba Bot"}
+              {aiBusy ? "L’assistant recherche…" : "Demander à l’Assistant CarnetPass"}
             </button>
           </form>
           {!canAskAi && (
-            <p role="alert">Aucun document de ce modèle n’est encore indexé pour Shiba.</p>
+            <p role="alert">Aucun document de ce modèle n’est encore indexé pour l’assistant.</p>
           )}
           {aiError && <p className="equipment-workspace__ai-error" role="alert">{aiError}</p>}
           {aiAnswer && (

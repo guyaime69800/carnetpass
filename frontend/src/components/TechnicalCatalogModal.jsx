@@ -261,7 +261,7 @@ function TechnicalCatalogContent({ onClose, onAddEquipment, canAddEquipment, cat
     if (!requestQuestion || !model || documentsBusy || busy) return;
     const selectedSource = forcedSource || searchSource;
     if (selectedSource === "documents" && !indexedDocumentCount) {
-      setError("Ce modèle n’a pas encore de document indexé pour Shiba. Choisissez la recherche Web.");
+      setError("Ce modèle n’a pas encore de document indexé pour l’assistant. Choisissez la recherche Web.");
       return;
     }
     const useDocumentation = selectedSource === "documents";
@@ -344,7 +344,7 @@ function TechnicalCatalogContent({ onClose, onAddEquipment, canAddEquipment, cat
     <div className="technical-catalog-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
       <section className="technical-catalog-modal" role="dialog" aria-modal="true" aria-labelledby="technical-catalog-title" onMouseDown={(event) => event.stopPropagation()}>
         <header className="technical-catalog-header">
-          <div className="technical-catalog-header-brand"><img src={shibaTechnicien} alt="" /><div><span className="technical-catalog-kicker">OUTIL TECHNIQUE</span><h2 id="technical-catalog-title">{step === "assistant-picker" ? "Posez une question à Shiba" : "Catalogue technique"}</h2></div></div>
+          <div className="technical-catalog-header-brand"><img src={shibaTechnicien} alt="" /><div><span className="technical-catalog-kicker">OUTIL TECHNIQUE</span><h2 id="technical-catalog-title">{step === "assistant-picker" ? "Posez une question à l’assistant" : "Catalogue technique"}</h2></div></div>
           <button type="button" className="technical-catalog-close" onClick={onClose} aria-label="Fermer">×</button>
         </header>
         <div className="technical-catalog-content">
@@ -373,9 +373,9 @@ function TechnicalCatalogContent({ onClose, onAddEquipment, canAddEquipment, cat
                 </button>)}
             </div> : <p className="technical-catalog-empty">Aucun modèle ne correspond à cette recherche.</p>}
           </>}
-          {step === "assistant-picker" && <section className="technical-catalog-pick-assistant" aria-label="Choisir le modèle pour Shiba">
+          {step === "assistant-picker" && <section className="technical-catalog-pick-assistant" aria-label="Choisir le modèle pour l’assistant">
             <button type="button" className="technical-catalog-back" onClick={toCategory}>← Parcourir le catalogue</button>
-            <div className="technical-catalog-assistant-heading"><img src={shibaTechnicien} alt="" /><p>Choisissez un modèle. Shiba consulte ses documents ou recherche des sources sur le Web.</p></div>
+            <div className="technical-catalog-assistant-heading"><img src={shibaTechnicien} alt="" /><p>Choisissez un modèle. L’assistant consulte ses documents ou recherche des sources sur le Web.</p></div>
             <label className="technical-catalog-search" htmlFor="technical-catalog-picker-question">Votre question<textarea id="technical-catalog-picker-question" value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="Ex. Que signifie le code défaut F28 ?" rows={3} /></label>
             <label className="technical-catalog-search" htmlFor="technical-catalog-picker-model">Rechercher un modèle<input id="technical-catalog-picker-model" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Marque, modèle ou référence" /></label>
             <div className="technical-catalog-list">{entries.filter((item) => (item.equipmentId || item.publishedDocuments) && (!normalize(query) || normalize([item.brand, item.model, item.variant, item.manufacturerReference, ...(item.searchAliases || [])].join(" ")).includes(normalize(query)))).map((item) => <button key={item.equipmentId || `${item.brand}-${item.model}-${item.type}`} type="button" className="technical-catalog-row" onClick={() => selectModel(item, true)}><strong>{item.brand} · {item.model}{item.variant ? ` · ${item.variant}` : ""}<small>{item.manufacturerReference}</small></strong><span aria-hidden="true">›</span></button>)}</div>
@@ -410,7 +410,7 @@ function TechnicalCatalogContent({ onClose, onAddEquipment, canAddEquipment, cat
               <strong>Modèle absent du catalogue ?</strong>
               <label>Nom du modèle<input value={manualModel} onChange={(event) => setManualModel(event.target.value)} maxLength={160} required placeholder="Ex. VMC modèle exact" /></label>
               <label>Référence (facultative)<input value={manualReference} onChange={(event) => setManualReference(event.target.value)} maxLength={100} placeholder="Référence de la plaque signalétique" /></label>
-              <button type="submit">Ouvrir la fiche et demander à Shiba →</button>
+              <button type="submit">Ouvrir la fiche et demander à l’assistant →</button>
             </form>
               </div>
             </div>
@@ -419,21 +419,21 @@ function TechnicalCatalogContent({ onClose, onAddEquipment, canAddEquipment, cat
             <BrandSupport key={`${model.brand}-${model.manufacturerReference}`} brand={model.brand} category={model.type||type} range={catalogModelFamily(model)} contactPacks={model.hotlinePacks||[model.brandHotlines]} onScopeChange={setHotlineScope} />
             <div className="technical-catalog-model-heading"><div><span className="technical-catalog-kicker">{model.brand}</span><h3>{model.model}{model.variant ? ` · ${model.variant}` : ""}</h3><p>Réf. produit : {model.manufacturerReference || "non renseignée"}</p>{!!model.searchAliases?.length && <p>Autres références couvertes : {model.searchAliases.join(", ")}</p>}</div>{step === "model" && <button type="button" className="technical-catalog-back" onClick={assistantOrigin ? toAssistantPicker : toModels}>← {assistantOrigin ? "Choisir un autre modèle" : modelReturnStep === "published" ? "Documents publiés" : "Tous les modèles"}</button>}</div>
             {step === "model" && <>
-              <section className="technical-catalog-shiba-help" aria-label="Interroger Shiba">
-                <img className="technical-catalog-shiba-research" src={shibaRecherche} alt="Logo de Shiba pour la recherche de documents" />
+              <section className="technical-catalog-shiba-help" aria-label="Interroger l’Assistant CarnetPass">
+                <img className="technical-catalog-shiba-research" src={shibaRecherche} alt="Logo de l’Assistant CarnetPass pour la recherche de documents" />
                 <div className="technical-catalog-shiba-help-content">
-                  <h4>Une information vous manque ? Interrogez Shiba</h4>
-                  <p>Notice, référence, pièce détachée ou question technique : Shiba vous aide pour ce modèle.</p>
+                  <h4>Une information vous manque ? Interrogez l’Assistant CarnetPass</h4>
+                  <p>Notice, référence, pièce détachée ou question technique : l’assistant vous aide pour ce modèle.</p>
                   <div className="technical-catalog-shiba-help-actions">
                     <button type="button" onClick={() => { setSearchSource("web"); setStep("assistant"); }}>Rechercher sur le Web<span>Notices et références avec sources</span></button>
                     <button type="button" onClick={() => { setSearchSource(indexedDocumentCount ? "documents" : "web"); setStep("assistant"); }}>Poser une question technique<span>{indexedDocumentCount ? "Avec les documents du modèle" : "Recherche avec sources sur le Web"}</span></button>
                   </div>
                 </div>
-                <img className="technical-catalog-shiba-technician" src={shibaTechnicien} alt="Logo de l’assistant technique Shiba" />
+                <img className="technical-catalog-shiba-technician" src={shibaTechnicien} alt="Logo de l’Assistant CarnetPass" />
               </section>
               {documentsBusy && <p role="status">Vérification de la documentation…</p>}
               {documentsError && <p role="alert" className="technical-catalog-error">{documentsError}</p>}
-              {!documentsBusy && !documentsError && !documents.length && <p className="technical-catalog-empty">Aucun document constructeur enregistré pour ce modèle. Shiba peut rechercher des sources sur le Web.</p>}
+              {!documentsBusy && !documentsError && !documents.length && <p className="technical-catalog-empty">Aucun document constructeur enregistré pour ce modèle. L’assistant peut rechercher des sources sur le Web.</p>}
               {!documentsBusy && <div className="technical-catalog-model-layout">
                 {!!documents.length && <aside className="technical-catalog-notice-panel" aria-label="Notices du modèle sélectionné">
                   <h4>Documents du modèle</h4>
@@ -460,24 +460,24 @@ function TechnicalCatalogContent({ onClose, onAddEquipment, canAddEquipment, cat
                 <button type="button" disabled={Boolean(previewBusyId)} onClick={() => openDocumentPreview(item)}>{previewBusyId === item.documentId ? "Ouverture…" : "Consulter"}</button>
               </article>)}</div>
             </section>}
-            {step === "assistant" && <section className="technical-catalog-assistant" aria-label="Shiba">
+            {step === "assistant" && <section className="technical-catalog-assistant" aria-label="Assistant CarnetPass">
               <button type="button" className="technical-catalog-back" onClick={assistantOrigin ? toAssistantPicker : () => setStep("model")}>← {assistantOrigin ? "Choisir un autre modèle" : "Retour au modèle"}</button>
-              <div className="technical-catalog-assistant-heading"><img src={shibaTechnicien} alt="" /><div><h4>Shiba</h4><p>Posez une question précise. Vérifiez les références et les sources du modèle.</p></div></div>
+              <div className="technical-catalog-assistant-heading"><img src={shibaTechnicien} alt="" /><div><h4>Assistant CarnetPass</h4><p>Posez une question précise. Vérifiez les références et les sources du modèle.</p></div></div>
               <ShibaUsage session={session} />
               {documentsBusy && <p role="status">Vérification de la documentation…</p>}
               {documentsError && <p role="alert" className="technical-catalog-error">{documentsError}</p>}
-              {!documentsBusy && !indexedDocumentCount && <p className="technical-catalog-empty">Aucun document de ce modèle n'est encore prêt pour Shiba. La recherche Web reste disponible avec ses sources.</p>}
+              {!documentsBusy && !indexedDocumentCount && <p className="technical-catalog-empty">Aucun document de ce modèle n'est encore prêt pour l’assistant. La recherche Web reste disponible avec ses sources.</p>}
               <form onSubmit={askShiba}>
                 <label htmlFor="technical-catalog-source">Source de la réponse</label>
                 <select id="technical-catalog-source" value={searchSource} onChange={(event) => { setSearchSource(event.target.value); setAnswer(""); setError(""); }}>
-                  <option value="documents">Documents du modèle indexés pour Shiba</option>
+                  <option value="documents">Documents du modèle indexés pour l’assistant</option>
                   <option value="web">Recherche Web avec sources</option>
                 </select>
-                {searchSource === "documents" && !documentsBusy && !indexedDocumentCount && <p>Ce modèle n’a pas encore de document indexé pour Shiba. Choisissez le Web pour poser la question.</p>}
-                <label htmlFor="technical-catalog-question">Votre question</label><textarea id="technical-catalog-question" value={question} onChange={(event) => { setQuestion(event.target.value); setAnswer(""); setError(""); setAnswerSources([]); setAnswerCitations([]); }} placeholder="Ex. Quelle est la référence de cette pièce ?" rows={4} autoFocus /><button type="submit" disabled={!question.trim() || documentsBusy || busy}>{busy ? "Recherche…" : "Interroger Shiba"}</button>
+                {searchSource === "documents" && !documentsBusy && !indexedDocumentCount && <p>Ce modèle n’a pas encore de document indexé pour l’assistant. Choisissez le Web pour poser la question.</p>}
+                <label htmlFor="technical-catalog-question">Votre question</label><textarea id="technical-catalog-question" value={question} onChange={(event) => { setQuestion(event.target.value); setAnswer(""); setError(""); setAnswerSources([]); setAnswerCitations([]); }} placeholder="Ex. Quelle est la référence de cette pièce ?" rows={4} autoFocus /><button type="submit" disabled={!question.trim() || documentsBusy || busy}>{busy ? "Recherche…" : "Interroger l’assistant"}</button>
               </form>
               {error && <p role="alert" className="technical-catalog-error">{error}</p>}
-              {answer && <div className="technical-catalog-answer" aria-live="polite"><div className="technical-catalog-answer-heading"><img src={shibaTechnicien} alt="" /><strong>Réponse de Shiba {answerSource === "web" ? "· Recherche Web" : "· Documentation constructeur"}</strong></div>{answerSource === "web" ? <div className="technical-catalog-answer-body">{renderWebAnswer()}</div> : <div className="technical-catalog-answer-body"><ReactMarkdown>{answer}</ReactMarkdown></div>}{answerSource === "documents" && !!indexedDocumentCount && <div className="technical-catalog-sources"><strong>Vérifier dans les documents indexés</strong><ul>{documents.filter((item) => item.storage !== "platform-private" || item.ragStatus === "ready").map((item) => <li key={item.documentId}><button type="button" disabled={Boolean(previewBusyId)} onClick={() => openDocumentPreview(item)}>{previewBusyId === item.documentId ? "Ouverture…" : item.title}</button></li>)}</ul><small>Vérifiez la référence et la variante exacte avant toute intervention.</small></div>}{answerSource === "web" && !!answerSources.length && <div className="technical-catalog-sources"><strong>Sources consultées</strong><ul>{answerSources.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noopener noreferrer">{source.title || source.url}</a></li>)}</ul><small>Vérifiez les informations techniques dans la notice du modèle exact.</small></div>}</div>}
+              {answer && <div className="technical-catalog-answer" aria-live="polite"><div className="technical-catalog-answer-heading"><img src={shibaTechnicien} alt="" /><strong>Réponse de l’assistant {answerSource === "web" ? "· Recherche Web" : "· Documentation constructeur"}</strong></div>{answerSource === "web" ? <div className="technical-catalog-answer-body">{renderWebAnswer()}</div> : <div className="technical-catalog-answer-body"><ReactMarkdown>{answer}</ReactMarkdown></div>}{answerSource === "documents" && !!indexedDocumentCount && <div className="technical-catalog-sources"><strong>Vérifier dans les documents indexés</strong><ul>{documents.filter((item) => item.storage !== "platform-private" || item.ragStatus === "ready").map((item) => <li key={item.documentId}><button type="button" disabled={Boolean(previewBusyId)} onClick={() => openDocumentPreview(item)}>{previewBusyId === item.documentId ? "Ouverture…" : item.title}</button></li>)}</ul><small>Vérifiez la référence et la variante exacte avant toute intervention.</small></div>}{answerSource === "web" && !!answerSources.length && <div className="technical-catalog-sources"><strong>Sources consultées</strong><ul>{answerSources.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noopener noreferrer">{source.title || source.url}</a></li>)}</ul><small>Vérifiez les informations techniques dans la notice du modèle exact.</small></div>}</div>}
               {webFallbackAvailable && <button type="button" className="technical-catalog-back" disabled={busy} onClick={(event) => askShiba(event, "web")}>Rechercher aussi sur le Web avec des sources →</button>}
             </section>}
           </>}

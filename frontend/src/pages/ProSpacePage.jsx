@@ -2042,7 +2042,7 @@ export default function ProSpacePage() {
           <div className="pro-technical-catalog-intro">
             <img src={shibaTechnicien} alt="" />
             <div>
-              <h2>Posez une question à Shiba Bot</h2>
+              <h2>Posez une question à l’Assistant CarnetPass</h2>
               <p>Choisissez un modèle, puis recherchez dans la documentation disponible ou sur le Web avec des sources.</p>
             </div>
           </div>

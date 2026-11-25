@@ -218,7 +218,7 @@ export default function PlatformAdminPage() {
         if (entries.some((entry) => entry.blob_pathname === pathname)) { recorded = true; break; }
       }
       setDocumentNotice(recorded
-        ? { text: direct ? "PDF enregistré directement dans R2 et vérifié. Validez-le pour lancer son indexation Shiba." : "PDF enregistré dans Documents à valider. Validez-le pour lancer son indexation Shiba.", kind: "success" }
+        ? { text: direct ? "PDF enregistré directement dans R2 et vérifié. Validez-le pour lancer son indexation pour l’assistant." : "PDF enregistré dans Documents à valider. Validez-le pour lancer son indexation pour l’assistant.", kind: "success" }
         : { text: "PDF envoyé, mais son enregistrement n’est pas encore confirmé. Cliquez sur Actualiser la liste dans quelques instants.", kind: "progress" });
     } catch (cause) { setDocumentNotice({ text: cause.message || "Import impossible.", kind: "error" }); }
     finally { setBusy(false); }
@@ -255,8 +255,8 @@ export default function PlatformAdminPage() {
       const result = await response.json().catch(() => null);
       if (!response.ok) throw new Error(result?.error || "Validation impossible.");
       setMessage(["approve", "publish-imported"].includes(action)
-        ? result.indexStatus === "ready" ? "Document publié et prêt pour Shiba."
-          : `Document publié ; indexation Shiba : ${result.indexStatus === "needs_ocr" ? "OCR nécessaire" : result.indexStatus === "failed" ? "échec, réessayez dans l'archive" : result.indexStatus === "pending" ? "migration Preview à appliquer" : "en cours"}.`
+        ? result.indexStatus === "ready" ? "Document publié et prêt pour l’assistant."
+          : `Document publié ; indexation pour l’assistant : ${result.indexStatus === "needs_ocr" ? "OCR nécessaire" : result.indexStatus === "failed" ? "échec, réessayez dans l'archive" : result.indexStatus === "pending" ? "migration Preview à appliquer" : "en cours"}.`
         : "Document rejeté.");
       await loadDocuments();
     } catch (cause) { setError(cause.message); }
@@ -336,7 +336,7 @@ export default function PlatformAdminPage() {
       const result = await response.json().catch(() => null);
       if (!response.ok) throw new Error(result?.error || "Indexation impossible.");
       setEntryNotice(entry.id, "index", result.indexStatus === "ready"
-        ? "Document prêt pour Shiba."
+        ? "Document prêt pour l’assistant."
         : result.indexStatus === "indexing" ? "L'indexation est encore en cours. Réessayez dans quelques minutes."
         : result.indexStatus === "needs_ocr" ? "Ce PDF est scanné : un OCR est nécessaire avant son indexation."
           : result.indexError || "Indexation non terminée.", result.indexStatus === "ready" ? "success" : result.indexStatus === "indexing" ? "progress" : "error");
@@ -393,7 +393,7 @@ export default function PlatformAdminPage() {
       <p className="platform-admin-document-name"><strong>{entry.manufacturer} · {entry.model_name ? `${entry.model_name} · ` : ""}{entry.model_reference}</strong> · {entry.title} <span>({awaitingPublication ? "En attente de diffusion" : entry.status === "approved" ? "Publié" : entry.status === "rejected" ? "Rejeté" : "À valider"})</span></p>
       <p className="platform-admin-document-filename">{entry.original_filename}</p>
       {entry.collector_metadata?.rights?.status === 'not_established' && <p>Droits de diffusion : non établi — aucun justificatif enregistré.</p>}
-      {catalogueOnly(entry) && <p>Disponible dans le catalogue uniquement. Mise au catalogue autorisée séparément ; elle ne confirme pas les droits de diffusion. Indexation Shiba inchangée.</p>}
+      {catalogueOnly(entry) && <p>Disponible dans le catalogue uniquement. Mise au catalogue autorisée séparément ; elle ne confirme pas les droits de diffusion. Indexation pour l’assistant inchangée.</p>}
       <button type="button" disabled={busy || entry.rag_status === "indexing"} onClick={() => setEditingDocument({ ...entry })}>Modifier la fiche</button>
       {editingDocument?.id === entry.id && <form onSubmit={saveDocument}>
         <label>Fabricant <input required minLength={2} maxLength={120} value={editingDocument.manufacturer} onChange={(event) => setEditingDocument({ ...editingDocument, manufacturer: event.target.value })} /></label>
@@ -413,8 +413,8 @@ export default function PlatformAdminPage() {
         {entryNotices[`${entry.id}:r2`] && <p role={entryNotices[`${entry.id}:r2`].kind === "error" ? "alert" : "status"}>{entryNotices[`${entry.id}:r2`].text}</p>}
       </div>}
       {entry.status === "approved" && <div className="platform-admin-document-index">
-        <p>Shiba : {entry.rag_status === "ready" ? "prêt" : entry.rag_status === "needs_ocr" ? "OCR nécessaire" : entry.rag_status === "failed" ? "échec de l'indexation" : entry.rag_status === "indexing" ? "indexation en cours" : catalogueOnly(entry) ? "non indexé — statut conservé" : "à indexer"}{entry.rag_error ? ` — ${entry.rag_error}` : ""}</p>
-        {!catalogueOnly(entry) && entry.rag_status !== "ready" && entry.rag_status !== "needs_ocr" && <button type="button" disabled={busy} onClick={() => indexDocument(entry)}>{entry.rag_status === "indexing" ? "Vérifier ou relancer l'indexation" : "Indexer pour Shiba"}</button>}
+        <p>Assistant : {entry.rag_status === "ready" ? "prêt" : entry.rag_status === "needs_ocr" ? "OCR nécessaire" : entry.rag_status === "failed" ? "échec de l'indexation" : entry.rag_status === "indexing" ? "indexation en cours" : catalogueOnly(entry) ? "non indexé — statut conservé" : "à indexer"}{entry.rag_error ? ` — ${entry.rag_error}` : ""}</p>
+        {!catalogueOnly(entry) && entry.rag_status !== "ready" && entry.rag_status !== "needs_ocr" && <button type="button" disabled={busy} onClick={() => indexDocument(entry)}>{entry.rag_status === "indexing" ? "Vérifier ou relancer l'indexation" : "Indexer pour l’assistant"}</button>}
         {entryNotices[`${entry.id}:index`] && <p role={entryNotices[`${entry.id}:index`].kind === "error" ? "alert" : "status"} className={`platform-admin-inline-${entryNotices[`${entry.id}:index`].kind}`}>{entryNotices[`${entry.id}:index`].text}</p>}
       </div>}
       {hotlineReady && entry.status === "approved" && <div>
@@ -535,7 +535,7 @@ export default function PlatformAdminPage() {
       </li>)}</ul></section>
       {data.environment === "production" && data.role === "founder" && <TechnicalBatchImport token={session.access_token} onComplete={loadDocuments} />}
       {(["preview", "production"].includes(data.environment)) && <section><h2>Importer un document technique</h2>
-        <p>Le PDF reste privé et en attente de validation. Sa publication lance l'indexation pour Shiba ; un document scanné peut nécessiter un OCR.</p>
+        <p>Le PDF reste privé et en attente de validation. Sa publication lance l'indexation pour l’assistant ; un document scanné peut nécessiter un OCR.</p>
         {!publicationReady && <p>La publication attend l’activation du catalogue dans cette base.</p>}
         <form onSubmit={importDocument} onInvalidCapture={(event) => {
           const field = event.target.closest("label")?.firstChild?.textContent?.trim() || "le champ demandé";
@@ -554,7 +554,7 @@ export default function PlatformAdminPage() {
         {documentNotice && <p role={documentNotice.kind === "error" ? "alert" : "status"} className={`platform-admin-inline-${documentNotice.kind}`}>{documentNotice.text}</p>}
         {environmentName === "production" && data.role === "founder" && <section aria-label="Vérification du stockage R2">
           <h3>Vérification R2</h3>
-          <p>Les nouveaux PDF sont déposés directement dans R2, puis vérifiés. Leur lecture et leur indexation Shiba utilisent R2. Les anciens originaux Blob sont conservés.</p>
+          <p>Les nouveaux PDF sont déposés directement dans R2, puis vérifiés. Leur lecture et leur indexation pour l’assistant utilisent R2. Les anciens originaux Blob sont conservés.</p>
           <button type="button" disabled={busy} onClick={checkR2}>Vérifier la connexion et actualiser le suivi R2</button>
           <p>La copie automatique traite les documents publiés un par un et réutilise les copies déjà vérifiées. Gardez cet onglet ouvert et l’ordinateur éveillé. Aucun accès public ne sera activé.</p>
           <button type="button" disabled={busy || !r2Status?.readAccess} onClick={startR2Batch}>Copier ou reprendre tous les documents publiés vers R2</button>

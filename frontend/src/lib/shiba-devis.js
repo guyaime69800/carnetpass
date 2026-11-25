@@ -99,7 +99,7 @@ export function prepareProject(input, { sources = AID_SOURCES, today } = {}) {
 export function projectText(result, professional = false) {
   const p = result.project;
   const fields = [HOUSING_TYPES[p.housing], OCCUPANCY_TYPES[p.occupancy], WORK_TYPES[p.work], EQUIPMENT_TYPES[p.currentEquipment], p.postalCode].filter(Boolean);
-  return ["Shiba Devis — dossier préparatoire gratuit", fields.join(" · "),
+  return ["Assistant Devis — dossier préparatoire gratuit", fields.join(" · "),
     "Estimation indicative sans calcul de montant. Éligibilité non évaluée ; aucun financement garanti.",
     "Informations à compléter :", ...result.missing, "Hypothèses :", ...result.assumptions,
     "Étapes à vérifier :", ...result.checklist,

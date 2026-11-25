@@ -20,7 +20,7 @@ export async function recordOpenAIHealth(error, redis) {
   const problem = error ? openAIProblem(error) : null;
   if (error && !problem) return;
   try { await (redis || store()).set(key(), { state: problem || 'success', at: new Date().toISOString() }, { ex: 604800 }); }
-  catch { /* Monitoring must not interrupt Shiba. */ }
+  catch { /* Monitoring must not interrupt the assistant. */ }
 }
 export async function adminServiceHealth({ polygonCheck = checkEquipmentRegistryV2, redis, env = process.env } = {}) {
   const checkedAt = new Date().toISOString();

@@ -1,7 +1,7 @@
 ﻿# Logos des assistants
 
 Choisis par Guy le 25 novembre 2026 pour remplacer les mascottes Simba (chien).
-Les noms des assistants restent Shiba Bot et Shiba Devis.
+Les assistants s’appellent Assistant CarnetPass (ex-Shiba Bot) et Assistant Devis (ex-Shiba Devis).
 
 - `assistant-technique.svg` : maison au centre d'un cycle chaud (orange) et froid
   (bleu), pour le chauffage, la climatisation et la pompe à chaleur réversible.

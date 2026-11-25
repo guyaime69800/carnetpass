@@ -58,7 +58,7 @@ export default function HomeLanding({ presentation = false, maintenance = false 
           </div>
           <div className="home-visual-document"><span aria-hidden="true">▤</span><div><strong>Documentation constructeur</strong><small>Notice · vue éclatée · aide au dépannage</small></div><b aria-hidden="true">↗</b></div>
           <div className="home-visual-document"><span aria-hidden="true">◷</span><div><strong>Historique d’entretien</strong><small>Interventions regroupées dans le carnet</small></div><b aria-hidden="true">↗</b></div>
-          <div className="home-visual-shiba"><img src={shibaTechnicien} alt="" width="48" height="48" /><div><strong>Shiba Bot</strong><span>Une aide qui s’appuie sur les documents du modèle.</span></div></div>
+          <div className="home-visual-shiba"><img src={shibaTechnicien} alt="" width="48" height="48" /><div><strong>Assistant CarnetPass</strong><span>Une aide qui s’appuie sur les documents du modèle.</span></div></div>
         </div>
       </section>
 
@@ -70,8 +70,8 @@ export default function HomeLanding({ presentation = false, maintenance = false 
       </section>
 
       <section className="home-shiba" aria-labelledby="home-shiba-title">
-        <div className="home-shiba__portrait"><img src={shibaTechnicien} alt="Logo de l’assistant documentaire Shiba Bot" width="240" height="240" loading="lazy" /></div>
-        <div><span className="home-eyebrow">Shiba Bot</span><h2 id="home-shiba-title">Retrouver et comprendre les documents techniques.</h2><p>Shiba Bot aide à rechercher une information dans les notices et les vues éclatées disponibles pour le modèle. Les sources proposées permettent de vérifier la réponse. L’assistant peut se tromper et ne remplace pas l’appréciation d’un professionnel qualifié.</p>{!maintenance && <Link to="/connexion">Ouvrir mon espace et utiliser Shiba <span aria-hidden="true">→</span></Link>}</div>
+        <div className="home-shiba__portrait"><img src={shibaTechnicien} alt="Logo de l’Assistant CarnetPass" width="240" height="240" loading="lazy" /></div>
+        <div><span className="home-eyebrow">Assistant CarnetPass</span><h2 id="home-shiba-title">Retrouver et comprendre les documents techniques.</h2><p>L’Assistant CarnetPass aide à rechercher une information dans les notices et les vues éclatées disponibles pour le modèle. Les sources proposées permettent de vérifier la réponse. Il peut se tromper et ne remplace pas l’appréciation d’un professionnel qualifié.</p>{!maintenance && <Link to="/connexion">Ouvrir mon espace et utiliser l’assistant <span aria-hidden="true">→</span></Link>}</div>
       </section>
 
       <section className="home-final" aria-labelledby="home-final-title"><div><span className="home-eyebrow">Traçabilité</span><h2 id="home-final-title">Une trace durable, des données protégées.</h2><p>CarnetPass utilise la technologie blockchain Polygon pour renforcer la traçabilité des interventions, avec une attention portée à la protection des données personnelles et au respect du RGPD.</p><p>Des empreintes techniques servent de preuves de traçabilité. Les documents privés restent hors de la blockchain, avec des accès réservés aux personnes autorisées.</p><Link to="/confidentialite">Protection des données et droits RGPD →</Link><p>Retrouvez le détail des preuves enregistrées et de leur portée dans notre FAQ.</p><Link to="/faq">Comprendre le fonctionnement de CarnetPass →</Link></div></section>

@@ -5,10 +5,10 @@ const openAILabels = {
   authentication: 'Alerte : OpenAI refuse la clé ou ses permissions. Vérifiez la configuration serveur.',
   rate_limit: 'Alerte : limite de requêtes OpenAI atteinte. Ce message ne prouve pas un manque de crédits.',
   unavailable: 'Alerte : OpenAI a signalé une indisponibilité.',
-  missing: 'Alerte : la clé OpenAI de Shiba est absente.',
-  success: 'Le dernier appel Shiba suivi a réussi. Cela ne garantit pas le solde restant.',
+  missing: 'Alerte : la clé OpenAI de l’assistant est absente.',
+  success: 'Le dernier appel de l’assistant suivi a réussi. Cela ne garantit pas le solde restant.',
   unknown: 'Clé configurée ; aucun appel récent suivi. Le crédit restant n’est pas connu.',
-  monitor_unavailable: 'Le suivi OpenAI est indisponible ; état de Shiba non confirmé.',
+  monitor_unavailable: 'Le suivi OpenAI est indisponible ; état de l’assistant non confirmé.',
 };
 export default function AdminServiceAlerts({ token }) {
   const [health, setHealth] = useState(null);
@@ -35,8 +35,8 @@ export default function AdminServiceAlerts({ token }) {
   const polygon = health?.polygon;
   const openai = health?.openai;
   const billing = health?.billing;
-  return <section aria-label="Alertes Polygon et Shiba">
-    <h2>Alertes Polygon et Shiba</h2>
+  return <section aria-label="Alertes Polygon et assistant">
+    <h2>Alertes Polygon et assistant</h2>
     <button type="button" disabled={busy} onClick={() => setRevision(value => value + 1)}>{busy ? 'Vérification…' : 'Actualiser les alertes'}</button>
     {error && <p role="alert" className="platform-admin-error">{error} Les informations précédentes peuvent être périmées.</p>}
     {polygon && <div>
@@ -49,10 +49,10 @@ export default function AdminServiceAlerts({ token }) {
       <p>Avertissement à 0,30 POL · critique à 0,10 POL. Le coût des transactions peut varier.</p>
     </div>}
     {openai && <div>
-      <h3>OpenAI · Shiba</h3>
+      <h3>OpenAI · Assistant CarnetPass</h3>
       <p className={['success', 'unknown'].includes(openai.state) ? '' : 'platform-admin-error'}>{openAILabels[openai.state]}</p>
       {openai.at && <p>Dernier résultat suivi : {new Date(openai.at).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}.</p>}
-      <p>Le solde prépayé OpenAI n’est pas disponible ici. Les crédits Shiba des clients sont distincts.</p>
+      <p>Le solde prépayé OpenAI n’est pas disponible ici. Les crédits assistant des clients sont distincts.</p>
       <a href="https://platform.openai.com/settings/organization/billing/overview" target="_blank" rel="noreferrer">Consulter la facturation et les recharges OpenAI</a>
     </div>}
     {billing && <div>

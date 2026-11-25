@@ -11,7 +11,7 @@ export default async function handler(request, response) {
     const plan = professional.accessKind === "discovery" ? "free" : await getShibaPlan(request, professional);
     return response.status(200).json(await readShibaUsage(professional, plan));
   } catch (error) {
-    console.error("Compteur Shiba indisponible :", error);
-    return response.status(503).json({ error: "Le compteur Shiba est momentanément indisponible." });
+    console.error("Compteur de l’assistant indisponible :", error);
+    return response.status(503).json({ error: "Le compteur de l’assistant est momentanément indisponible." });
   }
 }
