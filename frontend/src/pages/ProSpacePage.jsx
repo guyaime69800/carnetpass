@@ -33,7 +33,7 @@ import PlateScanner from '../components/PlateScanner';
 import {devisRequest} from '../services/shibaDevisService';
 import {uploadEquipmentAttachment} from '../services/equipmentAttachmentsService';
 import EmergencyContacts from "../components/EmergencyContacts";
-import shibaTechnicien from "../assets/simba-assistance-technique.webp";
+import shibaTechnicien from "../assets/assistant-technique.svg";
 import { DISCOVERY_EQUIPMENT_LIMIT, getDiscoveryAccess } from "../../shared/discovery-access.js";
 import equipmentIndex from "../data/equipment-index.json";
 import "./ProSpacePage.css";

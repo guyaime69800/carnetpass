@@ -12,7 +12,7 @@ import { loadEquipmentKnowledge } from "./services/equipmentKnowledge";
 import { getPublicUserManual } from "./lib/public-user-manuals.js";
 import { publicQrUrl } from "./lib/public-qr-url.js";
 import CarnetPassCreatedModal from "./components/CarnetPassCreatedModal";
-import shibaTechnicien from "./assets/simba-assistance-technique.webp";
+import shibaTechnicien from "./assets/assistant-technique.svg";
 import HomeLanding from "./components/HomeLanding";
 import InstallCarnetPass from "./components/InstallCarnetPass";
 import EmergencyContacts from "./components/EmergencyContacts";
@@ -1699,7 +1699,7 @@ function App({ initialMode = "public" }) {
                 </section>}
                 <div className="public-fault-assistant" id="shiba-notice-publique">
                   <div className="public-fault-assistant__heading">
-                    <img src={shibaTechnicien} alt="Simba, assistant technique Shiba Bot" width="64" height="96" />
+                    <img src={shibaTechnicien} alt="Logo de l’assistant technique Shiba Bot" width="64" height="64" />
                     <div><strong>Shiba Bot · notice d’utilisation</strong><p>Posez une question sur l’usage de cet appareil. Shiba répond uniquement à partir des points vérifiés de la notice d’utilisation publique, avec la page source. Pour une intervention technique, contactez un professionnel.</p></div>
                   </div>
                   {publicUserManual ? <><p>Cinq questions par mois sont possibles pour chaque visiteur et chaque appareil. La notice et l’historique restent accessibles sans cette limite.</p>

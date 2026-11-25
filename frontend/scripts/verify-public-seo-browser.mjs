@@ -16,7 +16,7 @@ const server = http.createServer(async (req, res) => {
     const url = new URL(req.url, "https://www.carnetpass.fr");
     const result = await middleware(new Request(url, { method: req.method, headers: req.headers }));
     if (result.headers.get("x-middleware-next") === "1") {
-      const asset = { "/shiba-assistant.webp": "image/webp", "/favicon.svg": "image/svg+xml", "/icon-512.png": "image/png" }[url.pathname];
+      const asset = { "/favicon.svg": "image/svg+xml", "/icon-512.png": "image/png" }[url.pathname];
       if (!asset) { res.writeHead(404); res.end(); return; }
       res.writeHead(200, { "Content-Type": asset });
       res.end(await fs.readFile(path.join("public", url.pathname))); return;

@@ -13,7 +13,7 @@ import {
 } from "../services/equipmentAttachmentsService";
 import { photosToPdf } from "../services/photosToPdf";
 import DocumentPreviewModal from "./DocumentPreviewModal";
-import shibaTechnicien from "../assets/simba-assistance-technique.webp";
+import shibaTechnicien from "../assets/assistant-technique.svg";
 import "./EquipmentDocumentCenter.css";
 import { useAuth } from "../hooks/useAuth";
 import ShibaUsage from "./ShibaUsage";
@@ -737,7 +737,7 @@ function EquipmentDocumentCenterContent({
       {!loading && technicalDocuments.length > 0 && (
         <section className="equipment-workspace__ai" aria-labelledby="equipment-ai-title">
           <div className="equipment-workspace__ai-intro">
-            <img className="equipment-workspace__ai-mascot" src={shibaTechnicien} alt="Simba avec une clé à molette, assistant technique Shiba Bot" width="92" height="138" />
+            <img className="equipment-workspace__ai-mascot" src={shibaTechnicien} alt="Logo de l’assistant technique Shiba Bot" width="92" height="92" />
             <div>
               <span>ASSISTANT IA CARNETPASS</span>
               <h3 id="equipment-ai-title">Shiba Bot</h3>

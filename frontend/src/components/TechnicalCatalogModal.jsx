@@ -1,8 +1,8 @@
 import { loadPlatformPdf } from "../services/platformPdfDelivery.js";
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import shibaTechnicien from "../assets/simba-assistance-technique.webp";
-import shibaRecherche from "../assets/simba-accompagnement-administratif.webp";
+import shibaTechnicien from "../assets/assistant-technique.svg";
+import shibaRecherche from "../assets/assistant-devis.svg";
 import { getEquipmentDocumentLibrary } from "../services/equipmentKnowledge";
 import { catalogModelFamily, catalogModelFamilies, catalogModelLabel, catalogModelReferenceLabel, compareCatalogModels, catalogModelsWithPublishedDocuments, sharedNoticeGroups, sharedNoticeBrandSummary } from "../services/platformDocumentLibrary";
 import DocumentPreviewModal from "./DocumentPreviewModal";
@@ -420,7 +420,7 @@ function TechnicalCatalogContent({ onClose, onAddEquipment, canAddEquipment, cat
             <div className="technical-catalog-model-heading"><div><span className="technical-catalog-kicker">{model.brand}</span><h3>{model.model}{model.variant ? ` · ${model.variant}` : ""}</h3><p>Réf. produit : {model.manufacturerReference || "non renseignée"}</p>{!!model.searchAliases?.length && <p>Autres références couvertes : {model.searchAliases.join(", ")}</p>}</div>{step === "model" && <button type="button" className="technical-catalog-back" onClick={assistantOrigin ? toAssistantPicker : toModels}>← {assistantOrigin ? "Choisir un autre modèle" : modelReturnStep === "published" ? "Documents publiés" : "Tous les modèles"}</button>}</div>
             {step === "model" && <>
               <section className="technical-catalog-shiba-help" aria-label="Interroger Shiba">
-                <img className="technical-catalog-shiba-research" src={shibaRecherche} alt="Shiba avec un crayon et un cahier" />
+                <img className="technical-catalog-shiba-research" src={shibaRecherche} alt="Logo de Shiba pour la recherche de documents" />
                 <div className="technical-catalog-shiba-help-content">
                   <h4>Une information vous manque ? Interrogez Shiba</h4>
                   <p>Notice, référence, pièce détachée ou question technique : Shiba vous aide pour ce modèle.</p>
@@ -429,7 +429,7 @@ function TechnicalCatalogContent({ onClose, onAddEquipment, canAddEquipment, cat
                     <button type="button" onClick={() => { setSearchSource(indexedDocumentCount ? "documents" : "web"); setStep("assistant"); }}>Poser une question technique<span>{indexedDocumentCount ? "Avec les documents du modèle" : "Recherche avec sources sur le Web"}</span></button>
                   </div>
                 </div>
-                <img className="technical-catalog-shiba-technician" src={shibaTechnicien} alt="Shiba avec une clé à molette" />
+                <img className="technical-catalog-shiba-technician" src={shibaTechnicien} alt="Logo de l’assistant technique Shiba" />
               </section>
               {documentsBusy && <p role="status">Vérification de la documentation…</p>}
               {documentsError && <p role="alert" className="technical-catalog-error">{documentsError}</p>}

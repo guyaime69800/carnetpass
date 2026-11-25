@@ -10,13 +10,11 @@ try {
   for (const pathname of paths) {
     pages[pathname] = {};
     for (const maintenance of [false, true]) {
-      pages[pathname][maintenance ? "closed" : "open"] = renderPublic(pathname, maintenance)
-        .replaceAll('/src/assets/simba-assistance-technique.webp', '/shiba-assistant.webp');
+      pages[pathname][maintenance ? "closed" : "open"] = renderPublic(pathname, maintenance);
     }
   }
   const styles = (await Promise.all(["src/components/HomeLanding.css", "src/components/SiteFooter.css", "src/pages/InfoPages.css"].map(file => fs.readFile(file, "utf8")))).join("\n");
   await fs.mkdir("server/generated", { recursive: true });
   await fs.writeFile("server/generated/public-pages.js", `// Generated from the existing React pages by scripts/render-public-pages.mjs. No client data.\nexport const publicPages = ${JSON.stringify(pages)};\nexport const publicStyles = ${JSON.stringify(styles)};\n`);
-  await fs.copyFile("src/assets/simba-assistance-technique.webp", "public/shiba-assistant.webp");
   console.log(`Pré-rendu : ${paths.length} pages publiques, maintenance ouverte/fermée.`);
 } finally { await server.close(); }
