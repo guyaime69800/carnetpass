@@ -1,5 +1,5 @@
 import CompanyDataControls from "../components/CompanyDataControls";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { supabase } from "../services/supabaseClient";
@@ -10,6 +10,8 @@ import PasswordField from "../components/PasswordField";
 import AccountInvoices from "../components/AccountInvoices";
 import InternalAdminLink from "../components/InternalAdminLink";
 import { sendTestBillingConfirmation, startBilling, liveBillingPortal } from "../services/billingService";
+import TurnstileWidget from "../components/TurnstileWidget";
+import { captchaReady } from "../lib/turnstile.js";
 import "./AccountSettingsPage.css";
 
 async function accountRequest(method, token, body) {
@@ -35,6 +37,8 @@ export default function AccountSettingsPage() {
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [deletePassword, setDeletePassword] = useState("");
+  const deleteCaptcha = useRef(null);
+  const [deleteCaptchaToken, setDeleteCaptchaToken] = useState("");
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [busy, setBusy] = useState("");
   const [message, setMessage] = useState("");
@@ -218,7 +222,9 @@ export default function AccountSettingsPage() {
             if (deleteConfirmation !== user.email) { setError("Recopiez exactement votre adresse e-mail."); return; }
             if (!window.confirm("Confirmer la suppression définitive de votre accès CarnetPass ?")) return;
             run("delete", async () => {
-              const result = await accountRequest("DELETE", session.access_token, { password: deletePassword });
+              let result;
+              try { result = await accountRequest("DELETE", session.access_token, { password: deletePassword, captchaToken: deleteCaptchaToken }); }
+              finally { deleteCaptcha.current?.reset(); }
               await signOut().catch(() => {});
               navigate("/");
               return result;
@@ -226,7 +232,8 @@ export default function AccountSettingsPage() {
           }}>
             <label>Recopiez votre adresse e-mail<input type="email" autoComplete="off" value={deleteConfirmation} onChange={(event) => setDeleteConfirmation(event.target.value)} required /></label>
             <PasswordField label="Votre mot de passe" autoComplete="current-password" value={deletePassword} onChange={(event) => setDeletePassword(event.target.value)} required />
-            <button className="account-settings-delete" disabled={Boolean(busy)}>Supprimer définitivement mon compte</button>
+            <TurnstileWidget ref={deleteCaptcha} onToken={setDeleteCaptchaToken} action="suppression-compte" />
+            <button className="account-settings-delete" disabled={Boolean(busy) || !captchaReady(deleteCaptchaToken)}>Supprimer définitivement mon compte</button>
           </form>
           <p>Pour une demande concernant les données conservées : <a href="mailto:contact@carnetpass.fr">contact@carnetpass.fr</a>.</p>
         </section>

@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../services/supabaseClient";
 import PasswordField from "../components/PasswordField";
+import TurnstileWidget from "../components/TurnstileWidget";
+import { captchaReady } from "../lib/turnstile.js";
 import "./AuthPage.css";
 
 export default function ResetPasswordPage() {
@@ -14,6 +16,8 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [done, setDone] = useState(false);
+  const captcha = useRef(null);
+  const [captchaToken, setCaptchaToken] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -72,6 +76,7 @@ export default function ResetPasswordPage() {
           {
             redirectTo:
               `${window.location.origin}/reinitialiser-mot-de-passe`,
+            ...(captchaToken ? { captchaToken } : {}),
           }
         );
 
@@ -86,6 +91,7 @@ export default function ResetPasswordPage() {
         "Impossible d’envoyer la demande. Patientez un peu puis réessayez."
       );
     } finally {
+      captcha.current?.reset();
       setBusy(false);
     }
   }
@@ -202,7 +208,9 @@ export default function ResetPasswordPage() {
               />
             </label>
 
-            <button className="auth-submit" disabled={busy} type="submit">
+            <TurnstileWidget ref={captcha} onToken={setCaptchaToken} action="mot-de-passe-oublie" />
+
+            <button className="auth-submit" disabled={busy || !captchaReady(captchaToken)} type="submit">
               {busy ? "Envoi…" : "Recevoir un lien de réinitialisation"}
             </button>
           </form>

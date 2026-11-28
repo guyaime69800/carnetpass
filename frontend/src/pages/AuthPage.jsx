@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { signIn, signUp } from "../services/authService";
 import { proInvitationDestination } from '../../shared/pro-invitation.js';
 import PasswordField from "../components/PasswordField";
+import TurnstileWidget from "../components/TurnstileWidget";
+import { captchaReady } from "../lib/turnstile.js";
 import "./AuthPage.css";
 
 const initialForm = {
@@ -112,6 +114,9 @@ export default function AuthPage({ mode = "connexion" }) {
     return () => { active = false; };
   }, [privateLogin, loading, session?.access_token, securityLoading, security?.error, security?.role, security?.needsVerification, requested, testReturn, destination, navigate]);
 
+  const captcha = useRef(null);
+  const [captchaToken, setCaptchaToken] = useState("");
+
   function updateField(event) {
     const { name, value } = event.target;
 
@@ -127,6 +132,11 @@ export default function AuthPage({ mode = "connexion" }) {
     event.preventDefault();
     setErrorMessage("");
     setSuccessMessage("");
+
+    if (!captchaReady(captchaToken)) {
+      setErrorMessage("Patientez pendant la vérification anti-robots, puis réessayez.");
+      return;
+    }
 
     if (isSignUp && form.password !== form.confirmation) {
       setErrorMessage("Les deux mots de passe ne correspondent pas.");
@@ -145,6 +155,7 @@ export default function AuthPage({ mode = "connexion" }) {
           discoverySourceOther: form.discoverySourceOther,
           password: form.password,
           invitationDestination,
+          captchaToken,
         });
 
         if (data.session) {
@@ -163,6 +174,7 @@ export default function AuthPage({ mode = "connexion" }) {
         const data = await signIn({
           email: form.email,
           password: form.password,
+          captchaToken,
         });
         await renewFounderAccess(data.session?.access_token);
         const admin = !adminRequested && !scanRequested && await isPlatformAdmin(data.session?.access_token);
@@ -171,6 +183,7 @@ export default function AuthPage({ mode = "connexion" }) {
     } catch (error) {
       setErrorMessage(getFriendlyError(error));
     } finally {
+      captcha.current?.reset();
       setIsSubmitting(false);
     }
   }
@@ -351,10 +364,12 @@ export default function AuthPage({ mode = "connexion" }) {
               )}
             </div>
 
+            <TurnstileWidget ref={captcha} onToken={setCaptchaToken} action={isSignUp ? "inscription" : "connexion"} />
+
             <button
               className="auth-submit"
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || !captchaReady(captchaToken)}
             >
               {isSubmitting
                 ? "Veuillez patienter…"

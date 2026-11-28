@@ -8,6 +8,13 @@ import { accountMfaAccessError } from "./lib/mfa-access.js";
 
 const clientOptions = { auth: { persistSession: false, autoRefreshToken: false } };
 
+// Jeton anti-robots (Turnstile) transmis par le navigateur : Supabase l'exige pour
+// toute vérification de mot de passe lorsque le captcha est activé.
+function captchaOptions(body) {
+  const token = body?.captchaToken;
+  return typeof token === "string" && token.length > 0 && token.length <= 2048 ? { options: { captchaToken: token } } : {};
+}
+
 function reply(res, status, message) {
   return res.status(status).json({ ok: status < 400, message });
 }
@@ -77,7 +84,7 @@ export default async function handler(req, res, { clientFactory = createClient, 
         if(error || company?.id!==companyId) return reply(res,503,"Entreprise indisponible.");
         if(req.body.confirmation!==company.name || req.body.archived!==true) return reply(res,400,"Confirmez le nom de l’entreprise et la sauvegarde des documents à conserver.");
         if(typeof req.body.password!=="string" || !req.body.password || req.body.password.length>256) return reply(res,400,"Saisissez votre mot de passe.");
-        const {data: proof,error: passwordError}=await auth.auth.signInWithPassword({email:user.email,password:req.body.password});
+        const {data: proof,error: passwordError}=await auth.auth.signInWithPassword({email:user.email,password:req.body.password,...captchaOptions(req.body)});
         if(passwordError || proof?.user?.id!==user.id)return reply(res,403,"Mot de passe incorrect.");
         const equipmentId=req.body.equipmentId || null;
         if(equipmentId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(equipmentId))return reply(res,400,"Dossier invalide.");
@@ -118,7 +125,7 @@ export default async function handler(req, res, { clientFactory = createClient, 
       return reply(res, 409, "Résiliez d’abord la formule payante avec l’assistance.");
     }
   }
-  const { error: passwordError } = await auth.auth.signInWithPassword({ email: user.email, password });
+  const { error: passwordError } = await auth.auth.signInWithPassword({ email: user.email, password, ...captchaOptions(req.body) });
   if (passwordError) return reply(res, 403, "Mot de passe incorrect.");
 
   // Le soft delete garde les identifiants de référence des historiques techniques.

@@ -1,9 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { companyDataRequest, downloadCompanyExport } from "../services/accountExportService.js";
 import PasswordField from "./PasswordField";
+import TurnstileWidget from "./TurnstileWidget";
+import { captchaReady } from "../lib/turnstile.js";
 export default function CompanyDataControls({company,token}) {
  const [busy,setBusy]=useState(false),[message,setMessage]=useState(""),[error,setError]=useState(""),[operations,setOperations]=useState([]),[ready,setReady]=useState(false);
  const [equipments,setEquipments]=useState([]),[equipmentId,setEquipmentId]=useState(""),[confirmation,setConfirmation]=useState(""),[password,setPassword]=useState(""),[archived,setArchived]=useState(false);
+ const captcha=useRef(null),[captchaToken,setCaptchaToken]=useState("");
  const responsible=company && ["admin","owner"].includes(company.role);
  async function refresh(){const result=await companyDataRequest(token,"data-status");setOperations(result.operations);setReady(true);}
  useEffect(()=>{if(!responsible)return;let active=true;
@@ -23,14 +26,15 @@ export default function CompanyDataControls({company,token}) {
     <p>Exportez d’abord les documents que votre entreprise doit conserver. Les preuves inscrites sur la blockchain ne peuvent pas être effacées. Les sauvegardes techniques expirent selon le cycle du prestataire et ne sont pas utilisées pour rétablir les dossiers effacés.</p>
     {!ready?<p>La suppression autonome est en cours d’installation ; aucune suppression n’est possible tant que le service n’est pas prêt.</p>:<form onSubmit={event=>{event.preventDefault();run(async()=>{
      if(!window.confirm("Effacer définitivement les dossiers sélectionnés et leurs fichiers privés ?"))return;
-     const result=await companyDataRequest(token,"erase-company-data",{equipmentId,confirmation,password,archived},"POST");
+     let result;try{result=await companyDataRequest(token,"erase-company-data",{equipmentId,confirmation,password,archived,captchaToken},"POST");}finally{captcha.current?.reset();}
      setMessage(result.message);setConfirmation("");setArchived(false);await refresh();setEquipments(current=>equipmentId?current.filter(e=>e.id!==equipmentId):[]);setEquipmentId("");
     });}}>
      <label>Dossiers à supprimer<select value={equipmentId} onChange={event=>setEquipmentId(event.target.value)}><option value="">Tous les dossiers techniques de l’entreprise</option>{equipments.map(e=><option key={e.id} value={e.id}>{e.brand} {e.model} - {e.serial_number||e.id}</option>)}</select></label>
      <label>Recopiez le nom de l’entreprise : {company.name}<input autoComplete="off" value={confirmation} onChange={event=>setConfirmation(event.target.value)} required /></label>
      <PasswordField label="Votre mot de passe" autoComplete="current-password" value={password} onChange={event=>setPassword(event.target.value)} required />
      <label><input type="checkbox" checked={archived} onChange={event=>setArchived(event.target.checked)} required /> J’ai récupéré les documents que mon entreprise doit conserver et je confirme cet effacement.</label>
-     <button className="account-settings-delete" disabled={busy||confirmation!==company.name||!archived}>Effacer les dossiers sélectionnés</button>
+     <TurnstileWidget ref={captcha} onToken={setCaptchaToken} action="effacement-dossiers" />
+     <button className="account-settings-delete" disabled={busy||confirmation!==company.name||!archived||!captchaReady(captchaToken)}>Effacer les dossiers sélectionnés</button>
     </form>}
    </details>
    {ready&&<><h3>Suivi des suppressions</h3><button type="button" disabled={busy} onClick={()=>run(refresh)}>Actualiser le suivi</button>
