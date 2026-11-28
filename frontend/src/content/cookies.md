@@ -8,7 +8,7 @@ Le stockage de session peut mémoriser la fermeture d’une proposition de recha
 
 ## Traceurs optionnels
 
-Aucun outil publicitaire ou de mesure d’audience optionnelle n’est intégré au code actuel de l’application. Les paramètres des prestataires restent à vérifier avant ouverture. Si des traceurs soumis à consentement sont ajoutés, ils ne seront activés qu’après un choix préalable, avec possibilité de refus et de retrait.
+Aucun outil publicitaire ou de mesure d’audience optionnelle n’est intégré au code actuel de l’application. Si des traceurs soumis à consentement sont ajoutés, ils ne seront activés qu’après un choix préalable, avec possibilité de refus et de retrait.
 
 ## Gérer les données
 

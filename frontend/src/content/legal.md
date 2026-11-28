@@ -15,11 +15,9 @@ L’abonnement Pro et les recharges sont vendus en ligne aux professionnels, sel
 
 ## Hébergement
 
-Le site est hébergé par **Vercel Inc.**, 440 N Barranca Avenue #4133, Covina, CA 91723, États-Unis.
+Le site et ses fonctions sont hébergés par **Cloudflare, Inc.**, 101 Townsend Street, San Francisco, CA 94107, États-Unis. Site : [cloudflare.com](https://www.cloudflare.com).
 
-Site : [vercel.com](https://vercel.com). Coordonnées publiées par Vercel : [informations légales](https://vercel.com/legal/privacy-notice).
-
-Les comptes et la base de données utilisent Supabase. Les PDF du catalogue sont conservés dans un stockage privé Cloudflare R2. Ces services assurent le fonctionnement technique de CarnetPass.
+La base de données est hébergée à Paris par Supabase (région eu-west-3). Les PDF du catalogue sont conservés dans un stockage privé Cloudflare R2. Ces services assurent le fonctionnement technique de CarnetPass.
 
 ## Propriété intellectuelle
 

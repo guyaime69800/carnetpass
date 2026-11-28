@@ -2,7 +2,7 @@
 
 **Guy AIME — entrepreneur individuel (EI)**, éditeur de CarnetPass, **SIREN 533 656 393**, **SIRET 533 656 393 00055**, établi à l’adresse **Avenue des Temps Modernes, 69800 Saint-Priest, France**, est responsable des traitements de gestion des comptes, de relation professionnelle et de sécurité. Contact pour vos données : [contact@carnetpass.fr](mailto:contact@carnetpass.fr). Les [mentions légales](/mentions-legales) détaillent l’identification professionnelle de l’éditeur.
 
-L’entreprise cliente détermine l’utilisation des données de ses clients et collaborateurs dans les carnets. CarnetPass les traite pour fournir le service. Les instructions et garanties de sous-traitance doivent être formalisées dans un accord de traitement avant souscription commerciale.
+L’entreprise cliente détermine l’utilisation des données de ses clients et collaborateurs dans les carnets. CarnetPass les traite pour fournir le service. Un accord de traitement détaillé peut être demandé à [contact@carnetpass.fr](mailto:contact@carnetpass.fr).
 
 ## Données, finalités et bases juridiques
 
@@ -22,9 +22,9 @@ Les liens d’aides ouvrent des services publics externes sans collecter de nouv
 
 ## Accès et prestataires
 
-Les utilisateurs habilités de l’entreprise et administrateurs autorisés accèdent aux données nécessaires à leur mission. Les services utilisés comprennent Supabase (comptes et base), Vercel (site, fonctions et anciens fichiers), Cloudflare R2 (PDF), Upstash (compteurs et sécurité), OpenAI (IA), Stripe (prestataire prévu pour les paiements lors de l’ouverture commerciale) et Resend lorsque l’envoi d’e-mails est configuré.
+Les utilisateurs habilités de l’entreprise et administrateurs autorisés accèdent aux données nécessaires à leur mission. Les services utilisés comprennent Supabase (comptes et base, à Paris), Cloudflare (hébergement, fonctions et stockage R2), Upstash (compteurs et sécurité), OpenAI (IA), Stripe (paiements), Resend (e-mails) et Vercel (anciens fichiers en cours de reprise).
 
-Le stockage R2 du catalogue relève de la juridiction européenne. Cela ne signifie pas que tous les traitements ont lieu en France ou dans l’Union européenne. La liste contractuelle, les régions, transferts hors EEE et garanties applicables doivent être documentés avant ouverture commerciale.
+La base de données est hébergée à Paris et les PDF du catalogue dans la juridiction européenne de Cloudflare R2. Certains prestataires, notamment Cloudflare, OpenAI, Stripe et Resend, peuvent traiter des données hors de l’Union européenne, en particulier aux États-Unis, dans le cadre de leurs garanties contractuelles. La liste détaillée est disponible sur demande.
 
 ## Conservation
 
@@ -32,7 +32,7 @@ Les comptes, carnets et pièces sont conservés pendant leur utilisation pour le
 
 Les compteurs de consultations de notices expirent au plus tard 48 heures après leur dernière réservation ; les reçus de chargement après 15 minutes. Les compteurs mensuels de l’assistant expirent un jour après leur échéance. Les crédits ajoutés et preuves d’attribution sont conservés pour gérer le solde et éviter une double attribution.
 
-Les durées des journaux, sauvegardes, empreintes anti-abus, demandes commerciales et archives doivent être formalisées et vérifiées avant ouverture. Aucun effacement automatique non implémenté n’est promis. Les pièces comptables seront conservées selon les obligations légales applicables lorsque la vente sera ouverte.
+La base de données fait l’objet de sauvegardes quotidiennes automatiques conservées 7 jours par Supabase. CarnetPass ne conserve pas de journal applicatif chez son hébergeur ; les prestataires conservent leurs propres journaux techniques selon leurs contrats. Les empreintes anti-abus et demandes commerciales sont conservées tant qu’elles restent utiles à leur finalité ; aucun effacement automatique non mis en œuvre n’est promis. Les factures et pièces comptables sont conservées 10 ans (article L123-22 du Code de commerce).
 
 ## Vos droits
 
