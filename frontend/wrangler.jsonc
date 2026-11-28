@@ -46,7 +46,8 @@
         "CARNETPASS_SCHEDULED_ENABLED": "true",
         "CARNETPASS_SCHEDULER_OWNER": "cloudflare"
       },
-      "triggers": { "crons": ["*/5 * * * *", "0 8 * * *", "15 * * * *"] }
+      "triggers": { "crons": ["*/5 * * * *", "0 8 * * *", "15 * * * *"] },
+      "observability": { "enabled": true, "head_sampling_rate": 1 }
     }
   }
 }

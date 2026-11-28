@@ -32,7 +32,7 @@ Les comptes, carnets et pièces sont conservés pendant leur utilisation pour le
 
 Les compteurs de consultations de notices expirent au plus tard 48 heures après leur dernière réservation ; les reçus de chargement après 15 minutes. Les compteurs mensuels de l’assistant expirent un jour après leur échéance. Les crédits ajoutés et preuves d’attribution sont conservés pour gérer le solde et éviter une double attribution.
 
-CarnetPass ne conserve pas de journal applicatif chez son hébergeur ; les prestataires conservent leurs propres journaux techniques selon leurs contrats. Les empreintes anti-abus et demandes commerciales sont conservées tant qu’elles restent utiles à leur finalité ; aucun effacement automatique non mis en œuvre n’est promis. Les factures et pièces comptables sont conservées 10 ans (article L123-22 du Code de commerce).
+Les journaux techniques du site (adresse et résultat des requêtes, erreurs, identifiants techniques de compte ou d’entreprise) sont conservés 7 jours chez Cloudflare pour diagnostiquer les incidents, avec un accès réservé à l’éditeur ; ils ne contiennent ni mot de passe ni contenu des carnets. Les autres prestataires conservent leurs propres journaux techniques selon leurs contrats. Les empreintes anti-abus et demandes commerciales sont conservées tant qu’elles restent utiles à leur finalité ; aucun effacement automatique non mis en œuvre n’est promis. Les factures et pièces comptables sont conservées 10 ans (article L123-22 du Code de commerce).
 
 ## Vos droits
 
