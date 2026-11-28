@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { accountMfaAccessError } from './lib/mfa-access.js';
 import { readDevisBody, rateRequest } from './lib/devis-security.js';
 import { additionalAccountAccess } from './lib/additional-account-access.js';
-import { productionPrices, validateProductionPrice } from './lib/stripe-production-catalog.js';
+import { ADDITIONAL_ACCOUNTS_FOR_SALE, RECHARGES_FOR_SALE, productionPrices, validateProductionPrice } from './lib/stripe-production-catalog.js';
 import { acceptedCommercialTerms, commercialTermsMetadata, COMMERCIAL_TERMS_VERSION, COMMERCIAL_TERMS_SHA256 } from '../shared/commercial-terms.js';
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -37,7 +37,7 @@ export function createLiveBillingHandler({ env = process.env, clientFactory = cr
     const send = (status, message, extra = {}) => res.status(status).json({ ok: status < 400, message, ...extra });
     if (req.query?.action === 'purchase-status') {
       if (req.method !== 'GET') return send(405, 'Méthode non autorisée.');
-      return send(200, '', { available: liveCheckoutEnabled(env), seatsAvailable: liveCheckoutEnabled(env) && env.CARNETPASS_LIVE_SEATS_ENABLED === 'true' });
+      return send(200, '', { available: liveCheckoutEnabled(env), seatsAvailable: ADDITIONAL_ACCOUNTS_FOR_SALE && liveCheckoutEnabled(env) && env.CARNETPASS_LIVE_SEATS_ENABLED === 'true' });
     }
     if (!liveCheckoutEnabled(env)) return send(503, 'Les achats ne sont pas ouverts.');
     if (req.method !== 'POST') return send(405, 'Méthode non autorisée.');
@@ -58,7 +58,7 @@ export function createLiveBillingHandler({ env = process.env, clientFactory = cr
     try {
       let body;
       try { body = await readDevisBody(req, 8192); } catch { return send(400, 'Requête invalide.'); }
-      const kind = recharge ? (body.euros === 10 ? 'recharge100' : body.euros === 20 ? 'recharge200' : null)
+      const kind = recharge ? (Number.isSafeInteger(body.euros) && Object.hasOwn(RECHARGES_FOR_SALE, body.euros) ? RECHARGES_FOR_SALE[body.euros] : null)
         : body.action === 'checkout' && body.plan === 'pro' ? 'pro' : null;
       if (!kind || !uuid.test(body.requestId || '') || !acceptedCommercialTerms(body.terms)) return send(400, 'Vérifiez la commande et acceptez les CGV en vigueur.');
       db = clientFactory(env.VITE_SUPABASE_URL, env.SUPABASE_SECRET_KEY, options);

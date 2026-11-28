@@ -37,6 +37,6 @@ Des maintenances ou incidents peuvent interrompre le service. Aucune disponibili
 Les réclamations sont adressées à contact@carnetpass.fr. Le droit français s’applique et les juridictions compétentes sont déterminées selon le droit commun. Une évolution substantielle sera communiquée avant application, sans modification rétroactive des droits d’une période payée.
 
 
-## Comptes supplémentaires de l’entreprise
+## Abonnement Pro
 
-À l’ouverture commerciale, un abonnement Pro à 28 € par mois comprend un compte principal. Chaque compte supplémentaire coûte 20 € par mois et dispose de 150 questions à l’assistant par mois et de 15 consultations de notices par jour, avec des compteurs individuels. Le responsable choisit le nombre de comptes et accepte le nouveau montant avant activation après paiement. Les quotas inutilisés ne se cumulent pas et ne se transfèrent pas. Retirer un collaborateur libère sa place sans résilier son supplément. Les achats réels restent fermés. [Détail et modalités dans les CGV B2B](/conditions-commerciales).
+L’abonnement Pro coûte 15 € par mois, TVA non applicable (article 293 B du CGI). Il comprend un compte nominatif ; les comptes supplémentaires ne sont pas proposés et le partage d’un compte est interdit. [Détail et modalités dans les CGV B2B](/conditions-commerciales).

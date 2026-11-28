@@ -1,4 +1,3 @@
-import AdditionalAccounts from "../components/AdditionalAccounts";
 import CompanyDataControls from "../components/CompanyDataControls";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -211,7 +210,6 @@ export default function AccountSettingsPage() {
             : !["owner", "admin"].includes(company.role) ? <p>Les factures sont accessibles au responsable de votre entreprise.</p>
             : <><p>Consultez et téléchargez les factures de votre entreprise.</p><AccountInvoices key={`${company.id}:${billingRefresh}`} token={session.access_token} /></>}
         </section>
-        <AdditionalAccounts company={company} token={session.access_token} />
         <CompanyDataControls company={company} token={session.access_token} />
         <section className="account-settings-card account-settings-danger">
           <h2>Supprimer mon compte</h2>

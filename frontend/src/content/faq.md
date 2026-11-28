@@ -29,6 +29,6 @@ Interrogez l’Assistant CarnetPass pour rechercher une notice, une référence 
 Écrivez à [contact@carnetpass.fr](mailto:contact@carnetpass.fr). La suppression du compte est disponible dans ses paramètres : elle retire les accès et anonymise le profil, mais n’efface pas automatiquement tous les historiques de l’entreprise. Les demandes d’export ou d’effacement peuvent être adressées au même contact.
 
 
-## Comptes supplémentaires de l’entreprise
+## Abonnement Pro
 
-À l’ouverture commerciale, un abonnement Pro à 28 € par mois comprend un compte principal. Chaque compte supplémentaire coûte 20 € par mois et dispose de 150 questions à l’assistant par mois et de 15 consultations de notices par jour, avec des compteurs individuels. Le responsable choisit le nombre de comptes et accepte le nouveau montant avant activation après paiement. Les quotas inutilisés ne se cumulent pas et ne se transfèrent pas. Retirer un collaborateur libère sa place sans résilier son supplément. Les achats réels restent fermés. [Détail et modalités dans les CGV B2B](/conditions-commerciales).
+L’abonnement Pro coûte 15 € par mois, TVA non applicable (article 293 B du CGI). Il comprend un compte nominatif ; les comptes supplémentaires ne sont pas proposés et le partage d’un compte est interdit. [Détail et modalités dans les CGV B2B](/conditions-commerciales).

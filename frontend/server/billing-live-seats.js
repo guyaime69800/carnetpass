@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { accountMfaAccessError } from './lib/mfa-access.js';
 import { readDevisBody, rateRequest } from './lib/devis-security.js';
 import { liveCheckoutEnabled } from './billing-live.js';
-import { productionPrices, validateProductionPrice } from './lib/stripe-production-catalog.js';
+import { ADDITIONAL_ACCOUNTS_FOR_SALE, productionPrices, validateProductionPrice } from './lib/stripe-production-catalog.js';
 import { acceptedCommercialTerms, COMMERCIAL_TERMS_VERSION, COMMERCIAL_TERMS_SHA256 } from '../shared/commercial-terms.js';
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -13,7 +13,9 @@ const requireValue = (ok, message = 'Cette opération nécessite une vérificati
   if (!ok) throw Error(message);
 };
 async function one(query) { const result = await query.maybeSingle(); if (result.error) throw Error('Stockage indisponible.'); return result.data; }
-export function liveSeatsEnabled(env) { return liveCheckoutEnabled(env) && env.CARNETPASS_LIVE_SEATS_ENABLED === 'true'; }
+export function liveSeatsEnabled(env, forSale = ADDITIONAL_ACCOUNTS_FOR_SALE) {
+  return forSale === true && liveCheckoutEnabled(env) && env.CARNETPASS_LIVE_SEATS_ENABLED === 'true';
+}
 export function seatSubscription(sub, customer) {
   requireValue(sub.livemode === true && id(sub.customer) === customer && sub.status === 'active'
     && sub.collection_method === 'charge_automatically' && !sub.automatic_tax?.enabled
@@ -54,11 +56,11 @@ function summary(change) {
     immediateAmountCents: change.immediate_amount, totalMonthlyEuros: 28 + change.quantity * 20,
     nextRenewal: change.effective_at, status: change.status, retainedMembers: change.retained_members || [] } : null;
 }
-export function createLiveSeatsHandler({ env = process.env, clientFactory = createClient, request = fetch, rateLimiter = rateRequest } = {}) {
+export function createLiveSeatsHandler({ env = process.env, clientFactory = createClient, request = fetch, rateLimiter = rateRequest, seatsForSale = ADDITIONAL_ACCOUNTS_FOR_SALE } = {}) {
   return async (req, res) => {
     res.setHeader('Cache-Control', 'private, no-store');
     const send = (status, message, extra = {}) => res.status(status).json({ message, ...extra });
-    if (!liveSeatsEnabled(env)) return send(503, 'Les modifications de places ne sont pas ouvertes.');
+    if (!liveSeatsEnabled(env, seatsForSale)) return send(503, 'Les modifications de places ne sont pas ouvertes.');
     const action = req.query?.action;
     if (req.method !== (action === 'additional-status' ? 'GET' : 'POST')) return send(405, 'Méthode non autorisée.');
     const token = /^Bearer ([^\s]{1,16384})$/i.exec(req.headers?.authorization || '')?.[1];

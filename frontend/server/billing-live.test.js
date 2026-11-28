@@ -58,7 +58,7 @@ function fixture({ role = 'admin', approved = true, saveFailure = false, cancele
     let result;
     if (url.endsWith('/account')) result = { id: 'acct_expected', charges_enabled: true, payouts_enabled: true };
     else if (url.includes('/prices/')) result = { id: productionPrices.pro.id, livemode: true, active: true,
-      currency: 'eur', unit_amount: 2800, billing_scheme: 'per_unit', type: 'recurring', tax_behavior: 'unspecified',
+      currency: 'eur', unit_amount: productionPrices.pro.amount, billing_scheme: 'per_unit', type: 'recurring', tax_behavior: 'unspecified',
       recurring: { interval: 'month', interval_count: 1, usage_type: 'licensed' }, product: { active: true, livemode: true } };
     else if (url.endsWith('/checkout/sessions') && init.method === 'POST') {
       assert.ok(store.stripe_live_orders.some(row => row.id === requestId), 'order must be durable before Stripe creation');

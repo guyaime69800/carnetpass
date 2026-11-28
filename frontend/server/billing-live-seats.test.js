@@ -67,7 +67,7 @@ function fixture({ quantity = 0, role = 'admin' } = {}) {
     if (path === 'subscription_schedules/sub_sched_owned') { if (params) schedule.metadata.carnetpass_seat_change = params['metadata[carnetpass_seat_change]']; return Response.json(schedule); }
     throw Error('Unexpected request ' + path);
   };
-  const handler = createLiveSeatsHandler({ env, clientFactory: (_, key) => key === 'public' ? auth : db, request, rateLimiter: async () => {} });
+  const handler = createLiveSeatsHandler({ env, seatsForSale: true, clientFactory: (_, key) => key === 'public' ? auth : db, request, rateLimiter: async () => {} });
   async function call(action, body) {
     const jwt = 'a.' + Buffer.from(JSON.stringify({ sub: actor, aal: 'aal2' , amr:[{method:'password',timestamp:Math.floor(Date.now()/1000)}]})).toString('base64url') + '.b';
     const res = { setHeader() {}, status(value) { this.statusCode = value; return this; }, json(value) { this.body = value; return this; } };
@@ -78,6 +78,11 @@ function fixture({ quantity = 0, role = 'admin' } = {}) {
 }
 test('seat changes fail closed without the dedicated switch', async () => {
   const handler = createLiveSeatsHandler({ env: { ...env, CARNETPASS_LIVE_SEATS_ENABLED: '' }, clientFactory() { throw Error('No database access expected'); } });
+  const res = { setHeader() {}, status(code) { this.code = code; return this; }, json() {} };
+  await handler({ method: 'POST' }, res); assert.equal(res.code, 503);
+});
+test('additional accounts stay closed even when the production switch is on', async () => {
+  const handler = createLiveSeatsHandler({ env, clientFactory() { throw Error('No database access expected'); } });
   const res = { setHeader() {}, status(code) { this.code = code; return this; }, json() {} };
   await handler({ method: 'POST' }, res); assert.equal(res.code, 503);
 });

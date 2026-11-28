@@ -53,7 +53,7 @@ export default function LiveAdditionalAccounts({ token, assigned, capacity }) {
     </> : <>
       <label>Nombre total de comptes supplémentaires souhaités<input type="number" min="0" max="100" step="1" value={quantity}
         onChange={event => edit(() => setQuantity(event.target.value === '' ? '' : Number(event.target.value)))} /></label>
-      <p>Compte principal : 28 €/mois. Chaque compte supplémentaire : 20 €/mois.</p>
+      <p>Compte principal : 15 €/mois. Chaque compte supplémentaire : 20 €/mois.</p>
       {reduction && <fieldset><legend>Collaborateurs à conserver à la prochaine échéance</legend>
         <p>Les collaborateurs non sélectionnés perdront leur accès à l’entreprise à cette échéance. Leurs dossiers seront conservés. Les invitations en attente expireront.</p>
         {assigned.map(row => <label key={row.user_id}><input type="checkbox" checked={retained.includes(row.user_id)}
@@ -67,7 +67,7 @@ export default function LiveAdditionalAccounts({ token, assigned, capacity }) {
           setQuote(result.quote); setAccepted(false);
         })}>Calculer le récapitulatif sans payer</button>
       {quote && <div role="status"><p>À régler maintenant : <strong>{money(quote.immediateAmountCents)}</strong>.</p>
-        <p>Nouveau total : <strong>{money(2800 + 2000 * quote.quantity)} par mois</strong>. Prochaine échéance : {new Date(quote.nextRenewal).toLocaleDateString('fr-FR')}.</p>
+        <p>Nouveau total : <strong>{money(1500 + 2000 * quote.quantity)} par mois</strong>. Prochaine échéance : {new Date(quote.nextRenewal).toLocaleDateString('fr-FR')}.</p>
         <p>{reduction ? 'La réduction prendra effet à cette échéance, sans remboursement de la période en cours.' : 'Le montant immédiat couvre le prorata jusqu’à cette échéance. Les places sont accordées après confirmation du paiement.'}</p>
         <label><input type="checkbox" checked={accepted} onChange={event => setAccepted(event.target.checked)} /> J’accepte les <Link to="/conditions-commerciales" target="_blank" rel="noopener noreferrer">CGV</Link>, le montant et les changements d’accès indiqués.</label>
         <button type="button" disabled={busy || !accepted} onClick={() => run(() => apply())}>{reduction ? 'Programmer la réduction à l’échéance' : `Confirmer l’ajout — ${money(quote.immediateAmountCents)} maintenant`}</button>

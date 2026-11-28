@@ -1,14 +1,25 @@
 // This catalog grants no rights and does not enable checkout.
 export const productionPrices = Object.freeze({
-  pro: Object.freeze({ id: 'price_1USeYn6m8GCMolJNXnxiymPF', amount: 2800, interval: 'month' }),
+  pro: Object.freeze({ id: 'price_1UgjIv6m8GCMolJNvJAjkWXe', amount: 1500, interval: 'month' }),
   additionalAccount: Object.freeze({ id: 'price_1USeYn6m8GCMolJNMJZbvs0I', amount: 2000, interval: 'month' }),
   recharge100: Object.freeze({ id: 'price_1USetc6m8GCMolJNEhGUWZSY', amount: 1000, interval: null }),
   recharge200: Object.freeze({ id: 'price_1USetp6m8GCMolJNywgq8Mdf', amount: 2000, interval: null }),
 });
 
+// Former prices: still recognised for subscriptions already taken, never offered for sale.
+export const legacyProductionPrices = Object.freeze({
+  proAt28: Object.freeze({ id: 'price_1USeYn6m8GCMolJNXnxiymPF', amount: 2800, interval: 'month' }),
+});
+
+// Since 2026-11-28: additional accounts are no longer sold (the code stays in reserve),
+// and only the 100-credit recharge is sold (recharge200 stays recognised for past orders).
+export const ADDITIONAL_ACCOUNTS_FOR_SALE = false;
+export const RECHARGES_FOR_SALE = Object.freeze({ 10: 'recharge100' });
+
 export function validateProductionPrice(name, price) {
-  const expected = productionPrices[name];
-  if (!expected || price?.id !== expected.id || price.livemode !== true || price.active !== true
+  const legacy = Object.hasOwn(legacyProductionPrices, name);
+  const expected = legacy ? legacyProductionPrices[name] : productionPrices[name];
+  if (!expected || price?.id !== expected.id || price.livemode !== true || (!legacy && price.active !== true)
     || price.currency !== 'eur' || price.unit_amount !== expected.amount
     || price.billing_scheme !== 'per_unit' || price.custom_unit_amount || price.transform_quantity
     || price.tax_behavior === 'exclusive') throw new Error(`Tarif production invalide : ${name}`);

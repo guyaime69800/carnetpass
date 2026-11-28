@@ -14,9 +14,9 @@ Découverte dure 5 jours sans carte bancaire et sans conversion automatique. Ell
 
 ## 4. Prix et CarnetPass Pro
 
-Le tarif prévu est de **28 € par mois pour le compte principal**. Le régime déclaré est la franchise en base de TVA : **TVA non applicable, article 293 B du CGI**. Aucun supplément ne peut être débité sans commande et acceptation préalable.
+Le tarif est de **15 € par mois**. Le régime déclaré est la franchise en base de TVA : **TVA non applicable, article 293 B du CGI**. Aucun supplément ne peut être débité sans commande et acceptation préalable.
 
-Le compte principal Pro comprend **20 consultations de notices par jour** et **200 questions à l’assistant par mois**, partagées entre documentation et recherche Web. Les consultations se réinitialisent à minuit, heure de Paris ; les questions mensuelles le premier jour du mois à 00 h UTC. Les quantités incluses inutilisées ne se cumulent pas.
+L’abonnement Pro comprend un compte nominatif, avec **20 consultations de notices par jour** et **200 questions à l’assistant par mois**, partagées entre documentation et recherche Web. Les consultations se réinitialisent à minuit, heure de Paris ; les questions mensuelles le premier jour du mois à 00 h UTC. Les quantités incluses inutilisées ne se cumulent pas.
 
 Une ouverture ou un téléchargement demandé compte comme consultation. La liste des modèles n’en consomme pas. Le repli technique d’un même chargement ne compte pas deux fois pendant 15 minutes. Une nouvelle ouverture peut compter à nouveau. Un transfert échoué après réservation peut compter ; l’assistance examine les incidents signalés.
 
@@ -24,17 +24,11 @@ Les équipements, interventions, documents et attestations sont soumis aux droit
 
 ## 4 bis. Comptes supplémentaires
 
-Une entreprise disposant d’un abonnement Pro actif pourra ajouter le nombre de comptes nominatifs qu’elle souhaite, à **20 € par compte supplémentaire et par mois**. Le total mensuel est de **28 € + (20 € × nombre de comptes supplémentaires souscrits)**, hors recharges expressément commandées. Par exemple, le compte principal et trois comptes supplémentaires représentent 88 € par mois. Chaque utilisateur dispose de ses propres identifiants ; le partage d’un compte est interdit.
-
-Chaque compte supplémentaire comprend **150 questions à l’assistant par mois** (documentation et recherche Web réunies) et **15 consultations de notices par jour**. Ces quotas sont individuels, ne se transfèrent pas entre utilisateurs et ne se cumulent pas d’une période à l’autre. Les mêmes horaires de réinitialisation et règles de décompte que le compte principal s’appliquent. Les droits du compte principal restent de 200 questions par mois et 20 consultations par jour.
-
-Seul le responsable habilité peut commander des places et rattacher ou retirer les collaborateurs. Le récapitulatif de commande doit préciser le nombre de places, le total mensuel, l’éventuel prorata et la prochaine échéance ; son acceptation expresse et la confirmation du paiement précèdent l’activation. Une place payée mais non attribuée reste facturée. Retirer un collaborateur libère sa place, sans résilier cette place ni effacer les dossiers de l’entreprise. Une réduction des places prend effet à la prochaine échéance après désignation des comptes conservés ; elle ne permet pas de dépasser le nombre de places maintenues. Résilier l’abonnement principal met fin aux accès payants supplémentaires à l’expiration de la période payée.
-
-La commande des comptes supplémentaires sera disponible à l’ouverture commerciale.
+Les comptes supplémentaires ne sont pas proposés. Chaque abonnement Pro correspond à un seul utilisateur, qui dispose de ses propres identifiants ; le partage d’un compte est interdit.
 
 ## 5. Recharger CarnetPass
 
-Les recharges prévues sont **100 crédits pour 10 €** et **200 crédits pour 20 €**, TVA non applicable, article 293 B du CGI. Un crédit sert à une question à l’assistant, documentaire ou Web. Les crédits s’ajoutent au solde, ne se réinitialisent pas avec le quota mensuel et sont utilisés après les questions incluses. Une réponse indisponible donnant lieu au remboursement technique du crédit ne le consomme pas définitivement.
+La recharge proposée est de **100 crédits pour 10 €**, TVA non applicable, article 293 B du CGI. Un crédit sert à une question à l’assistant, documentaire ou Web. Les crédits s’ajoutent au solde, ne se réinitialisent pas avec le quota mensuel et sont utilisés après les questions incluses. Une réponse indisponible donnant lieu au remboursement technique du crédit ne le consomme pas définitivement.
 
 Une recharge ne remplace pas Pro, ne prolonge pas Découverte, n’augmente pas le quota quotidien de notices et n’achète pas de stockage. Les achats réels et prélèvements automatiques de recharges sont fermés. Les crédits achetés restent disponibles sans expiration tant que le compte existe. Ils sont conservés lors d’une interruption de l’abonnement et redeviennent utilisables à sa reprise. Ils ne permettent pas d’utiliser l’assistant sans abonnement actif.
 
@@ -44,7 +38,7 @@ L’offre mensuelle prévue sera payable d’avance, avec renouvellement mensuel
 
 Le client pourra demander la résiliation à contact@carnetpass.fr en identifiant son entreprise et l’abonnement. Elle prendra effet à la fin de la période payée et empêchera le renouvellement suivant. Les droits légaux à remboursement, notamment en cas de manquement du fournisseur, restent préservés. Les modalités opérationnelles seront confirmées avant ouverture. La suppression du compte ne remplace pas une résiliation.
 
-Une augmentation de prix d’un abonnement existant sera communiquée au moins 30 jours avant une échéance future, avec possibilité de résilier avant application. Les ajouts d’utilisateurs et proratas ne seront facturés qu’après présentation et acceptation du nouveau montant.
+Une augmentation de prix d’un abonnement existant sera communiquée au moins 30 jours avant une échéance future, avec possibilité de résilier avant application.
 
 ## 7. Données et réversibilité
 

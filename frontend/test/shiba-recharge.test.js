@@ -3,8 +3,8 @@ import test from "node:test";
 import { SHIBA_RECHARGE_PACKS } from "../src/lib/shiba-recharge-packs.js";
 import { openShibaRecharge } from "../src/services/shibaUsageEvents.js";
 
-test("les deux recharges Preview correspondent aux montants et crédits confirmés", () => {
-  assert.deepEqual(SHIBA_RECHARGE_PACKS.map(({ euros, credits }) => [euros, credits]), [[10, 100], [20, 200]]);
+test("seule la recharge 100 crédits à 10 € est proposée", () => {
+  assert.deepEqual(SHIBA_RECHARGE_PACKS.map(({ euros, credits }) => [euros, credits]), [[10, 100]]);
 });
 
 test("un refus du quota demande l'ouverture de la modale avec sa période", () => {

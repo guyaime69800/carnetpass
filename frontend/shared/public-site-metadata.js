@@ -6,7 +6,7 @@ export const publicMetadata = {
   "/confidentialite": { title: "Confidentialité — CarnetPass", description: "Traitement des données dans CarnetPass, droits des personnes et contacts pour les demandes de confidentialité." },
   "/cookies": { title: "Cookies et stockage local — CarnetPass", description: "Informations sur les cookies et le stockage local utilisés par CarnetPass." },
   "/conditions-utilisation": { title: "Conditions d’utilisation — CarnetPass", description: "Conditions d’accès et d’utilisation de CarnetPass et de ses services documentaires." },
-  "/conditions-commerciales": { title: "Conditions générales de vente B2B — CarnetPass", description: "Conditions commerciales CarnetPass pour les entreprises : abonnement, comptes supplémentaires et services associés." },
+  "/conditions-commerciales": { title: "Conditions générales de vente B2B — CarnetPass", description: "Conditions commerciales CarnetPass pour les entreprises : abonnement, recharges et services associés." },
 };
 export function isPublicPresentation(pathname) {
   return Object.hasOwn(publicMetadata, pathname);

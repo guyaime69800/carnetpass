@@ -1,4 +1,4 @@
-import { productionPrices, validateProductionPrice } from './stripe-production-catalog.js';
+import { legacyProductionPrices, productionPrices, validateProductionPrice } from './stripe-production-catalog.js';
 import { liveEventReceipt } from './stripe-live-webhook.js';
 
 // Genuine Stripe events only; bounded scan of already linked subscriptions.
@@ -58,10 +58,13 @@ export function subscriptionPaymentEffect(sub, binding, state, order, now = Date
   must(!state.subscription_id || state.subscription_id === sub.id);
   const items = sub.items;
   must(items?.has_more === false && items.data?.length >= 1 && items.data.length <= 2);
-  const base = items.data.find((item) => item.price?.id === productionPrices.pro.id);
+  // Subscriptions taken at a former Pro price stay recognised.
+  const proPrices = { pro: productionPrices.pro, proAt28: legacyProductionPrices.proAt28 };
+  const baseName = Object.keys(proPrices).find((name) => items.data.some((item) => item.price?.id === proPrices[name].id));
+  const base = baseName && items.data.find((item) => item.price?.id === proPrices[baseName].id);
   const extra = items.data.find((item) => item.price?.id === productionPrices.additionalAccount.id);
   must(base && base.quantity === 1 && items.data.every((item) => item === base || item === extra));
-  validateProductionPrice('pro', base.price);
+  validateProductionPrice(baseName, base.price);
   if (extra) validateProductionPrice('additionalAccount', extra.price);
   must(!extra || (Number.isSafeInteger(extra.quantity) && extra.quantity > 0));
   const end = base.current_period_end || sub.current_period_end;
@@ -91,13 +94,13 @@ export function subscriptionPaymentEffect(sub, binding, state, order, now = Date
     && invoice.lines?.has_more === false);
   const covers = (item, name) => invoice.lines.data.some((line) => {
     const price = id(line.price) || line.pricing?.price_details?.price;
-    return price === productionPrices[name].id && line.quantity === item.quantity
+    return price === (proPrices[name] || productionPrices[name]).id && line.quantity === item.quantity
       && line.period?.end >= end && line.amount > 0;
   });
   // Proration invoices do not prove a new base period: retain its previously paid bound.
-  must(covers(base, 'pro') || Date.parse(state.paid_until || '') >= end * 1000);
+  must(covers(base, baseName) || Date.parse(state.paid_until || '') >= end * 1000);
   must(!extra || ((extra.current_period_end || end) === end && covers(extra, 'additionalAccount')));
-  must(invoice.lines.data.every((line) => [productionPrices.pro.id, productionPrices.additionalAccount.id]
+  must(invoice.lines.data.every((line) => [proPrices[baseName].id, productionPrices.additionalAccount.id]
     .includes(id(line.price) || line.pricing?.price_details?.price)));
   const accessEnd = cancellationAt ? Math.min(end * 1000, Date.parse(cancellationAt)) : end * 1000;
   must(accessEnd > now);

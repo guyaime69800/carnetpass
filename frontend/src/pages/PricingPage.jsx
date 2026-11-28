@@ -21,9 +21,9 @@ const offers = [
   {
     name: "CarnetPass Pro",
     plan: "pro",
-    audience: "Un compte principal, puis des comptes supplémentaires pour votre équipe",
-    price: "28 €",
-    priceDetail: "par mois pour le compte principal",
+    audience: "Un compte nominatif pour votre activité professionnelle",
+    price: "15 €",
+    priceDetail: "par mois, TVA non applicable",
     features: ["Carnets, équipements et interventions", "Documents et attestations", "Consultation de notices", "Assistant CarnetPass, agent IA", "Documentation et recherche Web"],
     featured: true,
   },
@@ -76,7 +76,7 @@ export default function PricingPage() {
       <nav className="pricing-nav" aria-label="Navigation"><Link to={user ? "/parametres-compte#formule" : "/"}>← {user ? "Mes paramètres" : "CarnetPass"}</Link><Link to={user ? "/espace-pro" : "/connexion"}>Accéder à l’application</Link></nav>
       <header className="pricing-intro">
         <span className="pricing-eyebrow">{testBilling ? "Paiement en mode test" : livePurchases.available ? 'Abonnement professionnel' : "Abonnement en préparation"}</span>
-        <h1>CarnetPass Pro à 28 € par mois. Votre équipe grandit avec vous.</h1>
+        <h1>CarnetPass Pro à 15 € par mois.</h1>
         <p>Retrouvez vos notices, suivez vos interventions et faites avancer vos recherches avec l’Assistant CarnetPass. Découvrez CarnetPass gratuitement pendant 5 jours. {!livePurchases.available && 'Les achats réels d’abonnements et de recharges ne sont pas encore ouverts.'} {testBilling && "Les paiements disponibles sont des tests Stripe sans débit réel."}</p>
         {error && <p role="alert" className="pricing-error">{error}</p>}
       </header>
@@ -112,10 +112,9 @@ export default function PricingPage() {
           </article>
         ))}
       </section>
-      <aside className="pricing-note" id="comptes-supplementaires"><h2>Ajoutez votre équipe à CarnetPass</h2><p>20 € par mois pour chaque compte supplémentaire, avec ses propres identifiants, la consultation des notices et l’Assistant CarnetPass, agent IA. Choisissez le nombre de comptes adapté à votre entreprise. <Link to="/parametres-compte#comptes">Préparer mes comptes supplémentaires →</Link></p><p>Le compte principal reste à 28 € par mois. Les quotas et modalités figurent dans les <Link to="/conditions-commerciales">CGV B2B</Link>. {!livePurchases.seatsAvailable && 'La souscription de comptes supplémentaires reste en préparation.'}</p></aside>
       <aside className="pricing-note" id="credits">
         <h2>Recharger CarnetPass</h2>
-        <p>Besoin de poursuivre vos recherches avec l’assistant ? Recharges {livePurchases.available ? 'disponibles' : 'prévues'} : {SHIBA_RECHARGE_PACKS[0].credits} crédits pour {SHIBA_RECHARGE_PACKS[0].euros} € ou {SHIBA_RECHARGE_PACKS[1].credits} crédits pour {SHIBA_RECHARGE_PACKS[1].euros} €. Un crédit permet une question documentaire ou une recherche Web. Les modalités figurent dans les <Link to="/conditions-commerciales">CGV B2B</Link>. {!livePurchases.available && 'Aucun achat réel n’est ouvert.'}</p>
+        <p>Besoin de poursuivre vos recherches avec l’assistant ? Recharge {livePurchases.available ? 'disponible' : 'prévue'} : {SHIBA_RECHARGE_PACKS[0].credits} crédits pour {SHIBA_RECHARGE_PACKS[0].euros} €, TVA non applicable. Un crédit permet une question documentaire ou une recherche Web. Les modalités figurent dans les <Link to="/conditions-commerciales">CGV B2B</Link>. {!livePurchases.available && 'Aucun achat réel n’est ouvert.'}</p>
         {user && (testBilling || (livePurchases.available && company?.subscription?.plan === 'pro' && company.subscription.status === 'active')) && <button type="button" className="pricing-preview-recharge" onClick={() => openShibaRecharge(testBilling ? { demo: true } : { period: 'month' }, true)}>Recharger CarnetPass{testBilling ? ' (test)' : ''}</button>}
         <h2>Votre travail reste accessible.</h2>
         <p>Vos carnets et historiques restent accessibles selon vos droits après l’essai. Les accès aux notices et à l’assistant dépendent de votre formule et de ses limites d’utilisation. Aucun dépassement n’est automatiquement facturé. Retrouvez le détail des quotas et des recharges dans les <Link to="/conditions-utilisation">conditions d’utilisation</Link> et les <Link to="/conditions-commerciales">CGV B2B</Link>.</p>

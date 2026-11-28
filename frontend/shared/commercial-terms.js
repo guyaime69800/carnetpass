@@ -1,5 +1,5 @@
-export const COMMERCIAL_TERMS_VERSION = "2026-11-25.1";
-export const COMMERCIAL_TERMS_SHA256 = "07c3b7323a0bd07c566ec314514c37d814d8e8750e6ef6a327925d820ed3882e";
+export const COMMERCIAL_TERMS_VERSION = "2026-11-28.1";
+export const COMMERCIAL_TERMS_SHA256 = "3da317a939838f8863b6fc4df05f8054afabf1859ae5b5b0b58686b6bbbd4f02";
 export const COMMERCIAL_TERMS_URL = "https://www.carnetpass.fr/conditions-commerciales";
 export function acceptedCommercialTerms(value) {
   return value?.accepted === true && value.version === COMMERCIAL_TERMS_VERSION;
