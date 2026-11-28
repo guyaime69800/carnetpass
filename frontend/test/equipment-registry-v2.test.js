@@ -129,3 +129,45 @@ test("une panne RPC durable reste signalée RPC_CONNECTION_FAILED", async () => 
   );
   assert.equal(attempts, 3);
 });
+
+test("une panne du RPC principal bascule sur l'adresse de secours", async () => {
+  const { connectPolygonProvider } = await import("../server/lib/equipment-registry-v2.js");
+  const calls = [];
+  const createProvider = (url) => ({
+    async getNetwork() {
+      calls.push(url);
+      if (url === "https://principal.invalid/") throw new Error("down");
+      return { chainId: 137n };
+    },
+    destroy() {},
+  });
+  const { network } = await connectPolygonProvider(["https://principal.invalid/", "https://secours.invalid/"], {
+    createProvider, wait: async () => {}, expectedChainId: 137n,
+  });
+  assert.equal(network.chainId, 137n);
+  assert.deepEqual(calls, ["https://principal.invalid/", "https://principal.invalid/", "https://principal.invalid/", "https://secours.invalid/"]);
+});
+
+test("une adresse sur un autre réseau est ignorée au profit de la suivante", async () => {
+  const { connectPolygonProvider } = await import("../server/lib/equipment-registry-v2.js");
+  const chains = { "https://autre-reseau.invalid/": 1n, "https://polygon.invalid/": 137n };
+  const { network } = await connectPolygonProvider(Object.keys(chains), {
+    createProvider: (url) => ({ async getNetwork() { return { chainId: chains[url] }; }, destroy() {} }),
+    wait: async () => {}, expectedChainId: 137n,
+  });
+  assert.equal(network.chainId, 137n);
+  await assert.rejects(
+    connectPolygonProvider(["https://autre-reseau.invalid/"], {
+      createProvider: () => ({ async getNetwork() { return { chainId: 1n }; }, destroy() {} }),
+      wait: async () => {}, expectedChainId: 137n,
+    }),
+    (error) => error?.code === "WRONG_NETWORK"
+  );
+});
+
+test("la liste des RPC met le principal en premier, puis le secours, en HTTPS seulement", async () => {
+  const { polygonRpcUrls } = await import("../server/lib/equipment-registry-v2.js");
+  assert.deepEqual(polygonRpcUrls({ POLYGON_RPC_URL: "https://polygon.drpc.org" }), ["https://polygon.drpc.org/", "https://1rpc.io/matic"]);
+  assert.deepEqual(polygonRpcUrls({ POLYGON_RPC_URL: "https://a.example", POLYGON_RPC_FALLBACK_URLS: " https://b.example , http://c.example, https://a.example" }), ["https://a.example/", "https://b.example/"]);
+  assert.deepEqual(polygonRpcUrls({ POLYGON_RPC_URL: "https://a.example", POLYGON_RPC_FALLBACK_URLS: "" }), ["https://a.example/"]);
+});

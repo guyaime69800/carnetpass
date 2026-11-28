@@ -195,28 +195,62 @@ export function buildMaintenanceProof({
 }
 const RPC_CONNECTION_DELAYS_MS = [0, 500, 1500];
 
+// Public backup used when POLYGON_RPC_URL is down (the 26-27/11/2026 drpc
+// outages). Transactions are signed locally, so the backup never sees the key.
+export const DEFAULT_POLYGON_RPC_FALLBACK_URLS = ["https://1rpc.io/matic"];
+
+// Primary endpoint first, then POLYGON_RPC_FALLBACK_URLS (comma-separated) or
+// the default backup. Only distinct HTTPS URLs are kept.
+export function polygonRpcUrls(env = process.env) {
+  const primary = String(env.POLYGON_RPC_URL || "").trim();
+  const fallbacks = env.POLYGON_RPC_FALLBACK_URLS !== undefined
+    ? String(env.POLYGON_RPC_FALLBACK_URLS).split(",")
+    : DEFAULT_POLYGON_RPC_FALLBACK_URLS;
+  const urls = [];
+  for (const candidate of [primary, ...fallbacks].map((value) => value.trim()).filter(Boolean)) {
+    let parsed;
+    try {
+      parsed = new URL(candidate);
+    } catch {
+      continue;
+    }
+    if (parsed.protocol === "https:" && !urls.includes(parsed.href)) urls.push(parsed.href);
+  }
+  return urls;
+}
+
 // Public RPC endpoints drop isolated requests. Retry the network handshake with
-// a fresh provider before reporting RPC_CONNECTION_FAILED.
-export async function connectPolygonProvider(rpcUrl, {
+// a fresh provider, then move to the next endpoint, before reporting
+// RPC_CONNECTION_FAILED. An endpoint on another network is skipped.
+export async function connectPolygonProvider(rpcUrls, {
   createProvider = (url) => new ethers.JsonRpcProvider(url),
   wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
   delaysMs = RPC_CONNECTION_DELAYS_MS,
+  expectedChainId,
 } = {}) {
   let lastError;
 
-  for (const delay of delaysMs) {
-    if (delay > 0) await wait(delay);
-    const provider = createProvider(rpcUrl);
+  for (const rpcUrl of [rpcUrls].flat()) {
+    for (const delay of delaysMs) {
+      if (delay > 0) await wait(delay);
+      const provider = createProvider(rpcUrl);
 
-    try {
-      const network = await provider.getNetwork();
-      return { provider, network };
-    } catch (error) {
-      lastError = error;
-      provider.destroy?.();
+      try {
+        const network = await provider.getNetwork();
+        if (expectedChainId !== undefined && network.chainId !== expectedChainId) {
+          lastError = diagnosticError("WRONG_NETWORK");
+          provider.destroy?.();
+          break;
+        }
+        return { provider, network };
+      } catch (error) {
+        lastError = error;
+        provider.destroy?.();
+      }
     }
   }
 
+  if (lastError?.code === "WRONG_NETWORK") throw lastError;
   throw diagnosticError("RPC_CONNECTION_FAILED", lastError);
 }
 
@@ -262,7 +296,9 @@ async function createRegistryContext() {
     throw diagnosticError("SERVER_WALLET_ADDRESS_INVALID");
   }
 
-  const { provider, network } = await connectPolygonProvider(rpcUrl);
+  const { provider, network } = await connectPolygonProvider(polygonRpcUrls(), {
+    expectedChainId: POLYGON_CHAIN_ID,
+  });
 
   if (network.chainId !== POLYGON_CHAIN_ID) {
     throw diagnosticError("WRONG_NETWORK");
