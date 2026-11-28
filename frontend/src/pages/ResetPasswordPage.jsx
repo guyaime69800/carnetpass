@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../services/supabaseClient";
+import { pendingMfaFactor, verifyMfaCode } from "../services/mfaService";
 import PasswordField from "../components/PasswordField";
 import TurnstileWidget from "../components/TurnstileWidget";
 import { captchaReady } from "../lib/turnstile.js";
@@ -18,6 +19,17 @@ export default function ResetPasswordPage() {
   const [done, setDone] = useState(false);
   const captcha = useRef(null);
   const [captchaToken, setCaptchaToken] = useState("");
+  const [mfaFactorId, setMfaFactorId] = useState(null);
+  const [mfaCode, setMfaCode] = useState("");
+
+  useEffect(() => {
+    if (!session) return undefined;
+    let active = true;
+    pendingMfaFactor()
+      .then((factorId) => { if (active) setMfaFactorId(factorId); })
+      .catch(() => { if (active) setError("Contrôle de sécurité indisponible. Rechargez la page."); });
+    return () => { active = false; };
+  }, [session]);
 
   useEffect(() => {
     let active = true;
@@ -113,9 +125,25 @@ export default function ResetPasswordPage() {
       return;
     }
 
+    if (mfaFactorId && !/^\d{6}$/.test(mfaCode)) {
+      setError("Saisissez le code à six chiffres de votre application d’authentification.");
+      return;
+    }
+
     setBusy(true);
 
     try {
+      if (mfaFactorId) {
+        try {
+          await verifyMfaCode(mfaFactorId, mfaCode);
+        } catch (mfaError) {
+          setError(mfaError.message);
+          setMfaCode("");
+          return;
+        }
+        setMfaFactorId(null);
+      }
+
       const { error: updateError } =
         await supabase.auth.updateUser({ password });
 
@@ -123,6 +151,7 @@ export default function ResetPasswordPage() {
 
       setPassword("");
       setConfirmation("");
+      setMfaCode("");
       setDone(true);
 
       const { error: signOutError } =
@@ -185,6 +214,24 @@ export default function ResetPasswordPage() {
                 disabled={busy}
                 required
             />
+
+            {mfaFactorId && (
+              <label className="auth-field">
+                <span>Code de votre application d’authentification</span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  pattern="[0-9]{6}"
+                  maxLength={6}
+                  value={mfaCode}
+                  onChange={(event) => setMfaCode(event.target.value.replace(/[^0-9]/g, ""))}
+                  disabled={busy}
+                  required
+                />
+                <small>Votre compte est protégé par la double authentification : saisissez le code à six chiffres affiché dans votre application.</small>
+              </label>
+            )}
 
             <button className="auth-submit" disabled={busy} type="submit">
               {busy ? "Enregistrement…" : "Changer mon mot de passe"}

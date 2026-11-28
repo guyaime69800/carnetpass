@@ -29,6 +29,19 @@ export async function loadMfaSecurity(accessToken) {
   };
 }
 
+// Après un lien de réinitialisation, la session est de niveau aal1 : Supabase refuse
+// de changer le mot de passe d'un compte protégé par la double authentification
+// tant que le code n'a pas été validé (aal2).
+export async function pendingMfaFactor() {
+  const [factors, assurance] = await Promise.all([
+    supabase.auth.mfa.listFactors(),
+    supabase.auth.mfa.getAuthenticatorAssuranceLevel(),
+  ]);
+  if (factors.error || assurance.error) throw new Error("Contrôle de sécurité indisponible. Réessayez.");
+  const factor = (factors.data?.totp || []).find((item) => item.status === "verified");
+  return factor && assurance.data?.currentLevel !== "aal2" ? factor.id : null;
+}
+
 export async function verifyMfaCode(factorId, code) {
   if (!/^\d{6}$/.test(code)) throw new Error("Saisissez le code à six chiffres de votre application.");
   const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId, code });
