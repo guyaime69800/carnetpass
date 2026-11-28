@@ -87,7 +87,8 @@ export default async function middleware(request) {
   response.headers.set('Content-Security-Policy', "frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://checkout.stripe.com https://billing.stripe.com");
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('Referrer-Policy', 'no-referrer');
+  // strict-origin : Turnstile (captcha) doit connaître le domaine ; seule l'origine est transmise, jamais le chemin.
+  response.headers.set('Referrer-Policy', 'strict-origin');
   response.headers.set('Permissions-Policy', 'camera=(self), microphone=(), geolocation=()');
   // Non-public pages, callbacks, QR tokens and all Preview responses stay out of search.
   const path = new URL(request.url).pathname.replace(/\/+$/, "") || "/";

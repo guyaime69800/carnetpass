@@ -44,7 +44,7 @@ test("maintenance leaves only exact public pages open, preserves API/space restr
       assert.equal(response.status, 200, path);
       assert.equal(response.headers.get('X-Frame-Options'), 'DENY');
       assert.equal(response.headers.get('X-Content-Type-Options'), 'nosniff');
-      assert.equal(response.headers.get('Referrer-Policy'), 'no-referrer');
+      assert.equal(response.headers.get('Referrer-Policy'), 'strict-origin');
       assert.match(response.headers.get('Content-Security-Policy'), /frame-ancestors 'none'/);
       assert.match(response.headers.get("Cache-Control"), /no-store/);
     }
