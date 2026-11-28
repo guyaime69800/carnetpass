@@ -2,11 +2,11 @@
 
 Le fournisseur de CarnetPass est **Guy AIME — entrepreneur individuel (EI)**, sous le régime de la micro-entreprise, immatriculé au **RNE le 9 octobre 2026**, **SIREN 533 656 393**, **SIRET 533 656 393 00055**, établi à l’adresse **Avenue des Temps Modernes, 69800 Saint-Priest, France**. Contact professionnel : [contact@carnetpass.fr](mailto:contact@carnetpass.fr).
 
-L’ouverture commerciale est en préparation. Aucun paiement n’est actuellement proposé sur CarnetPass. Les présentes conditions décrivent l’offre prévue ; toute souscription nécessitera un récapitulatif de commande et une acceptation expresse lors de l’ouverture du service.
+L’abonnement CarnetPass Pro et la recharge de crédits sont proposés à la vente sur CarnetPass. Toute souscription nécessite un récapitulatif de commande et une acceptation expresse des présentes conditions.
 
 ## 2. Clients et commande
 
-L’offre est destinée aux professionnels pour leur activité. Chaque compte est personnel. À l’ouverture de la vente, le représentant habilité devra accepter expressément la version des CGV et vérifier un récapitulatif indiquant les utilisateurs, le prix, les taxes, la durée et les quotas. Aucun paiement réel n’est possible sur la seule base de cette page.
+L’offre est destinée aux professionnels pour leur activité. Chaque compte est personnel. Avant tout paiement, le représentant habilité accepte expressément la version en vigueur des CGV et vérifie un récapitulatif indiquant le prix, les taxes, la durée et les quotas.
 
 ## 3. Essai gratuit
 
@@ -30,13 +30,13 @@ Les comptes supplémentaires ne sont pas proposés. Chaque abonnement Pro corres
 
 La recharge proposée est de **100 crédits pour 10 €**, TVA non applicable, article 293 B du CGI. Un crédit sert à une question à l’assistant, documentaire ou Web. Les crédits s’ajoutent au solde, ne se réinitialisent pas avec le quota mensuel et sont utilisés après les questions incluses. Une réponse indisponible donnant lieu au remboursement technique du crédit ne le consomme pas définitivement.
 
-Une recharge ne remplace pas Pro, ne prolonge pas Découverte, n’augmente pas le quota quotidien de notices et n’achète pas de stockage. Les achats réels et prélèvements automatiques de recharges sont fermés. Les crédits achetés restent disponibles sans expiration tant que le compte existe. Ils sont conservés lors d’une interruption de l’abonnement et redeviennent utilisables à sa reprise. Ils ne permettent pas d’utiliser l’assistant sans abonnement actif.
+Une recharge ne remplace pas Pro, ne prolonge pas Découverte, n’augmente pas le quota quotidien de notices et n’achète pas de stockage. Une recharge est un achat ponctuel ; aucune recharge n’est prélevée automatiquement. Les crédits achetés restent disponibles sans expiration tant que le compte existe. Ils sont conservés lors d’une interruption de l’abonnement et redeviennent utilisables à sa reprise. Ils ne permettent pas d’utiliser l’assistant sans abonnement actif.
 
-## 6. Paiement, durée et résiliation à l’ouverture
+## 6. Paiement, durée et résiliation
 
-L’offre mensuelle prévue sera payable d’avance, avec renouvellement mensuel uniquement si annoncé et accepté à la commande. Stripe traitera les paiements ; CarnetPass ne conserve pas les numéros complets des cartes. Montant, taxes et prochaine échéance devront être affichés avant validation. Une facture sera fournie pour les paiements réels.
+L’abonnement mensuel est payable d’avance et renouvelé chaque mois jusqu’à résiliation. Stripe traite les paiements ; CarnetPass ne conserve pas les numéros complets des cartes. Le montant, les taxes et la prochaine échéance sont affichés avant validation. Une facture est fournie pour chaque paiement.
 
-Le client pourra demander la résiliation à contact@carnetpass.fr en identifiant son entreprise et l’abonnement. Elle prendra effet à la fin de la période payée et empêchera le renouvellement suivant. Les droits légaux à remboursement, notamment en cas de manquement du fournisseur, restent préservés. Les modalités opérationnelles seront confirmées avant ouverture. La suppression du compte ne remplace pas une résiliation.
+Le responsable peut résilier depuis les paramètres du compte, par le portail sécurisé Stripe, ou en écrivant à contact@carnetpass.fr. La résiliation prend effet à la fin de la période payée et empêche le renouvellement suivant. Les droits légaux à remboursement, notamment en cas de manquement du fournisseur, restent préservés. La suppression du compte ne remplace pas une résiliation.
 
 Une augmentation de prix d’un abonnement existant sera communiquée au moins 30 jours avant une échéance future, avec possibilité de résilier avant application.
 

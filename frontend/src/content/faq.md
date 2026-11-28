@@ -18,7 +18,7 @@ Aucune carte bancaire n’est nécessaire et l’essai ne devient pas automatiqu
 
 ## À quoi sert Recharger CarnetPass ?
 
-La recharge ajoute des crédits pour les questions à l’assistant sur les documents et les recherches Web. Elle ne prolonge pas l’essai, ne remplace pas Pro et n’augmente pas le plafond quotidien de notices. Les achats réels ne sont pas encore ouverts. Les commandes seront disponibles à l’ouverture commerciale.
+La recharge ajoute des crédits pour les questions à l’assistant sur les documents et les recherches Web. Elle ne prolonge pas l’essai, ne remplace pas Pro et n’augmente pas le plafond quotidien de notices. La recharge de 100 crédits à 10 € s’achète depuis l’application, avec un abonnement Pro actif.
 
 ## Une information manque ?
 

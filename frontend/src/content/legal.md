@@ -11,7 +11,7 @@ CarnetPass est le nom du service de documentation et de carnets d’entretien é
 
 Le régime fiscal déclaré est la franchise en base de TVA : **TVA non applicable, article 293 B du CGI**.
 
-L’accès à l’application reste temporairement fermé pendant sa maintenance. La vente réelle des abonnements et recharges n’est pas encore ouverte ; la publication des informations de l’entreprise ne vaut pas ouverture commerciale.
+L’abonnement Pro et les recharges sont vendus en ligne aux professionnels, selon les CGV B2B.
 
 ## Hébergement
 
