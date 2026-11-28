@@ -32,7 +32,7 @@ Les comptes, carnets et pièces sont conservés pendant leur utilisation pour le
 
 Les compteurs de consultations de notices expirent au plus tard 48 heures après leur dernière réservation ; les reçus de chargement après 15 minutes. Les compteurs mensuels de l’assistant expirent un jour après leur échéance. Les crédits ajoutés et preuves d’attribution sont conservés pour gérer le solde et éviter une double attribution.
 
-La base de données fait l’objet de sauvegardes quotidiennes automatiques conservées 7 jours par Supabase. CarnetPass ne conserve pas de journal applicatif chez son hébergeur ; les prestataires conservent leurs propres journaux techniques selon leurs contrats. Les empreintes anti-abus et demandes commerciales sont conservées tant qu’elles restent utiles à leur finalité ; aucun effacement automatique non mis en œuvre n’est promis. Les factures et pièces comptables sont conservées 10 ans (article L123-22 du Code de commerce).
+CarnetPass ne conserve pas de journal applicatif chez son hébergeur ; les prestataires conservent leurs propres journaux techniques selon leurs contrats. Les empreintes anti-abus et demandes commerciales sont conservées tant qu’elles restent utiles à leur finalité ; aucun effacement automatique non mis en œuvre n’est promis. Les factures et pièces comptables sont conservées 10 ans (article L123-22 du Code de commerce).
 
 ## Vos droits
 
